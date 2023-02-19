@@ -14,14 +14,12 @@ const app = express();
 app.use(cookieParser());
 
 // To access private variables we added the path to file
-dotenv.config({ path: './config/config.env' });
+dotenv.config({ path: './src/config/config.env' });
 const port = process.env.PORT;
 
 // To parse json data
 app.use(express.json());
 
-// To avoid deprication warning
-mongoose.set('strictQuery', false);
 
 // Database Connection
 Connection();
