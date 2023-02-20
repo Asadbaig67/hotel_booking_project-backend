@@ -1,14 +1,15 @@
-const mongoose = require("mongoose");
-// To avoid deprication warning
+import mongoose from "mongoose";
 mongoose.set("strictQuery", false);
 
-const Connection = async () => {
+const connect = async (db) => {
   try {
-    await mongoose.connect(process.env.DATABASE);
-    console.log("Connected to db");
+    const result = await mongoose.connect(db);
+    if (result) {
+      console.log("Connected to db");
+    }
   } catch (error) {
-    console.log(error);
+    console.log(error, "Not connected");
   }
 };
 
-module.exports = Connection;
+export default connect;
