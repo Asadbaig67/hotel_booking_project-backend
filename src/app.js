@@ -10,31 +10,15 @@ import cors from "cors";
 dotenv.config({ path: "./src/config/config.env" });
 const db = process.env.DATABASE;
 connect(db);
-
-// const express = require('express');
-// const mongoose = require('mongoose');
-// const dotenv = require('dotenv');
-// const Connection = require('./db/connection');
-// const cookieParser = require('cookie-parser');
-// const user = require('./router/auth');
-// const Hotel = require('./router/hotel_api');
-// const Parking = require('./router/parking_api');
-// const Room = require('./router/room_api');
-// const cors = require('cors');
 const app = express();
 
 // To parse cookies
 app.use(cookieParser());
 
-// To access private variables we added the path to file
-// dotenv.config({ path: "./src/config/config.env" });
 const port = process.env.PORT;
 
 // To parse json data
 app.use(express.json());
-
-// Database Connection
-// Connection();
 
 // To avoid cors error
 app.use(cors());
@@ -45,10 +29,10 @@ app.get("/", (req, res) => {
 });
 
 // To access private routes
-app.use(user);
-app.use(Hotel);
-app.use(Parking);
-app.use(Room);
+app.use("/user", user);
+app.use("/hotel", Hotel);
+app.use("/parking", Parking);
+app.use("/room", Room);
 
 // To listen to port
 app.listen(port, () => {

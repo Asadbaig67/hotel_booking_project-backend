@@ -1,3 +1,5 @@
+import Parking from "../models/Parking.js";
+
 export const addParking = async (req, res) => {
   try {
     let parking_obj = {};
@@ -50,5 +52,11 @@ export const addParking = async (req, res) => {
 
 export const getAllParking = async (req, res) => {
   let result = await Parking.find();
+  res.send(result);
+};
+
+export const getParkingByCity = async (req, res) => {
+  let city = req.params.city;
+  let result = await Parking.findOne({ city });
   res.send(result);
 };

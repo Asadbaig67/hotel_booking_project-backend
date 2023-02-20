@@ -1,7 +1,11 @@
 import express from "express";
-import { addParking, getAllParking } from "../controller/parking.js";
+import {
+  addParking,
+  getAllParking,
+  getParkingByCity,
+} from "../controller/parking.js";
 // import Router from 'express';
-import Parking from "../models/Parking.js";
+
 
 // const express = require('express');
 const Router = express.Router();
@@ -10,6 +14,7 @@ const Router = express.Router();
 
 Router.post("/addparking", addParking);
 Router.get("/getallparkings", getAllParking);
+Router.get("/getParking/:city", getParkingByCity);
 
 // module.exports = Router;
 export default Router;

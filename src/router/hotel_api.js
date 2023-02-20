@@ -1,7 +1,7 @@
 import express from "express";
 import { addHotel, getAllHotels, getHotelByCity } from "../controller/hotel.js";
 // import Router from 'express';
-import Hotel from "../models/Hotel.js";
+
 // const express = require('express');
 const Router = express.Router();
 
