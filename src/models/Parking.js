@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 
-// const mongoose = require('mongoose');
-
 // creating a schema
 const parkingschema = new mongoose.Schema({
   name: {

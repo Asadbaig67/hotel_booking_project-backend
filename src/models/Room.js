@@ -1,22 +1,7 @@
 import mongoose from "mongoose";
 
-// const mongoose = require('mongoose');
-//Date schema
-const date = new mongoose.Schema({
-  start_date: {
-    type: Date,
-  },
-  end_date: {
-    type: Date,
-  },
-});
-
 // creating a schema
 const roomschema = new mongoose.Schema({
-  room_no: {
-    type: Number,
-    require: true,
-  },
   type: {
     type: String,
     required: true,
@@ -28,7 +13,6 @@ const roomschema = new mongoose.Schema({
   reserve_date_start: {
     type: Date,
   },
-
   reserve_date_end: {
     type: Date,
   },
@@ -48,6 +32,7 @@ const roomschema = new mongoose.Schema({
       },
     },
   ],
+  room_no: [{ number: Number, unavailableDates: { type: [Date] } }],
 });
 
 // createing a new collection

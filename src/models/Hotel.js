@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 
-// const mongoose = require('mongoose');
-
 // creating a schema
 const hotelschema = new mongoose.Schema({
   name: {
@@ -14,7 +12,6 @@ const hotelschema = new mongoose.Schema({
   },
   rating: {
     type: Number,
-    required: true,
   },
   description: {
     type: String,
@@ -36,10 +33,16 @@ const hotelschema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  area: {
+  address: {
     type: String,
     required: true,
   },
+  rooms: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Room",
+    },
+  ],
 });
 
 // createing a new collection

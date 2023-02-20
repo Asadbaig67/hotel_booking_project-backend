@@ -8,8 +8,12 @@ const Router = express.Router();
 // const Hotel = require('../models/Hotel');
 
 Router.post("/addhotel", addHotel);
+
 Router.get("/getallhotels", getAllHotels);
+
 Router.get("/gethotel/:city", getHotelByCity);
+
+
 
 // module.exports = Router;
 
