@@ -31,7 +31,7 @@ app.get("/", (req, res) => {
 
 // To access private routes
 app.use("/user", user);
-app.use("/hotel", Hotel);
+app.use("/hotels", Hotel);
 app.use("/parking", Parking);
 app.use("/room", Room);
 app.use("/hotelandparking", HotelandParking);

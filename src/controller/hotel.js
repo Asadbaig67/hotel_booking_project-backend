@@ -54,7 +54,9 @@ export const getAllHotels = async (req, res) => {
 };
 
 export const getHotelByCity = async (req, res) => {
-  let city = req.params.city;
+  let city = req.query.city;
+  let dates = req.query.dates;
+  let options = req.query.options;
   let result = await Hotel.find({ city });
-  res.send(result);
+  res.send(dates);
 };
