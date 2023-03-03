@@ -67,7 +67,20 @@ const HotelandParkingschema = new mongoose.Schema({
                 required: true
             }
         }
-    ]
+    ],
+    // parking_city: {
+    //     type: String,
+    //     required: true
+    // },
+    // parking_country: {
+    //     type: String,
+    //     required: true
+
+    // },
+    // parking_address: {
+    //     type: String,
+    //     required: true
+    // },
     
 });
 
