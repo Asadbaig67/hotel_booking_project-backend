@@ -6,7 +6,7 @@ export const addhotelandparking = async (req, res) => {
         let hotel_parking = {}
 
         // Check if all fields are filled
-        if (req.body.hotel_name && req.body.hotel_title && req.body.hotel_rating && req.body.hotel_description && req.body.hotel_photos && req.body.hotel_city && req.body.hotel_country && req.body.hotel_address && req.body.parking_name && req.body.parking_title && req.body.parking_total_slots && req.body.parking_booked_slots && req.body.parking_description && req.body.parking_photos && req.body.parking_city && req.body.parking_country && req.body.parking_address) {
+        if (req.body.hotel_name && req.body.hotel_title && req.body.hotel_rating && req.body.hotel_description && req.body.hotel_photos && req.body.hotel_city && req.body.hotel_country && req.body.hotel_address && req.body.parking_name && req.body.parking_title && req.body.parking_total_slots && req.body.parking_booked_slots && req.body.parking_description && req.body.parking_photos ) {
 
             // Hotel
             hotel_parking.hotel_name = req.body.hotel_name;
@@ -25,9 +25,7 @@ export const addhotelandparking = async (req, res) => {
             hotel_parking.parking_booked_slots = req.body.parking_booked_slots;
             hotel_parking.parking_description = req.body.parking_description;
             hotel_parking.parking_photos = req.body.parking_photos;
-            hotel_parking.parking_city = req.body.parking_city;
-            hotel_parking.parking_country = req.body.parking_country;
-            hotel_parking.parking_address = req.body.parking_address;
+
 
         }
         else {

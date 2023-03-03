@@ -3,7 +3,11 @@ import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const userschema = new mongoose.Schema({
-  name: {
+  firstName: {
+    type: String,
+    required: true,
+  },
+  lastName: {
     type: String,
     required: true,
   },
@@ -11,11 +15,7 @@ const userschema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  phone: {
-    type: Number,
-    required: true,
-  },
-  work: {
+  account_type: {
     type: String,
     required: true,
   },
@@ -46,6 +46,7 @@ userschema.pre("save", async function (next) {
   next();
 });
 
+// generating token
 userschema.methods.generatetoken = async function () {
   try {
     let token = jwt.sign({ _id: this._id }, process.env.SECRET_KEY);
