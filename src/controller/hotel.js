@@ -1,4 +1,5 @@
 import Hotel from "../models/Hotel.js";
+import Room from "../models/Room.js";
 
 export const addHotel = async (req, res) => {
   try {
@@ -56,7 +57,17 @@ export const getAllHotels = async (req, res) => {
 export const getHotelByCity = async (req, res) => {
   let city = req.query.city;
   let dates = req.query.dates;
-  let options = req.query.options;
+  let adult = req.query.adult;
+  let children = req.query.children;
+  let room = req.query.rooms;
+  console.log(adult);
   let result = await Hotel.find({ city });
-  res.send(dates);
+  let rooms = [];
+  result.map(async (hotel) => {
+    let room = await Room.find({ hotel_id: hotel._id });
+    rooms.push(room);
+  });
+  res.send(
+    `City: ${city} Dates: ${dates} Adult: ${adult} Children: ${children} Room: ${room}`
+  );
 };
