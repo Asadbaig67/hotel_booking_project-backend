@@ -11,7 +11,7 @@ Router.post("/addhotel", addHotel);
 
 Router.get("/getallhotels", getAllHotels);
 
-Router.get("/gethotel/:city", getHotelByCity);
+Router.get("/search", getHotelByCity);
 
 
 
