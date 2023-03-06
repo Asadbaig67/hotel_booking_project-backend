@@ -8,20 +8,20 @@ export const addHotel = async (req, res) => {
       req.body.name &&
       req.body.title &&
       req.body.rating &&
-      req.body.description &&
+      req.body.desc &&
       req.body.photos &&
       req.body.city &&
       req.body.country &&
-      req.body.area
+      req.body.address
     ) {
       hotel_obj.name = req.body.name;
       hotel_obj.title = req.body.title;
       hotel_obj.rating = req.body.rating;
-      hotel_obj.description = req.body.description;
+      hotel_obj.desc = req.body.desc;
       hotel_obj.photos = req.body.photos;
       hotel_obj.city = req.body.city;
       hotel_obj.country = req.body.country;
-      hotel_obj.area = req.body.area;
+      hotel_obj.address = req.body.address;
     } else {
       return res.status(422).json({ error: "All fields are required! " });
     }
@@ -30,7 +30,7 @@ export const addHotel = async (req, res) => {
     const exists = await Hotel.findOne({
       name: hotel_obj.name,
       city: hotel_obj.city,
-      area: hotel_obj.area,
+      address: hotel_obj.address,
     });
     if (exists) {
       return res.status(422).json({ error: "Hotel already exists" });
@@ -59,15 +59,33 @@ export const getHotelByCity = async (req, res) => {
   let dates = req.query.dates;
   let adult = req.query.adult;
   let children = req.query.children;
-  let room = req.query.rooms;
+  let singleRoom = req.query.singleRoom;
+  let twinRoom = req.query.twinRoom;
+  let familyRoom = req.query.familyRoom;
   console.log(adult);
-  let result = await Hotel.find({ city });
+  let cityHotel = await Hotel.find({ city });
   let rooms = [];
-  result.map(async (hotel) => {
-    let room = await Room.find({ hotel_id: hotel._id });
-    rooms.push(room);
+  let roomsArr = [];
+  cityHotel.map(async (hotel) => {
+    await hotel.rooms.map(async (room) => {
+      const roomData = await Room.find({ _id: room });
+      rooms.push(roomData);
+    });
+    roomsArr.push(rooms);
+  });
+
+  roomsArr.map(async (room) => {
+    await room.map(async (room) => {
+      //comapre dates here
+      room.room_no.map((roomNo) => {
+        roomNo.unavailableDates.map((date) => {
+          console.log(date);
+        });
+      });
+    });
   });
   res.send(
-    `City: ${city} Dates: ${dates} Adult: ${adult} Children: ${children} Room: ${room}`
+    roomsArr
+    // `City: ${city} Dates: ${dates} Adult: ${adult} Children: ${children} Single Room: ${singleRoom} Twin Room: ${twinRoom} Family Room: ${familyRoom}`
   );
 };

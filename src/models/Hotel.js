@@ -13,16 +13,13 @@ const hotelschema = new mongoose.Schema({
   rating: {
     type: Number,
   },
-  description: {
+  desc: {
     type: String,
     required: true,
   },
   photos: [
     {
-      pic_url: {
-        type: String,
-        required: true,
-      },
+      type: String,
     },
   ],
   city: {
