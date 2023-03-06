@@ -6,27 +6,25 @@ export const addRoom = async (req, res) => {
     //new Date(year, month, day, hours, minutes, seconds, milliseconds)
 
     if (
-      req.body.room_no &&
       req.body.type &&
       req.body.price &&
-      req.body.available &&
       req.body.description &&
-      req.body.photos
+      req.body.photos &&
+      req.body.room_no
     ) {
-      (room_obj.room_no = req.body.room_no),
-        (room_obj.type = req.body.type),
+      (room_obj.type = req.body.type),
         (room_obj.price = req.body.price),
-        (room_obj.available = req.body.available),
         (room_obj.description = req.body.description),
-        (room_obj.photos = req.body.photos);
+        (room_obj.photos = req.body.photos),
+        (room_obj.room_no = req.body.room_no);
     } else {
       return res.status(422).json({ error: "All fields are required! " });
     }
 
-    const exists = await Room.findOne({ room_no: room_obj.room_no });
-    if (exists) {
-      return res.status(422).json({ error: "Room already exists" });
-    }
+    // const exists = await Room.findOne({ room_no: room_obj.room_no });
+    // if (exists) {
+    //   return res.status(422).json({ error: "Room already exists" });
+    // }
 
     const new_room = new Room(room_obj);
     new_room.markModified("reserve_date_start");

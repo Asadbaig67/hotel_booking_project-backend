@@ -20,10 +20,7 @@ export const addhotelandparking = async (req, res) => {
       req.body.parking_total_slots &&
       req.body.parking_booked_slots &&
       req.body.parking_description &&
-      req.body.parking_photos &&
-      req.body.parking_city &&
-      req.body.parking_country &&
-      req.body.parking_address
+      req.body.parking_photos
     ) {
       // Hotel
       hotel_parking.hotel_name = req.body.hotel_name;
@@ -42,9 +39,7 @@ export const addhotelandparking = async (req, res) => {
       hotel_parking.parking_booked_slots = req.body.parking_booked_slots;
       hotel_parking.parking_description = req.body.parking_description;
       hotel_parking.parking_photos = req.body.parking_photos;
-      hotel_parking.parking_city = req.body.parking_city;
-      hotel_parking.parking_country = req.body.parking_country;
-      hotel_parking.parking_address = req.body.parking_address;
+
     } else {
       // If any field is missing
       return res.status(422).json({ error: "All fields are required! " });
@@ -94,3 +89,39 @@ export const gethotelandparkingbyCity = async (req, res) => {
   let result = await HotelandParking.find({ city });
   res.send(result);
 };
+
+// Update Hotel And Parking
+export const updateHotelAndParking = async (req, res) => {
+
+  try {
+    const result = await HotelandParking.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
+    if (result) {
+      res.status(200).json({ message: "Hotel And Parking Updated Successfully" })
+    }
+    else {
+      res.status(404).json({ message: "Hotel And Parking Not Found" })
+    }
+  } catch (error) {
+    console.log(error);
+
+  }
+
+
+}
+
+// Delete Hotel And Parking
+export const deleteHotelAndParking = async (req, res) => {
+  try {
+    const result = await HotelandParking.findOneAndDelete({ _id: req.params.id });
+    if (result) {
+      res.status(200).json({ message: "Hotel And Parking Deleted Successfully" })
+    }
+    else {
+      res.status(404).json({ message: "Hotel And Parking Not Found" })
+    }
+  } catch (error) {
+    console.log(error);
+
+  }
+
+}

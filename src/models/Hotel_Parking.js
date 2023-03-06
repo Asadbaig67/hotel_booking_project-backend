@@ -21,10 +21,7 @@ const HotelandParkingschema = new mongoose.Schema({
     },
     hotel_photos: [
         {
-            pic_url: {
-                type: String,
-                required: true
-            }
+            type: String
         }
     ],
     hotel_city: {
@@ -62,26 +59,9 @@ const HotelandParkingschema = new mongoose.Schema({
     },
     parking_photos: [
         {
-            pic_url: {
-                type: String,
-                required: true
-            }
+            type: String,
         }
     ],
-    // parking_city: {
-    //     type: String,
-    //     required: true
-    // },
-    // parking_country: {
-    //     type: String,
-    //     required: true
-
-    // },
-    // parking_address: {
-    //     type: String,
-    //     required: true
-    // },
-    
 });
 
 // createing a new collection

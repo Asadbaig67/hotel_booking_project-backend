@@ -3,6 +3,8 @@ import {
   addParking,
   getAllParking,
   getParkingByCity,
+  updateParking,
+  deleteParking,
 } from "../controller/parking.js";
 // import Router from 'express';
 
@@ -15,6 +17,8 @@ const Router = express.Router();
 Router.post("/addparking", addParking);
 Router.get("/getallparkings", getAllParking);
 Router.get("/getParking/:city", getParkingByCity);
+Router.patch("/updateparking/:id", updateParking);
+Router.delete("/deleteparking/:id", deleteParking);
 
 // module.exports = Router;
 export default Router;

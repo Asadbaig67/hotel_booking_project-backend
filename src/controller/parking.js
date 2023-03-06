@@ -60,3 +60,37 @@ export const getParkingByCity = async (req, res) => {
   let result = await Parking.findOne({ city });
   res.send(result);
 };
+
+export const updateParking = async (req, res) => {
+
+  try {
+    const result = await Parking.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
+    if (result) {
+      res.status(200).json({ message: "Parking Updated Successfully" })
+    }
+    else {
+      res.status(404).json({ message: "Parking Not Found" })
+    }
+  } catch (error) {
+    console.log(error);
+
+  }
+
+
+}
+
+export const deleteParking = async (req, res) => {
+  try {
+    const result = await Parking.findOneAndDelete({ _id: req.params.id });
+    if (result) {
+      res.status(200).json({ message: "Parking Deleted Successfully" })
+    }
+    else {
+      res.status(404).json({ message: "Parking Not Found" })
+    }
+  } catch (error) {
+    console.log(error);
+
+  }
+
+}
