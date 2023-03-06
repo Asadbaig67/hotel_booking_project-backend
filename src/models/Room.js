@@ -10,26 +10,13 @@ const roomschema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  reserve_date_start: {
-    type: Date,
-  },
-  reserve_date_end: {
-    type: Date,
-  },
-  available: {
-    type: Boolean,
-    required: true,
-  },
   description: {
     type: String,
     required: true,
   },
   photos: [
     {
-      pic_url: {
-        type: String,
-        required: true,
-      },
+      type: String,
     },
   ],
   room_no: [{ number: Number, unavailableDates: { type: [Date] } }],
