@@ -9,14 +9,12 @@ export const addRoom = async (req, res) => {
       req.body.room_no &&
       req.body.type &&
       req.body.price &&
-      req.body.available &&
       req.body.description &&
       req.body.photos
     ) {
       (room_obj.room_no = req.body.room_no),
         (room_obj.type = req.body.type),
         (room_obj.price = req.body.price),
-        (room_obj.available = req.body.available),
         (room_obj.description = req.body.description),
         (room_obj.photos = req.body.photos);
     } else {
