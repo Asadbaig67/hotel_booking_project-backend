@@ -62,21 +62,24 @@ export const getHotelByCity = async (req, res) => {
   let singleRoom = req.query.singleRoom;
   let twinRoom = req.query.twinRoom;
   let familyRoom = req.query.familyRoom;
-  console.log(adult);
   let cityHotel = await Hotel.find({ city });
   let rooms = [];
   let roomsArr = [];
-  cityHotel.map(async (hotel) => {
-    await hotel.rooms.map(async (room) => {
-      const roomData = await Room.find({ _id: room });
-      rooms.push(roomData);
-    });
-    roomsArr.push(rooms);
-  });
+
+  await Promise.all(
+    cityHotel.map(async (hotel) => {
+      await Promise.all(
+        hotel.rooms.map(async (room) => {
+          const roomData = await Room.findById(room.toString());
+          rooms = [...rooms, roomData];
+        })
+      );
+      roomsArr = [...roomsArr, rooms];
+    })
+  );
 
   roomsArr.map(async (room) => {
     await room.map(async (room) => {
-      //comapre dates here
       room.room_no.map((roomNo) => {
         roomNo.unavailableDates.map((date) => {
           console.log(date);
@@ -84,6 +87,7 @@ export const getHotelByCity = async (req, res) => {
       });
     });
   });
+
   res.send(
     roomsArr
     // `City: ${city} Dates: ${dates} Adult: ${adult} Children: ${children} Single Room: ${singleRoom} Twin Room: ${twinRoom} Family Room: ${familyRoom}`
