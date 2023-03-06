@@ -23,10 +23,8 @@ const parkingschema = new mongoose.Schema({
   },
   photos: [
     {
-      pic_url: {
-        type: String,
-        required: true,
-      },
+      type: String,
+      required: true,
     },
   ],
   city: {
@@ -37,7 +35,7 @@ const parkingschema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  area: {
+  address: {
     type: String,
     required: true,
   },

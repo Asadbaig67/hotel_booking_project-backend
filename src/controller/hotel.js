@@ -65,7 +65,9 @@ export const getHotelByCity = async (req, res) => {
   let cityHotel = await Hotel.find({ city });
   let rooms = [];
   let roomsArr = [];
+  let hotelRoom = [];
 
+  //To get rooms of hotels
   await Promise.all(
     cityHotel.map(async (hotel) => {
       await Promise.all(
@@ -78,15 +80,38 @@ export const getHotelByCity = async (req, res) => {
     })
   );
 
-  roomsArr.map(async (room) => {
-    await room.map(async (room) => {
-      room.room_no.map((roomNo) => {
-        roomNo.unavailableDates.map((date) => {
-          console.log(date);
-        });
-      });
-    });
-  });
+  //to combine hotel and its respective rooms
+  await Promise.all(
+    roomsArr.map(async (hotel, i) => {
+      // if (hotel.length > 0)
+      hotelRoom = [...hotelRoom, { hotel: cityHotel[i], rooms: hotel }];
+    })
+  );
+
+  //to check if room is available or not
+  await Promise.all(hotelRoom.map(async (hotel) => {}));
+
+  await Promise.all(
+    roomsArr.map(async (room) => {
+      await Promise.all(
+        room.map(async (room) => {
+          await Promise.all(
+            room.room_no.map(async (roomNo) => {
+              await Promise.all(
+                roomNo.unavailableDates.map((date) => {
+                  // if (date[0] > dates[1] || date[1] < dates[0]) {
+                  //   console.log(roomNo.number, "available");
+                  // }
+                  console.log(date);
+                })
+              );
+              console.log("date 1 end");
+            })
+          );
+        })
+      );
+    })
+  );
 
   res.send(
     roomsArr
