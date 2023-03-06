@@ -86,3 +86,39 @@ export const gethotelandparkingbyCity = async (req, res) => {
   let result = await HotelandParking.find({ city });
   res.send(result);
 };
+
+// Update Hotel And Parking
+export const updateHotelAndParking = async (req, res) => {
+
+  try {
+    const result = await HotelandParking.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
+    if (result) {
+      res.status(200).json({ message: "Hotel And Parking Updated Successfully" })
+    }
+    else {
+      res.status(404).json({ message: "Hotel And Parking Not Found" })
+    }
+  } catch (error) {
+    console.log(error);
+
+  }
+
+
+}
+
+// Delete Hotel And Parking
+export const deleteHotelAndParking = async (req, res) => {
+  try {
+    const result = await HotelandParking.findOneAndDelete({ _id: req.params.id });
+    if (result) {
+      res.status(200).json({ message: "Hotel And Parking Deleted Successfully" })
+    }
+    else {
+      res.status(404).json({ message: "Hotel And Parking Not Found" })
+    }
+  } catch (error) {
+    console.log(error);
+
+  }
+
+}

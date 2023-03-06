@@ -3,12 +3,13 @@ import Room from "../models/Room.js";
 
 export const addHotel = async (req, res) => {
   try {
+
     let hotel_obj = {};
     if (
       req.body.name &&
       req.body.title &&
       req.body.rating &&
-      req.body.desc &&
+      req.body.description &&
       req.body.photos &&
       req.body.city &&
       req.body.country &&
@@ -17,7 +18,7 @@ export const addHotel = async (req, res) => {
       hotel_obj.name = req.body.name;
       hotel_obj.title = req.body.title;
       hotel_obj.rating = req.body.rating;
-      hotel_obj.desc = req.body.desc;
+      hotel_obj.description = req.body.description;
       hotel_obj.photos = req.body.photos;
       hotel_obj.city = req.body.city;
       hotel_obj.country = req.body.country;
@@ -26,7 +27,7 @@ export const addHotel = async (req, res) => {
       return res.status(422).json({ error: "All fields are required! " });
     }
 
-    //
+    
     const exists = await Hotel.findOne({
       name: hotel_obj.name,
       city: hotel_obj.city,
@@ -118,3 +119,41 @@ export const getHotelByCity = async (req, res) => {
     // `City: ${city} Dates: ${dates} Adult: ${adult} Children: ${children} Single Room: ${singleRoom} Twin Room: ${twinRoom} Family Room: ${familyRoom}`
   );
 };
+
+// Update Parking
+export const updateHotel = async (req, res) => {
+
+  try {
+    const result = await Hotel.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
+    if (result) {
+      res.status(200).json({ message: "Hotel Updated Successfully" })
+    }
+    else {
+      res.status(404).json({ message: "Hotel Not Found" })
+    }
+  } catch (error) {
+    console.log(error);
+
+  }
+
+
+}
+
+// Delete Parking
+export const deleteHotel = async (req, res) => {
+  try {
+    const result = await Hotel.findOneAndDelete({ _id: req.params.id });
+    if (result) {
+      res.status(200).json({ message: "Hotel Deleted Successfully" })
+    }
+    else {
+      res.status(404).json({ message: "Hotel Not Found" })
+    }
+  } catch (error) {
+    console.log(error);
+
+  }
+
+}
+
+

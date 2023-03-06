@@ -1,21 +1,20 @@
 import express from "express";
-import { addhotelandparking, getAllhotelandparkings, gethotelandparkingbyCity } from "../controller/hotelandparking.js"
-// import Router from 'express';
+import { addhotelandparking, getAllhotelandparkings, gethotelandparkingbyCity, updateHotelAndParking, deleteHotelAndParking } from "../controller/hotelandparking.js"
 
-// const express = require('express');
+
 const Router = express.Router();
 
-// const Hotel = require('../models/Hotel');
 
+// Add Hotel And Parking
 Router.post('/addhotelandparking', addhotelandparking);
-
+// Get All Hotel And Parking
 Router.get('/getallhotelandparkings', getAllhotelandparkings);
-
+// Get Hotel And Parking By Specific City
 Router.get('/gethotel/:city', gethotelandparkingbyCity);
+// Update Hotel And Parking
+Router.patch('/updatehotelandparking/:id', updateHotelAndParking);
+// Delete Hotel And Parking
+Router.delete('/deletehotelandparking/:id', deleteHotelAndParking);
 
-
-
-
-// module.exports = Router;
-
+// Exporting Router
 export default Router;
