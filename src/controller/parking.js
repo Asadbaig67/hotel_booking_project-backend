@@ -7,22 +7,20 @@ export const addParking = async (req, res) => {
       req.body.name &&
       req.body.title &&
       req.body.total_slots &&
-      req.body.booked_slots &&
       req.body.description &&
       req.body.photos &&
       req.body.city &&
       req.body.country &&
-      req.body.area
+      req.body.address
     ) {
       parking_obj.name = req.body.name;
       parking_obj.title = req.body.title;
       parking_obj.total_slots = req.body.total_slots;
-      parking_obj.booked_slots = req.body.booked_slots;
       parking_obj.description = req.body.description;
       parking_obj.photos = req.body.photos;
       parking_obj.city = req.body.city;
       parking_obj.country = req.body.country;
-      parking_obj.area = req.body.area;
+      parking_obj.address = req.body.address;
     } else {
       return res.status(422).json({ error: "All fields are required! " });
     }

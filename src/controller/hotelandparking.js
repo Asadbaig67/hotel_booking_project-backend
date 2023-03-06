@@ -18,12 +18,8 @@ export const addhotelandparking = async (req, res) => {
       req.body.parking_name &&
       req.body.parking_title &&
       req.body.parking_total_slots &&
-      req.body.parking_booked_slots &&
       req.body.parking_description &&
-      req.body.parking_photos &&
-      req.body.parking_city &&
-      req.body.parking_country &&
-      req.body.parking_address
+      req.body.parking_photos
     ) {
       // Hotel
       hotel_parking.hotel_name = req.body.hotel_name;
@@ -39,12 +35,8 @@ export const addhotelandparking = async (req, res) => {
       hotel_parking.parking_name = req.body.parking_name;
       hotel_parking.parking_title = req.body.parking_title;
       hotel_parking.parking_total_slots = req.body.parking_total_slots;
-      hotel_parking.parking_booked_slots = req.body.parking_booked_slots;
       hotel_parking.parking_description = req.body.parking_description;
       hotel_parking.parking_photos = req.body.parking_photos;
-      hotel_parking.parking_city = req.body.parking_city;
-      hotel_parking.parking_country = req.body.parking_country;
-      hotel_parking.parking_address = req.body.parking_address;
     } else {
       // If any field is missing
       return res.status(422).json({ error: "All fields are required! " });
