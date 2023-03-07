@@ -5,20 +5,24 @@ import {
   getParkingByCity,
   updateParking,
   deleteParking,
+  getParkingBySearch,
 } from "../controller/parking.js";
-// import Router from 'express';
 
 
-// const express = require('express');
 const Router = express.Router();
 
-// const Parking = require('../models/Parking');
 
+// Add Parking Route
 Router.post("/addparking", addParking);
+// Get Parking By Search Route
+Router.get("/getparkingbysearch", getParkingBySearch);
+// Get All Parking Route
 Router.get("/getallparkings", getAllParking);
+// Get Parking By City Route
 Router.get("/getParking/:city", getParkingByCity);
+// Update Parking Route
 Router.patch("/updateparking/:id", updateParking);
+// Delete Parking Route
 Router.delete("/deleteparking/:id", deleteParking);
 
-// module.exports = Router;
 export default Router;

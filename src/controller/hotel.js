@@ -27,7 +27,7 @@ export const addHotel = async (req, res) => {
       return res.status(422).json({ error: "All fields are required! " });
     }
 
-    
+
     const exists = await Hotel.findOne({
       name: hotel_obj.name,
       city: hotel_obj.city,
@@ -56,6 +56,7 @@ export const getAllHotels = async (req, res) => {
 };
 
 export const getHotelByCity = async (req, res) => {
+
   let city = req.query.city;
   let dates = req.query.dates;
   let adult = req.query.adult;
@@ -69,17 +70,40 @@ export const getHotelByCity = async (req, res) => {
   let hotelRoom = [];
 
   //To get rooms of hotels
+  // await Promise.all(
+  //   cityHotel.map(async (hotel) => {
+  //     await Promise.all(
+  //       hotel.rooms.map(async (room) => {
+  //         const roomData = await Room.findById(room.toString());
+  //         rooms = [...rooms, roomData];
+  //       })
+  //     );
+  //     roomsArr = [...roomsArr, rooms];
+  //   })
+  // );
   await Promise.all(
-    cityHotel.map(async (hotel) => {
-      await Promise.all(
-        hotel.rooms.map(async (room) => {
-          const roomData = await Room.findById(room.toString());
-          rooms = [...rooms, roomData];
-        })
-      );
-      roomsArr = [...roomsArr, rooms];
+    cityHotel.map(async (hotel, i) => {
+      try {
+        const rooms = await Promise.all(
+          hotel.rooms.map(async (id) => {
+            return await Room.findById(id.toString());
+          })
+        );
+
+        roomsArr[i] = [];
+        rooms.forEach((room) => {
+          roomsArr[i].push(room);
+        });
+        // roomsArr = [...roomsArr, ...rooms];
+      } catch (error) {
+        console.log(error);
+      }
     })
   );
+
+
+  // const roomsArr = await Promise.all(cityHotel.flatMap(hotel => hotel.rooms.map(room => Room.findById(room.toString()))));
+
 
   //to combine hotel and its respective rooms
   await Promise.all(
@@ -90,32 +114,48 @@ export const getHotelByCity = async (req, res) => {
   );
 
   //to check if room is available or not
-  await Promise.all(hotelRoom.map(async (hotel) => {}));
+  await Promise.all(hotelRoom.map(async (hotel) => { }));
 
-  await Promise.all(
-    roomsArr.map(async (room) => {
-      await Promise.all(
-        room.map(async (room) => {
-          await Promise.all(
-            room.room_no.map(async (roomNo) => {
-              await Promise.all(
-                roomNo.unavailableDates.map((date) => {
-                  // if (date[0] > dates[1] || date[1] < dates[0]) {
-                  //   console.log(roomNo.number, "available");
-                  // }
-                  console.log(date);
-                })
-              );
-              console.log("date 1 end");
-            })
-          );
-        })
-      );
-    })
-  );
+
+  //to check if room is avaiable or not by date
+  // roomsArr.map((hotel) => {
+  //   hotel.map((room) => {
+  //     room.room_no.map((roomNo) => {
+  //       roomNo.unavailableDates.map((date) => {
+  //         if (date[0] > dates[1] || date[1] < dates[0]) {
+  //           console.log(roomNo.number, "available");
+  //         }
+  //         console.log(date);
+  //       });
+  //     });
+  //   });
+  // });
+
+  // await Promise.all(
+  //   roomsArr.map(async (room) => {
+  //     await Promise.all(
+  //       room.map(async (room) => {
+  //         await Promise.all(
+  //           room.room_no.map(async (roomNo) => {
+  //             await Promise.all(
+  //               roomNo.unavailableDates.map((date) => {
+  //                 if (date[0] > dates[1] || date[1] < dates[0]) {
+  //                   console.log(roomNo.number, "available");
+  //                 }
+  //                 console.log(date);
+  //               })
+  //             );
+  //             console.log("date 1 end");
+  //           })
+  //         );
+  //       })
+  //     );
+  //   })
+  // );
 
   res.send(
     roomsArr
+
     // `City: ${city} Dates: ${dates} Adult: ${adult} Children: ${children} Single Room: ${singleRoom} Twin Room: ${twinRoom} Family Room: ${familyRoom}`
   );
 };
