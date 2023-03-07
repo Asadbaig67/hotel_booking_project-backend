@@ -3,7 +3,6 @@ import Room from "../models/Room.js";
 
 export const addHotel = async (req, res) => {
   try {
-
     let hotel_obj = {};
     if (
       req.body.name &&
@@ -27,7 +26,6 @@ export const addHotel = async (req, res) => {
       return res.status(422).json({ error: "All fields are required! " });
     }
 
-    
     const exists = await Hotel.findOne({
       name: hotel_obj.name,
       city: hotel_obj.city,
@@ -55,6 +53,22 @@ export const getAllHotels = async (req, res) => {
   res.send(result);
 };
 
+// const giveRoom = async (idArray, i) => {
+//   let result = [];
+//   let bhari = false;
+
+//   if (idArray.length > 0) {
+//     await Promise.all(
+//       idArray.map(async (id) => {
+//         result = [...result, await Room.findById(id.toString())];
+//         console.log("result", i, result);
+//       })
+//     );
+//   }
+
+//   return result;
+// };
+
 export const getHotelByCity = async (req, res) => {
   let city = req.query.city;
   let dates = req.query.dates;
@@ -63,97 +77,89 @@ export const getHotelByCity = async (req, res) => {
   let singleRoom = req.query.singleRoom;
   let twinRoom = req.query.twinRoom;
   let familyRoom = req.query.familyRoom;
-  let cityHotel = await Hotel.find({ city });
-  let rooms = [];
   let roomsArr = [];
-  let hotelRoom = [];
+  let hotelRecord = [];
+  let hotelData = [];
+  let cityHotel = await Hotel.find({ city });
 
   //To get rooms of hotels
   await Promise.all(
-    cityHotel.map(async (hotel) => {
-      await Promise.all(
-        hotel.rooms.map(async (room) => {
-          const roomData = await Room.findById(room.toString());
-          rooms = [...rooms, roomData];
-        })
-      );
-      roomsArr = [...roomsArr, rooms];
+    cityHotel.map(async (hotel, i) => {
+      try {
+        const rooms = await Promise.all(
+          hotel.rooms.map(async (id) => {
+            return await Room.findById(id.toString());
+          })
+        );
+        roomsArr[i] = [];
+        rooms.forEach((room) => {
+          roomsArr[i].push(room);
+        });
+      } catch (error) {
+        console.log(error);
+      }
     })
   );
 
+  
   //to combine hotel and its respective rooms
-  await Promise.all(
-    roomsArr.map(async (hotel, i) => {
-      // if (hotel.length > 0)
-      hotelRoom = [...hotelRoom, { hotel: cityHotel[i], rooms: hotel }];
-    })
-  );
+  roomsArr.map(async (hotel, i) => {
+    if (hotel.length > 0)
+      hotelRecord = [...hotelRecord, { hotel: cityHotel[i], rooms: hotel }];
+  });
 
   //to check if room is available or not
-  await Promise.all(hotelRoom.map(async (hotel) => {}));
+  
+  hotelRecord.map((hotel, i) => {
+    hotelData[i] = {};
+    hotelData[i].hotel = hotel.hotel;
+    hotelData[i].rooms = [];
+    hotel.rooms.map((room, j) => {
+      hotelData[i].rooms[j] = {};
+      hotelData[i].rooms[j].room = room;
+      hotelData[i].rooms[j].room_no = [];
+      room.room_no.map((roomNo, k) => {
+        hotelData[i].rooms[j].room_no[k] = {};
+        hotelData[i].rooms[j].room_no[k].number = roomNo.number;
+        hotelData[i].rooms[j].room_no[k].unavailableDates = [];
+        roomNo.unavailableDates.map((date, l) => {
+          hotelData[i].rooms[j].room_no[k].unavailableDates[l] = date;
+        });
+      });
+    });
+  });
 
-  await Promise.all(
-    roomsArr.map(async (room) => {
-      await Promise.all(
-        room.map(async (room) => {
-          await Promise.all(
-            room.room_no.map(async (roomNo) => {
-              await Promise.all(
-                roomNo.unavailableDates.map((date) => {
-                  // if (date[0] > dates[1] || date[1] < dates[0]) {
-                  //   console.log(roomNo.number, "available");
-                  // }
-                  console.log(date);
-                })
-              );
-              console.log("date 1 end");
-            })
-          );
-        })
-      );
-    })
-  );
-
-  res.send(
-    roomsArr
-    // `City: ${city} Dates: ${dates} Adult: ${adult} Children: ${children} Single Room: ${singleRoom} Twin Room: ${twinRoom} Family Room: ${familyRoom}`
-  );
+  res.send(hotelData);
 };
 
 // Update Parking
 export const updateHotel = async (req, res) => {
-
   try {
-    const result = await Hotel.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
+    const result = await Hotel.findOneAndUpdate(
+      { _id: req.params.id },
+      req.body,
+      { new: true }
+    );
     if (result) {
-      res.status(200).json({ message: "Hotel Updated Successfully" })
-    }
-    else {
-      res.status(404).json({ message: "Hotel Not Found" })
+      res.status(200).json({ message: "Hotel Updated Successfully" });
+    } else {
+      res.status(404).json({ message: "Hotel Not Found" });
     }
   } catch (error) {
     console.log(error);
-
   }
-
-
-}
+};
 
 // Delete Parking
 export const deleteHotel = async (req, res) => {
   try {
     const result = await Hotel.findOneAndDelete({ _id: req.params.id });
     if (result) {
-      res.status(200).json({ message: "Hotel Deleted Successfully" })
-    }
-    else {
-      res.status(404).json({ message: "Hotel Not Found" })
+      res.status(200).json({ message: "Hotel Deleted Successfully" });
+    } else {
+      res.status(404).json({ message: "Hotel Not Found" });
     }
   } catch (error) {
     console.log(error);
-
   }
-
-}
-
-
+};
