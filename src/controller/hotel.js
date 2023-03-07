@@ -101,7 +101,6 @@ export const getHotelByCity = async (req, res) => {
     })
   );
 
-  
   //to combine hotel and its respective rooms
   roomsArr.map(async (hotel, i) => {
     if (hotel.length > 0)
@@ -109,7 +108,35 @@ export const getHotelByCity = async (req, res) => {
   });
 
   //to check if room is available or not
-  
+
+  const compareDate = (userdate, booked_dates) => {
+    booked_dates.map((singleDate) => {
+      const userStart = userdate[0];
+      const userEnd = userdate[1];
+      const bookedStart = singleDate[0];
+      const bookedEnd = singleDate[1];
+
+      if (
+        (userStart >= bookedStart && userStart <= bookedEnd) ||
+        (userEnd >= bookedStart && userEnd <= bookedEnd)
+      ) {
+        console.log(
+          userdate,
+          "Date is already booked for the date",
+          singleDate
+        );
+      } else {
+        console.log(userdate, "Date is availble for the date", singleDate);
+      }
+
+      // if ((new Date(userdate[0]) >= new Date(singleDate[0]) && new Date(userdate[0]) <= new Date(singleDate[1])) || (new Date(userdate[1]) >= new Date(singleDate[0]) && new Date(userdate[1]) <= new Date(singleDate[1]))) {
+      //     console.log(userdate, 'Date is already booked for the date', singleDate);
+      // } else {
+      //     console.log(userdate, 'Date is availble for the date', singleDate);
+      // }
+    });
+  };
+
   hotelRecord.map((hotel, i) => {
     hotelData[i] = {};
     hotelData[i].hotel = hotel.hotel;
@@ -125,6 +152,10 @@ export const getHotelByCity = async (req, res) => {
         roomNo.unavailableDates.map((date, l) => {
           hotelData[i].rooms[j].room_no[k].unavailableDates[l] = date;
         });
+        hotelData[i].rooms[j].room_no[k].available = compareDate(
+          dates,
+          roomNo.unavailableDates
+        );
       });
     });
   });
