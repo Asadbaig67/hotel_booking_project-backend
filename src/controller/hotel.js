@@ -1,6 +1,7 @@
 import Hotel from "../models/Hotel.js";
 import Room from "../models/Room.js";
 
+// Add Hotel Function
 export const addHotel = async (req, res) => {
   try {
     let hotel_obj = {};
@@ -48,6 +49,7 @@ export const addHotel = async (req, res) => {
   }
 };
 
+// Get All Hotels List Function
 export const getAllHotels = async (req, res) => {
   let result = await Hotel.find();
   res.send(result);
@@ -69,34 +71,31 @@ export const getAllHotels = async (req, res) => {
 //   return result;
 // };
 
+// Dates Comparison Function
 const compareDate = (userdate, booked_dates) => {
+  // 
   let room_available = true;
-  // console.log(userdate);
-  booked_dates.map((singleDate) => {
-    room_available = true;
-    const userStart = new Date(userdate[0]);
-    console.log("userStart", userStart);
-    const userEnd = new Date(userdate[1]);
-    // console.log("userEnd", userEnd);
-    const bookedStart = singleDate[0];
-    console.log("bookedStart", bookedStart);
-    const bookedEnd = singleDate[1];
-    // console.log("andr hn");
-    if (
-      (userStart > bookedStart && userStart < bookedEnd) ||
-      (userEnd > bookedStart && userEnd < bookedEnd) ||
-      (userStart < bookedStart && userEnd > bookedEnd)
-    ) {
-      console.log("if k andr hn");
+  // 
+  const userStart = new Date(userdate[0]);
+  const userEnd = new Date(userdate[1]);
+
+  // Using for loop to check if user date is in between booked dates or not so that we can break the loop if we get false value
+  for (let i = 0; i < booked_dates.length; i++) {
+    const bookedStart = booked_dates[i][0];
+    const bookedEnd = booked_dates[i][1];
+
+    if ((userStart >= bookedStart && userStart <= bookedEnd) || (userEnd >= bookedStart && userEnd <= bookedEnd) || (userStart <= bookedStart && userEnd >= bookedEnd)) {
+      console.log("Roon is not available")
       room_available = false;
-      return false;
+      break;
     }
 
-    // Return True If Room Is Available
-  });
+  }
+
   return room_available;
 };
 
+// Get Hotel By City Function
 export const getHotelByCity = async (req, res) => {
 
   let city = req.query.city;
@@ -152,35 +151,32 @@ export const getHotelByCity = async (req, res) => {
   });
 
   //to check if room is available or not
-  hotelRecord.map((hotel, i) => {
-    hotelData[i] = {};
-    hotelData[i].hotel = hotel.hotel;
-    hotelData[i].rooms = [];
-    hotel.rooms.map((room, j) => {
-      hotelData[i].rooms[j] = {};
-      hotelData[i].rooms[j].room = room;
-      hotelData[i].rooms[j].room_no = [];
-      room.room_no.map((roomNo, k) => {
-        hotelData[i].rooms[j].room_no[k] = {};
-        hotelData[i].rooms[j].room_no[k].number = roomNo.number;
-        hotelData[i].rooms[j].room_no[k].unavailableDates = [];
-        roomNo.unavailableDates.map((date, l) => {
-          hotelData[i].rooms[j].room_no[k].unavailableDates[l] = date;
-        });
-        hotelData[i].rooms[j].room_no[k].available = compareDate(
-          dates,
-          roomNo.unavailableDates
-        );
-      });
-    });
-  });
+  // hotelRecord.map((hotel, i) => {
+  //   hotelData[i] = {};
+  //   hotelData[i].hotel = hotel.hotel;
+  //   hotelData[i].rooms = [];
+  //   hotel.rooms.map((room, j) => {
+  //     hotelData[i].rooms[j] = {};
+  //     hotelData[i].rooms[j].room = room;
+  //     hotelData[i].rooms[j].room_no = [];
+  //     room.room_no.map((roomNo, k) => {
+  //       hotelData[i].rooms[j].room_no[k] = {};
+  //       hotelData[i].rooms[j].room_no[k].number = roomNo.number;
+  //       hotelData[i].rooms[j].room_no[k].unavailableDates = [];
+  //       roomNo.unavailableDates.map((date, l) => {
+  //         hotelData[i].rooms[j].room_no[k].unavailableDates[l] = date;
+  //       });
+  //       hotelData[i].rooms[j].room_no[k].available = compareDate(dates, roomNo.unavailableDates);
+  //     });
+  //   });
+  // });
 
   console.log(compareDate(dates, hotelRecord[0].rooms[0].room_no[0].unavailableDates));
 
   res.send(hotelData);
 };
 
-// Update Parking
+// Update Parking Function
 export const updateHotel = async (req, res) => {
   try {
     const result = await Hotel.findOneAndUpdate(
@@ -198,7 +194,7 @@ export const updateHotel = async (req, res) => {
   }
 };
 
-// Delete Parking
+// Delete Parking Function
 export const deleteHotel = async (req, res) => {
   try {
     const result = await Hotel.findOneAndDelete({ _id: req.params.id });
