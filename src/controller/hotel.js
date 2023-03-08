@@ -69,10 +69,38 @@ export const getAllHotels = async (req, res) => {
 //   return result;
 // };
 
+const compareDate = (userdate, booked_dates) => {
+  let room_available = true;
+  // console.log(userdate);
+  booked_dates.map((singleDate) => {
+    room_available = true;
+    const userStart = new Date(userdate[0]);
+    console.log("userStart", userStart);
+    const userEnd = new Date(userdate[1]);
+    // console.log("userEnd", userEnd);
+    const bookedStart = singleDate[0];
+    console.log("bookedStart", bookedStart);
+    const bookedEnd = singleDate[1];
+    // console.log("andr hn");
+    if (
+      (userStart > bookedStart && userStart < bookedEnd) ||
+      (userEnd > bookedStart && userEnd < bookedEnd) ||
+      (userStart < bookedStart && userEnd > bookedEnd)
+    ) {
+      console.log("if k andr hn");
+      room_available = false;
+      return false;
+    }
+
+    // Return True If Room Is Available
+  });
+  return room_available;
+};
+
 export const getHotelByCity = async (req, res) => {
 
   let city = req.query.city;
-  let dates = req.query.dates;
+  let dates = [req.query.checkIn, req.query.checkOut];
   let adult = req.query.adult;
   let children = req.query.children;
   let singleRoom = req.query.singleRoom;
@@ -124,38 +152,6 @@ export const getHotelByCity = async (req, res) => {
   });
 
   //to check if room is available or not
-
-  // Date Comaprison Logic 
-  const compareDate = (userdate, booked_dates) => {
-
-    booked_dates.map((singleDate) => {
-      const userStart = userdate[0];
-      const userEnd = userdate[1];
-      const bookedStart = singleDate[0];
-      const bookedEnd = singleDate[1];
-      let room_available = true;
-
-      // Check If User Start Date Is Between Booked Start And End Date
-      if ((userStart >= bookedStart && userStart <= bookedEnd) || (userEnd >= bookedStart && userEnd <= bookedEnd)) {
-        room_available = false;
-        return false;
-      }
-
-      // Return True If Room Is Available
-      if (room_available) {
-        return true;
-      }
-
-      // if ((new Date(userdate[0]) >= new Date(singleDate[0]) && new Date(userdate[0]) <= new Date(singleDate[1])) || (new Date(userdate[1]) >= new Date(singleDate[0]) && new Date(userdate[1]) <= new Date(singleDate[1]))) {
-      //     console.log(userdate, 'Date is already booked for the date', singleDate);
-      // } else {
-      //     console.log(userdate, 'Date is availble for the date', singleDate);
-      // }
-    });
-  };
-
-
-
   hotelRecord.map((hotel, i) => {
     hotelData[i] = {};
     hotelData[i].hotel = hotel.hotel;
