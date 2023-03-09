@@ -87,10 +87,11 @@ export const login = async (req, res) => {
     if (token) {
       // res.status(201).json(token);
       // res.cookie("user_token", token).status(201).json({ message: "Login Success" });
-      res.cookie('user_token', token, {
+      
+      res.cookie('tokens', token, {
         maxAge: 1000 * 60 * 60 * 24, // 1 day
-        // httpOnly: true,
-        // secure: true,
+        httpOnly: true,
+        secure: true,
         sameSite: 'none',
         path: '/'
       }).status(201).json({ message: 'Login Success' });

@@ -1,5 +1,7 @@
 import Parking from "../models/Parking.js";
 
+
+// Add Parking Function
 export const addParking = async (req, res) => {
   try {
     let parking_obj = {};
@@ -48,17 +50,37 @@ export const addParking = async (req, res) => {
   }
 };
 
+
+// Get All Parking Records Function
 export const getAllParking = async (req, res) => {
   let result = await Parking.find();
   res.send(result);
 };
 
+// Get Parking By City Function
 export const getParkingByCity = async (req, res) => {
   let city = req.params.city;
   let result = await Parking.findOne({ city });
   res.send(result);
 };
 
+export const getParkingBySearch = async (req, res) => {
+  let city = req.query.city;
+  let dates = req.query.dates;
+  let vehicles = req.query.vehicles;
+
+  try {
+    let parkings = await Parking.find({ city });
+    res.status(200).json({ parkings });
+
+  } catch (error) {
+    console.log(error);
+  }
+
+
+};
+
+// Update Parking Function
 export const updateParking = async (req, res) => {
 
   try {
@@ -74,9 +96,10 @@ export const updateParking = async (req, res) => {
 
   }
 
-
 }
 
+
+// Delete Parking Function
 export const deleteParking = async (req, res) => {
   try {
     const result = await Parking.findOneAndDelete({ _id: req.params.id });
