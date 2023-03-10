@@ -73,9 +73,8 @@ export const getAllHotels = async (req, res) => {
 
 // Dates Comparison Function
 const compareDate = (userdate, booked_dates) => {
-  // 
+  //
   let room_available = true;
-  // 
   const userStart = new Date(userdate[0]);
   const userEnd = new Date(userdate[1]);
 
@@ -84,12 +83,14 @@ const compareDate = (userdate, booked_dates) => {
     const bookedStart = booked_dates[i][0];
     const bookedEnd = booked_dates[i][1];
 
-    if ((userStart >= bookedStart && userStart <= bookedEnd) || (userEnd >= bookedStart && userEnd <= bookedEnd) || (userStart <= bookedStart && userEnd >= bookedEnd)) {
-      console.log("Roon is not available")
+    if (
+      (userStart >= bookedStart && userStart <= bookedEnd) ||
+      (userEnd >= bookedStart && userEnd <= bookedEnd) ||
+      (userStart <= bookedStart && userEnd >= bookedEnd)
+    ) {
       room_available = false;
       break;
     }
-
   }
 
   return room_available;
@@ -97,7 +98,6 @@ const compareDate = (userdate, booked_dates) => {
 
 // Get Hotel By City Function
 export const getHotelByCity = async (req, res) => {
-
   let city = req.query.city;
   let dates = [req.query.checkIn, req.query.checkOut];
   let adult = req.query.adult;
@@ -140,10 +140,6 @@ export const getHotelByCity = async (req, res) => {
     })
   );
 
-
-  // const roomsArr = await Promise.all(cityHotel.flatMap(hotel => hotel.rooms.map(room => Room.findById(room.toString()))));
-
-
   //to combine hotel and its respective rooms
   roomsArr.map(async (hotel, i) => {
     if (hotel.length > 0)
@@ -151,27 +147,37 @@ export const getHotelByCity = async (req, res) => {
   });
 
   //to check if room is available or not
-  // hotelRecord.map((hotel, i) => {
-  //   hotelData[i] = {};
-  //   hotelData[i].hotel = hotel.hotel;
-  //   hotelData[i].rooms = [];
-  //   hotel.rooms.map((room, j) => {
-  //     hotelData[i].rooms[j] = {};
-  //     hotelData[i].rooms[j].room = room;
-  //     hotelData[i].rooms[j].room_no = [];
-  //     room.room_no.map((roomNo, k) => {
-  //       hotelData[i].rooms[j].room_no[k] = {};
-  //       hotelData[i].rooms[j].room_no[k].number = roomNo.number;
-  //       hotelData[i].rooms[j].room_no[k].unavailableDates = [];
-  //       roomNo.unavailableDates.map((date, l) => {
-  //         hotelData[i].rooms[j].room_no[k].unavailableDates[l] = date;
-  //       });
-  //       hotelData[i].rooms[j].room_no[k].available = compareDate(dates, roomNo.unavailableDates);
-  //     });
-  //   });
-  // });
+  hotelRecord.map((hotel, i) => {
+    hotelData[i] = {};
+    hotelData[i].hotel = hotel.hotel;
+    hotelData[i].rooms = [];
+    hotel.rooms.map((room, j) => {
+      hotelData[i].rooms[j] = {};
+      hotelData[i].rooms[j].room = room;
+      hotelData[i].rooms[j].room_no = [];
+      room.room_no.map((roomNo, k) => {
+        hotelData[i].rooms[j].room_no[k] = {};
+        hotelData[i].rooms[j].room_no[k].number = roomNo.number;
+        hotelData[i].rooms[j].room_no[k].unavailableDates = [];
+        roomNo.unavailableDates.map((date, l) => {
+          hotelData[i].rooms[j].room_no[k].unavailableDates[l] = date;
+        });
+        hotelData[i].rooms[j].room_no[k].available = compareDate(
+          dates,
+          roomNo.unavailableDates
+        );
+      });
+    });
+  });
 
-  console.log(compareDate(dates, hotelRecord[0].rooms[0].room_no[0].unavailableDates));
+  hotelData.map((hotel) => {
+    hotel.rooms.map((room) => {
+      room.room_no = room.room_no.filter((roomNo) => roomNo.available);
+    });
+    hotel.rooms = hotel.rooms.filter((room) => room.room_no.length > 0);
+  });
+
+  hotelData.filter((hotel) => hotel.rooms.length > 0);
 
   res.send(hotelData);
 };
