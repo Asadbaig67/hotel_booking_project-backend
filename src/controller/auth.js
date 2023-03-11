@@ -87,7 +87,7 @@ export const login = async (req, res) => {
     if (token) {
       // res.status(201).json(token);
       // res.cookie("user_token", token).status(201).json({ message: "Login Success" });
-      
+
       res.cookie('tokens', token, {
         maxAge: 1000 * 60 * 60 * 24, // 1 day
         httpOnly: true,
@@ -98,3 +98,52 @@ export const login = async (req, res) => {
     }
   }
 };
+
+export const updateAccount = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // const { firstName, lastName, email, account_type, password, c_password } = req.body;
+
+    // Checking if all fields are filled
+    // if (!firstName || !lastName || !email || !account_type) {
+    //   return res.status(422).json({ error: "All fields are required!" });
+    // }
+
+    // Checking if password and confirm password are same
+    if (password && c_password && password !== c_password) {
+      return res.status(422).json({ error: "Passwords do not match" });
+    }
+
+    // Finding user by ID and updating their information
+    const user = await User.findByIdAndUpdate(userId,req.body,{ new: true });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ message: "User updated successfully", user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Server Error" });
+  }
+};
+
+export const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Finding user by ID and deleting
+    const user = await User.findByIdAndDelete(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Server Error" });
+  }
+};
+

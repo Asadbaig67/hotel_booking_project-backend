@@ -2,27 +2,33 @@ import mongoose from "mongoose";
 
 // creating a schema
 const HotelandParkingschema = new mongoose.Schema({
-    hotel_name: {
-        type: String,
-        required: true
+  hotel_name: {
+    type: String,
+    required: true
+  },
+  hotel_title: {
+    type: String,
+    required: true
+  },
+  hotel_rating: {
+    type: Number,
+    required: true
+  },
+  hotel_description: {
+    type: String,
+    required: true
+  },
+  hotel_photos: [
+    {
+      type: String
+    }
+  ],
+  rooms: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Room",
     },
-    hotel_title: {
-        type: String,
-        required: true
-    },
-    hotel_rating: {
-        type: Number,
-        required: true
-    },
-    hotel_description: {
-        type: String,
-        required: true
-    },
-    hotel_photos: [
-        {
-            type: String
-        }
-    ],
+  ],
   hotel_city: {
     type: String,
     required: true,
@@ -55,10 +61,10 @@ const HotelandParkingschema = new mongoose.Schema({
     required: true,
   },
   parking_photos: [
-        {
-            type: String,
-        }
-    ],
+    {
+      type: String,
+    }
+  ],
 });
 
 // createing a new collection
