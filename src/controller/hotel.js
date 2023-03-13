@@ -108,20 +108,10 @@ export const getHotelByCity = async (req, res) => {
   let roomsArr = [];
   let hotelRecord = [];
   let hotelData = [];
+
+  
   let cityHotel = await Hotel.find({ city });
 
-  //To get rooms of hotels
-  // await Promise.all(
-  //   cityHotel.map(async (hotel) => {
-  //     await Promise.all(
-  //       hotel.rooms.map(async (room) => {
-  //         const roomData = await Room.findById(room.toString());
-  //         rooms = [...rooms, roomData];
-  //       })
-  //     );
-  //     roomsArr = [...roomsArr, rooms];
-  //   })
-  // );
   await Promise.all(
     cityHotel.map(async (hotel, i) => {
       try {
@@ -175,6 +165,22 @@ export const getHotelByCity = async (req, res) => {
       room.room_no = room.room_no.filter((roomNo) => roomNo.available);
     });
     hotel.rooms = hotel.rooms.filter((room) => room.room_no.length > 0);
+    hotel.rooms = hotel.rooms.filter(
+      (roomData) =>
+        (roomData.room.type === "Single" &&
+          roomData.room_no.length >= singleRoom) ||
+        (roomData.room.type === "Twin" &&
+          roomData.room_no.length >= twinRoom) ||
+        (roomData.room.type === "Family" &&
+          roomData.room_no.length >= familyRoom)
+    );
+
+    // hotel.rooms = hotel.rooms.filter(
+    //   (roomData) =>
+    //     (singleRoom && roomData.room.type === "Single") &&
+    //     (twinRoom && roomData.room.type === "Twin") &&
+    //     (familyRoom && roomData.room.type === "Family")
+    // );
   });
 
   hotelData.filter((hotel) => hotel.rooms.length > 0);
