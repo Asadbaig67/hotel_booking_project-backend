@@ -55,22 +55,6 @@ export const getAllHotels = async (req, res) => {
   res.send(result);
 };
 
-// const giveRoom = async (idArray, i) => {
-//   let result = [];
-//   let bhari = false;
-
-//   if (idArray.length > 0) {
-//     await Promise.all(
-//       idArray.map(async (id) => {
-//         result = [...result, await Room.findById(id.toString())];
-//         console.log("result", i, result);
-//       })
-//     );
-//   }
-
-//   return result;
-// };
-
 // Dates Comparison Function
 const compareDate = (userdate, booked_dates) => {
   //
@@ -109,7 +93,6 @@ export const getHotelByCity = async (req, res) => {
   let hotelRecord = [];
   let hotelData = [];
 
-  
   let cityHotel = await Hotel.find({ city });
 
   await Promise.all(
@@ -163,27 +146,50 @@ export const getHotelByCity = async (req, res) => {
   hotelData.map((hotel) => {
     hotel.rooms.map((room) => {
       room.room_no = room.room_no.filter((roomNo) => roomNo.available);
-    });
-    hotel.rooms = hotel.rooms.filter((room) => room.room_no.length > 0);
-    hotel.rooms = hotel.rooms.filter(
-      (roomData) =>
-        (roomData.room.type === "Single" &&
-          roomData.room_no.length >= singleRoom) ||
-        (roomData.room.type === "Twin" &&
-          roomData.room_no.length >= twinRoom) ||
-        (roomData.room.type === "Family" &&
-          roomData.room_no.length >= familyRoom)
-    );
 
-    // hotel.rooms = hotel.rooms.filter(
-    //   (roomData) =>
-    //     (singleRoom && roomData.room.type === "Single") &&
-    //     (twinRoom && roomData.room.type === "Twin") &&
-    //     (familyRoom && roomData.room.type === "Family")
-    // );
+      if (
+        (room.room.type === "Single" &&
+          singleRoom > 0 &&
+          room.room_no.length < singleRoom) ||
+        (room.room.type === "Twin" &&
+          twinRoom > 0 &&
+          room.room_no.length < twinRoom) ||
+        (room.room.type === "Family" &&
+          familyRoom > 0 &&
+          room.room_no.length < familyRoom)
+      ) {
+        room.room_no = [];
+      }
+    });
+
+    // hotel.rooms.forEach((room, i) => {
+    //   if (
+    //     room.room.type === "Single" &&
+    //     singleRoom > 0 &&
+    //     room.room_no.length < singleRoom
+    //   ) {
+    //     delete hotel.rooms[i];
+    //   } else if (
+    //     room.room.type === "Twin" &&
+    //     twinRoom > 0 &&
+    //     room.room_no.length > twinRoom
+    //   ) {
+    //     // room = room.slice(i, 1);
+    //     delete hotel.rooms[i];
+    //   } else if (
+    //     room.room.type === "Family" &&
+    //     familyRoom > 0 &&
+    //     room.room_no.length > familyRoom
+    //   ) {
+    //     // room = room.slice(i, 1);
+    //     delete hotel.rooms[i];
+    //   }
+    // });
+
+    hotel.rooms = hotel.rooms.filter((room) => room.room_no.length > 0);
   });
 
-  hotelData.filter((hotel) => hotel.rooms.length > 0);
+  hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
 
   res.send(hotelData);
 };
