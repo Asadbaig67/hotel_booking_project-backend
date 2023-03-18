@@ -1,6 +1,5 @@
 import HotelandParking from "../models/Hotel_Parking.js";
 
-
 // Add Hotel And Parking Function
 export const addhotelandparking = async (req, res) => {
   try {
@@ -92,91 +91,27 @@ export const gethotelandparkingbyCity = async (req, res) => {
 };
 
 // Search Hotel And Parking By City Function
-export const getHotelAndParkingBySearch = async (req, res) => {
-
-  let city = req.query.city;
-  let dates = [req.query.checkIn, req.query.checkOut];
-  let adult = req.query.adult;
-  let children = req.query.children;
-  let singleRoom = req.query.singleRoom;
-  let twinRoom = req.query.twinRoom;
-  let familyRoom = req.query.familyRoom;
-  let vehicles = req.query.vehicles;
-  let roomsArr = [];
-  let hotelRecord = [];
-  let hotelData = [];
-  // let cityHotel = await HotelandParking.find({ city });
-
-
-  const hotels = HotelandParking.find({ city });
-
-  res.status(200).json({ hotels });
-
-  // await Promise.all(
-  //   cityHotel.map(async (hotel, i) => {
-  //     try {
-  //       const rooms = await Promise.all(
-  //         hotel.rooms.map(async (id) => {
-  //           return await Room.findById(id.toString());
-  //         })
-  //       );
-  //       roomsArr[i] = [];
-  //       rooms.forEach((room) => {
-  //         roomsArr[i].push(room);
-  //       });
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   })
-  // );
-
-  //to combine hotel and its respective rooms
-  // roomsArr.map(async (hotel, i) => {
-  //   if (hotel.length > 0)
-  //     hotelRecord = [...hotelRecord, { hotel: cityHotel[i], rooms: hotel }];
-  // });
-
-  // to check if room is available or not
-  // hotelRecord.map((hotel, i) => {
-  //   hotelData[i] = {};
-  //   hotelData[i].hotel = hotel.hotel;
-  //   hotelData[i].rooms = [];
-  //   hotel.rooms.map((room, j) => {
-  //     hotelData[i].rooms[j] = {};
-  //     hotelData[i].rooms[j].room = room;
-  //     hotelData[i].rooms[j].room_no = [];
-  //     room.room_no.map((roomNo, k) => {
-  //       hotelData[i].rooms[j].room_no[k] = {};
-  //       hotelData[i].rooms[j].room_no[k].number = roomNo.number;
-  //       hotelData[i].rooms[j].room_no[k].unavailableDates = [];
-  //       roomNo.unavailableDates.map((date, l) => {
-  //         hotelData[i].rooms[j].room_no[k].unavailableDates[l] = date;
-  //       });
-  //       hotelData[i].rooms[j].room_no[k].available = compareDate(dates, roomNo.unavailableDates);
-  //     });
-  //   });
-  // });
-
-  // console.log(compareDate(dates, hotelRecord[0].rooms[0].room_no[0].unavailableDates));
-  // res.send(hotelData);
-};
+export const getHotelAndParkingBySearch = async (req, res) => {};
 
 // Update Hotel And Parking
 export const updateHotelAndParking = async (req, res) => {
-
   try {
-    const result = await HotelandParking.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
+    const result = await HotelandParking.findOneAndUpdate(
+      { _id: req.params.id },
+      req.body,
+      { new: true }
+    );
     if (result) {
-      res.status(200).json({ message: "Hotel And Parking Updated Successfully" })
-    }
-    else {
-      res.status(404).json({ message: "Hotel And Parking Not Found" })
+      res
+        .status(200)
+        .json({ message: "Hotel And Parking Updated Successfully" });
+    } else {
+      res.status(404).json({ message: "Hotel And Parking Not Found" });
     }
   } catch (error) {
     console.log(error);
-
   }
-}
+};
 
 // Delete Hotel And Parking
 export const deleteHotelAndParking = async (req, res) => {
@@ -188,10 +123,8 @@ export const deleteHotelAndParking = async (req, res) => {
     // else {
     //   res.status(404).json({ message: "Hotel And Parking Not Found" })
     // }
-    res.send("delete")
+    res.send("delete");
   } catch (error) {
     console.log(error);
-
   }
-
-}
+};
