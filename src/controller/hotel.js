@@ -89,6 +89,7 @@ export const getHotelByCity = async (req, res) => {
   let singleRoom = req.query.singleRoom;
   let twinRoom = req.query.twinRoom;
   let familyRoom = req.query.familyRoom;
+  let room_available = [false, false, false];
   let roomsArr = [];
   let hotelRecord = [];
   let hotelData = [];
@@ -161,32 +162,38 @@ export const getHotelByCity = async (req, res) => {
         room.room_no = [];
       }
     });
-
-    // hotel.rooms.forEach((room, i) => {
-    //   if (
-    //     room.room.type === "Single" &&
-    //     singleRoom > 0 &&
-    //     room.room_no.length < singleRoom
-    //   ) {
-    //     delete hotel.rooms[i];
-    //   } else if (
-    //     room.room.type === "Twin" &&
-    //     twinRoom > 0 &&
-    //     room.room_no.length > twinRoom
-    //   ) {
-    //     // room = room.slice(i, 1);
-    //     delete hotel.rooms[i];
-    //   } else if (
-    //     room.room.type === "Family" &&
-    //     familyRoom > 0 &&
-    //     room.room_no.length > familyRoom
-    //   ) {
-    //     // room = room.slice(i, 1);
-    //     delete hotel.rooms[i];
-    //   }
-    // });
-
     hotel.rooms = hotel.rooms.filter((room) => room.room_no.length > 0);
+
+    if (singleRoom > 0) {
+      hotel.rooms.map((roomData) => {
+        if (roomData.room.type === "Single") {
+          room_available[0] = true;
+        }
+      });
+      if (room_available[0] === false) {
+        hotel.rooms = [];
+      }
+    }
+    if (twinRoom > 0) {
+      hotel.rooms.map((roomData) => {
+        if (roomData.room.type === "Twin") {
+          room_available[1] = true;
+        }
+      });
+      if (room_available[1] === false) {
+        hotel.rooms = [];
+      }
+    }
+    if (familyRoom > 0) {
+      hotel.rooms.map((roomData) => {
+        if (roomData.room.type === "Family") {
+          room_available[2] = true;
+        }
+      });
+      if (room_available[2] === false) {
+        hotel.rooms = [];
+      }
+    }
   });
 
   hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
