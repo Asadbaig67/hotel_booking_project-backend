@@ -1,7 +1,6 @@
 import HotelandParking from "../models/Hotel_Parking.js";
 import Room from "../models/Room.js";
 
-
 // Add Hotel And Parking Function
 export const addhotelandparking = async (req, res) => {
   try {
@@ -93,6 +92,7 @@ export const gethotelandparkingbyCity = async (req, res) => {
 };
 
 // Search Hotel And Parking By City Function
+
 export const getHotelAndParkingBySearch = async (req, res) => {
 
   let hotel_city = req.query.hotel_city;
@@ -189,22 +189,26 @@ export const getHotelAndParkingBySearch = async (req, res) => {
   // res.send(hotelData);
 };
 
+
 // Update Hotel And Parking
 export const updateHotelAndParking = async (req, res) => {
-
   try {
-    const result = await HotelandParking.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
+    const result = await HotelandParking.findOneAndUpdate(
+      { _id: req.params.id },
+      req.body,
+      { new: true }
+    );
     if (result) {
-      res.status(200).json({ message: "Hotel And Parking Updated Successfully" })
-    }
-    else {
-      res.status(404).json({ message: "Hotel And Parking Not Found" })
+      res
+        .status(200)
+        .json({ message: "Hotel And Parking Updated Successfully" });
+    } else {
+      res.status(404).json({ message: "Hotel And Parking Not Found" });
     }
   } catch (error) {
     console.log(error);
-
   }
-}
+};
 
 // Delete Hotel And Parking
 export const deleteHotelAndParking = async (req, res) => {
@@ -216,10 +220,8 @@ export const deleteHotelAndParking = async (req, res) => {
     // else {
     //   res.status(404).json({ message: "Hotel And Parking Not Found" })
     // }
-    res.send("delete")
+    res.send("delete");
   } catch (error) {
     console.log(error);
-
   }
-
-}
+};
