@@ -1,5 +1,5 @@
 import express from "express";
-import { addRoom, getAllRoom } from "../controller/room.js";
+import { addRoom, getAllRoom, getRoomById } from "../controller/room.js";
 
 const Router = express.Router();
 
@@ -7,6 +7,8 @@ const Router = express.Router();
 Router.post("/addroom", addRoom);
 // Get All Rooms
 Router.get("/getallrooms", getAllRoom);
+// Get Room By Id
+Router.get("/getroombyid/:id", getRoomById);
 
 // module.exports = Router;
 export default Router;
