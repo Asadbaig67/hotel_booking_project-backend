@@ -1,4 +1,5 @@
 import HotelandParking from "../models/Hotel_Parking.js";
+import Room from "../models/Room.js";
 
 
 // Add Hotel And Parking Function
@@ -94,7 +95,7 @@ export const gethotelandparkingbyCity = async (req, res) => {
 // Search Hotel And Parking By City Function
 export const getHotelAndParkingBySearch = async (req, res) => {
 
-  let city = req.query.city;
+  let hotel_city = req.query.hotel_city;
   let dates = [req.query.checkIn, req.query.checkOut];
   let adult = req.query.adult;
   let children = req.query.children;
@@ -105,12 +106,39 @@ export const getHotelAndParkingBySearch = async (req, res) => {
   let roomsArr = [];
   let hotelRecord = [];
   let hotelData = [];
-  // let cityHotel = await HotelandParking.find({ city });
+  let single_hotel_rooms = [];
+  let HotelRoomsArray = [];
 
 
-  const hotels = HotelandParking.find({ city });
 
-  res.status(200).json({ hotels });
+
+  const hotels = await HotelandParking.find({ hotel_city });
+  if (!hotels) {
+    res.status(404).json({ message: "No hotels found" });
+  }
+
+  if (hotels) {
+    await Promise.all(hotels.map(async (hotel) => {
+      let single_hotel_rooms = [];
+      for (const room_id of hotel.rooms) {
+        const rooms = await Room.findById(room_id.toString());
+        if (!rooms) {
+          return res.status(404).json({ message: "Room not found" });
+        }
+        single_hotel_rooms.push(rooms);
+      }
+      HotelRoomsArray.push(single_hotel_rooms);
+    }));
+  }
+
+  if (HotelRoomsArray) {
+    res.send(HotelRoomsArray);
+  }
+
+
+
+
+  // res.status(200).json({ hotels: hotels });
 
   // await Promise.all(
   //   cityHotel.map(async (hotel, i) => {

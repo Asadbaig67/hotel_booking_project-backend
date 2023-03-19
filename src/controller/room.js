@@ -42,22 +42,35 @@ export const addRoom = async (req, res) => {
 
 export const getAllRoom = async (req, res) => {
   let result = await Room.find();
-  let userStart = new Date('2023-03-05');
-  let userEnd = new Date('2023-03-09');
+  // let userStart = new Date('2023-03-05');
+  // let userEnd = new Date('2023-03-09');
 
-  result.map((room) => {
-    console.log(` Room Type : ${room.type} `);
-    room.room_no.map((room_no) => {
-      console.log(`Room No: ${room_no.number}`);
-      room_no.unavailableDates.map((date) => {
-        if ((userStart >= date[0] && userStart <= date[1]) || (userEnd >= date[0] && userEnd <= date[1]) || (userStart <= date[0] && userEnd >= date[1])) {
-          console.log(`Room No: ${room_no.number} is booked for ${date} and is not available for ${userStart} to ${userEnd}`);
-        } else {
-          console.log(`Room No: ${room_no.number} is available for ${userStart} to ${userEnd}`);
-        }
-      });
-    });
-  });
+  // result.map((room) => {
+  //   console.log(` Room Type : ${room.type} `);
+  //   room.room_no.map((room_no) => {
+  //     console.log(`Room No: ${room_no.number}`);
+  //     room_no.unavailableDates.map((date) => {
+  //       if ((userStart >= date[0] && userStart <= date[1]) || (userEnd >= date[0] && userEnd <= date[1]) || (userStart <= date[0] && userEnd >= date[1])) {
+  //         console.log(`Room No: ${room_no.number} is booked for ${date} and is not available for ${userStart} to ${userEnd}`);
+  //       } else {
+  //         console.log(`Room No: ${room_no.number} is available for ${userStart} to ${userEnd}`);
+  //       }
+  //     });
+  //   });
+  // });
 
   res.send(result);
+};
+
+// Find Room by ID
+export const getRoomById = async (req, res) => {
+  try {
+    const room = await Room.findById(req.params.id);
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+    res.status(200).json(room);
+  } catch (error) {
+    console.log(error);
+  }
 };
