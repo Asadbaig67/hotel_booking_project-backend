@@ -62,6 +62,7 @@ export const getParkingByCity = async (req, res) => {
   res.send(result);
 };
 
+// Get Parking By Search Function
 export const getParkingBySearch = async (req, res) => {
   let city = req.query.city;
   let dates = [req.query.checkIn, req.query.checkOut];
@@ -94,6 +95,32 @@ export const updateParking = async (req, res) => {
     const result = await Parking.findOneAndUpdate(
       { _id: req.params.id },
       req.body,
+      { new: true }
+    );
+    if (result) {
+      res.status(200).json({ message: "Parking Updated Successfully" });
+    } else {
+      res.status(404).json({ message: "Parking Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Update Parking Booked Slots Function
+export const updateParkingBookedSlots = async (req, res) => {
+  try {
+
+    const parking = await Parking.findOne({ _id: req.params.id });
+    if (parking) {
+      if (parking.booked_slots >= parking.total_slots) {
+        return res.status(422).json({ error: "Parking is full" });
+      }
+    }
+
+    const result = await Parking.findOneAndUpdate(
+      { _id: req.params.id },
+      { $inc: { booked_slots: 1 } },
       { new: true }
     );
     if (result) {

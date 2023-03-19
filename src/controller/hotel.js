@@ -71,6 +71,7 @@ export const getHotelByCity = async (req, res) => {
   let hotelRecord = [];
   let hotelData = [];
 
+  // Find Hotel By City
   let cityHotel = await Hotel.find({ city });
 
   await getRoomByHotel(cityHotel, roomsArr);

@@ -6,6 +6,7 @@ import {
   updateParking,
   deleteParking,
   getParkingBySearch,
+  updateParkingBookedSlots,
 } from "../controller/parking.js";
 
 
@@ -22,6 +23,8 @@ Router.get("/getallparkings", getAllParking);
 Router.get("/getParking/:city", getParkingByCity);
 // Update Parking Route
 Router.patch("/updateparking/:id", updateParking);
+// Increment Booked Slots Route
+Router.put("/increasebookedslots/:id", updateParkingBookedSlots);
 // Delete Parking Route
 Router.delete("/deleteparking/:id", deleteParking);
 
