@@ -1,4 +1,4 @@
-import Room from "../models/Room.js";
+import Room from "../../models/Room.js";
 export const getRoomByHotel = async (cityHotel, roomsArr) => {
   await Promise.all(
     cityHotel.map(async (hotel, i) => {

@@ -4,24 +4,24 @@ import mongoose from "mongoose";
 const HotelandParkingschema = new mongoose.Schema({
   hotel_name: {
     type: String,
-    required: true
+    required: true,
   },
   hotel_title: {
     type: String,
-    required: true
+    required: true,
   },
   hotel_rating: {
     type: Number,
-    required: true
+    required: true,
   },
   hotel_description: {
     type: String,
-    required: true
+    required: true,
   },
   hotel_photos: [
     {
-      type: String
-    }
+      type: String,
+    },
   ],
   rooms: [
     {
@@ -55,6 +55,8 @@ const HotelandParkingschema = new mongoose.Schema({
   },
   parking_booked_slots: {
     type: Number,
+    required: true,
+    default: 0,
   },
   parking_description: {
     type: String,
@@ -63,7 +65,7 @@ const HotelandParkingschema = new mongoose.Schema({
   parking_photos: [
     {
       type: String,
-    }
+    },
   ],
 });
 
