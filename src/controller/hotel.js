@@ -1,5 +1,7 @@
 import Hotel from "../models/Hotel.js";
-import Room from "../models/Room.js";
+import { getRoomByHotel } from "../Functions/getRoomByHotel.js";
+import { checkRoomAvailability } from "../Functions/checkroomAvailabilty.js";
+import { checkHotelAvailability } from "../Functions/checkHotelAvailabilty.js";
 
 // Add Hotel Function
 export const addHotel = async (req, res) => {
@@ -55,31 +57,6 @@ export const getAllHotels = async (req, res) => {
   res.send(result);
 };
 
-// Dates Comparison Function
-const compareDate = (userdate, booked_dates) => {
-  //
-  let room_available = true;
-  const userStart = new Date(userdate[0]);
-  const userEnd = new Date(userdate[1]);
-
-  // Using for loop to check if user date is in between booked dates or not so that we can break the loop if we get false value
-  for (let i = 0; i < booked_dates.length; i++) {
-    const bookedStart = booked_dates[i][0];
-    const bookedEnd = booked_dates[i][1];
-
-    if (
-      (userStart >= bookedStart && userStart <= bookedEnd) ||
-      (userEnd >= bookedStart && userEnd <= bookedEnd) ||
-      (userStart <= bookedStart && userEnd >= bookedEnd)
-    ) {
-      room_available = false;
-      break;
-    }
-  }
-
-  return room_available;
-};
-
 // Get Hotel By City Function
 export const getHotelByCity = async (req, res) => {
   let city = req.query.city;
@@ -89,29 +66,14 @@ export const getHotelByCity = async (req, res) => {
   let singleRoom = req.query.singleRoom;
   let twinRoom = req.query.twinRoom;
   let familyRoom = req.query.familyRoom;
+  let room_available = [false, false, false];
   let roomsArr = [];
   let hotelRecord = [];
   let hotelData = [];
 
   let cityHotel = await Hotel.find({ city });
 
-  await Promise.all(
-    cityHotel.map(async (hotel, i) => {
-      try {
-        const rooms = await Promise.all(
-          hotel.rooms.map(async (id) => {
-            return await Room.findById(id.toString());
-          })
-        );
-        roomsArr[i] = [];
-        rooms.forEach((room) => {
-          roomsArr[i].push(room);
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    })
-  );
+  await getRoomByHotel(cityHotel, roomsArr);
 
   //to combine hotel and its respective rooms
   roomsArr.map(async (hotel, i) => {
@@ -120,75 +82,16 @@ export const getHotelByCity = async (req, res) => {
   });
 
   //to check if room is available or not
-  hotelRecord.map((hotel, i) => {
-    hotelData[i] = {};
-    hotelData[i].hotel = hotel.hotel;
-    hotelData[i].rooms = [];
-    hotel.rooms.map((room, j) => {
-      hotelData[i].rooms[j] = {};
-      hotelData[i].rooms[j].room = room;
-      hotelData[i].rooms[j].room_no = [];
-      room.room_no.map((roomNo, k) => {
-        hotelData[i].rooms[j].room_no[k] = {};
-        hotelData[i].rooms[j].room_no[k].number = roomNo.number;
-        hotelData[i].rooms[j].room_no[k].unavailableDates = [];
-        roomNo.unavailableDates.map((date, l) => {
-          hotelData[i].rooms[j].room_no[k].unavailableDates[l] = date;
-        });
-        hotelData[i].rooms[j].room_no[k].available = compareDate(
-          dates,
-          roomNo.unavailableDates
-        );
-      });
-    });
-  });
+  hotelData = checkRoomAvailability(hotelRecord, dates);
 
-  hotelData.map((hotel) => {
-    hotel.rooms.map((room) => {
-      room.room_no = room.room_no.filter((roomNo) => roomNo.available);
-
-      if (
-        (room.room.type === "Single" &&
-          singleRoom > 0 &&
-          room.room_no.length < singleRoom) ||
-        (room.room.type === "Twin" &&
-          twinRoom > 0 &&
-          room.room_no.length < twinRoom) ||
-        (room.room.type === "Family" &&
-          familyRoom > 0 &&
-          room.room_no.length < familyRoom)
-      ) {
-        room.room_no = [];
-      }
-    });
-
-    // hotel.rooms.forEach((room, i) => {
-    //   if (
-    //     room.room.type === "Single" &&
-    //     singleRoom > 0 &&
-    //     room.room_no.length < singleRoom
-    //   ) {
-    //     delete hotel.rooms[i];
-    //   } else if (
-    //     room.room.type === "Twin" &&
-    //     twinRoom > 0 &&
-    //     room.room_no.length > twinRoom
-    //   ) {
-    //     // room = room.slice(i, 1);
-    //     delete hotel.rooms[i];
-    //   } else if (
-    //     room.room.type === "Family" &&
-    //     familyRoom > 0 &&
-    //     room.room_no.length > familyRoom
-    //   ) {
-    //     // room = room.slice(i, 1);
-    //     delete hotel.rooms[i];
-    //   }
-    // });
-
-    hotel.rooms = hotel.rooms.filter((room) => room.room_no.length > 0);
-  });
-
+  //to filter out the hotels which have no rooms available
+  hotelData = checkHotelAvailability(
+    hotelData,
+    singleRoom,
+    twinRoom,
+    familyRoom,
+    room_available
+  );
   hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
 
   res.send(hotelData);

@@ -1,6 +1,5 @@
 import Parking from "../models/Parking.js";
 
-
 // Add Parking Function
 export const addParking = async (req, res) => {
   try {
@@ -50,7 +49,6 @@ export const addParking = async (req, res) => {
   }
 };
 
-
 // Get All Parking Records Function
 export const getAllParking = async (req, res) => {
   let result = await Parking.find();
@@ -66,52 +64,58 @@ export const getParkingByCity = async (req, res) => {
 
 export const getParkingBySearch = async (req, res) => {
   let city = req.query.city;
-  let dates = req.query.dates;
+  let dates = [req.query.checkIn, req.query.checkOut];
   let vehicles = req.query.vehicles;
+  let parkingData = [];
 
   try {
     let parkings = await Parking.find({ city });
-    res.status(200).json({ parkings });
-
+    parkings.map((parking, i) => {
+      parkingData[i] = {};
+      parkingData[i].parking = parking;
+      parkingData[i].availableSlots =
+        parking.total_slots - parking.booked_slots;
+      if (parkingData[i].availableSlots >= vehicles) {
+        parkingData[i].available = true;
+      } else {
+        parkingData[i].available = false;
+      }
+    });
+    parkingData = parkingData.filter((parking) => parking.available === true);
+    res.status(200).json(parkingData);
   } catch (error) {
     console.log(error);
   }
-
-
 };
 
 // Update Parking Function
 export const updateParking = async (req, res) => {
-
   try {
-    const result = await Parking.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
+    const result = await Parking.findOneAndUpdate(
+      { _id: req.params.id },
+      req.body,
+      { new: true }
+    );
     if (result) {
-      res.status(200).json({ message: "Parking Updated Successfully" })
-    }
-    else {
-      res.status(404).json({ message: "Parking Not Found" })
+      res.status(200).json({ message: "Parking Updated Successfully" });
+    } else {
+      res.status(404).json({ message: "Parking Not Found" });
     }
   } catch (error) {
     console.log(error);
-
   }
-
-}
-
+};
 
 // Delete Parking Function
 export const deleteParking = async (req, res) => {
   try {
     const result = await Parking.findOneAndDelete({ _id: req.params.id });
     if (result) {
-      res.status(200).json({ message: "Parking Deleted Successfully" })
-    }
-    else {
-      res.status(404).json({ message: "Parking Not Found" })
+      res.status(200).json({ message: "Parking Deleted Successfully" });
+    } else {
+      res.status(404).json({ message: "Parking Not Found" });
     }
   } catch (error) {
     console.log(error);
-
   }
-
-}
+};
