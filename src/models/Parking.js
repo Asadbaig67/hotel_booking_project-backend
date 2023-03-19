@@ -17,6 +17,7 @@ const parkingschema = new mongoose.Schema({
   booked_slots: {
     type: Number,
     required: true,
+    default: 0,
   },
   description: {
     type: String,

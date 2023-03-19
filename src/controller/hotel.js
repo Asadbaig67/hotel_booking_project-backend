@@ -1,7 +1,7 @@
 import Hotel from "../models/Hotel.js";
-import { getRoomByHotel } from "../Functions/getRoomByHotel.js";
-import { checkRoomAvailability } from "../Functions/checkroomAvailabilty.js";
-import { checkHotelAvailability } from "../Functions/checkHotelAvailabilty.js";
+import { checkRoomAvailability } from "../Functions/Hotel/checkroomAvailabilty.js";
+import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty.js";
+import { getRoomByHotel } from "../Functions/Hotel/getRoomByHotel.js";
 
 // Add Hotel Function
 export const addHotel = async (req, res) => {
@@ -73,6 +73,9 @@ export const getHotelByCity = async (req, res) => {
 
   // Find Hotel By City
   let cityHotel = await Hotel.find({ city });
+  if (!cityHotel) {
+    res.status(404).json({ message: "No hotels found" });
+  }
 
   await getRoomByHotel(cityHotel, roomsArr);
 
