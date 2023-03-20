@@ -158,6 +158,32 @@ export const updateHotelAndParking = async (req, res) => {
   }
 };
 
+// Increment Hotel And Parking Booked Slots Count
+export const incrementSlotsCount = async (req, res) => {
+  try {
+
+    const parking = await HotelandParking.findOne({ _id: req.params.id });
+    if (parking) {
+      if (parking.parking_booked_slots >= parking.parking_total_slots) {
+        return res.status(422).json({ error: "Parking is full" });
+      }
+    }
+
+    const result = await HotelandParking.findOneAndUpdate(
+      { _id: req.params.id },
+      { $inc: { booked_slots: 1 } },
+      { new: true }
+    );
+    if (result) {
+      res.status(200).json({ message: "Hotel And Parking Booked Slots Updated Successfully" });
+    } else {
+      res.status(404).json({ message: "Hotel And Parking Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 // Delete Hotel And Parking
 export const deleteHotelAndParking = async (req, res) => {
   try {

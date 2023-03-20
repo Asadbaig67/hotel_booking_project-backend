@@ -19,7 +19,18 @@ const roomschema = new mongoose.Schema({
       type: String,
     },
   ],
-  room_no: [{ number: Number, unavailableDates: [[{ type: Date }]] }],
+  room_no: [
+    { 
+      number: Number,
+      unavailableDates: [
+        [
+          { 
+            type: Date 
+          }
+        ]
+      ]
+    }
+  ],
 });
 
 // createing a new collection

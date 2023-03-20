@@ -71,6 +71,7 @@ export const getHotelByCity = async (req, res) => {
   let hotelRecord = [];
   let hotelData = [];
 
+  // Find Hotel By City
   let cityHotel = await Hotel.find({ city });
   if (!cityHotel) {
     res.status(404).json({ message: "No hotels found" });
