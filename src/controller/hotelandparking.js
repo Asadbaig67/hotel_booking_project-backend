@@ -1,5 +1,7 @@
 import HotelandParking from "../models/Hotel_Parking.js";
-import Room from "../models/Room.js";
+import { getRoomByHotel } from "../Functions/Hotel/getRoomByHotel.js";
+import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty.js";
+import { checkRoomAvailability } from "../Functions/Hotel/checkRoomAvailabilty.js";
 
 // Add Hotel And Parking Function
 export const addhotelandparking = async (req, res) => {
@@ -106,14 +108,34 @@ export const getHotelAndParkingBySearch = async (req, res) => {
   let hotelRecord = [];
   let hotelData = [];
 
-  const hotels = await HotelandParking.find({ city });
+  const cityHotel = await HotelandParking.find({ city });
   if (!cityHotel) {
     res.status(404).json({ message: "No hotels found" });
   }
 
-  
+  await getRoomByHotel(cityHotel, roomsArr);
 
-  
+  //to combine hotel and its respective rooms
+  roomsArr.map(async (hotel, i) => {
+    if (hotel.length > 0)
+      hotelRecord = [...hotelRecord, { hotel: cityHotel[i], rooms: hotel }];
+  });
+
+  //to check if room is available or not
+  hotelData = checkRoomAvailability(hotelRecord, dates);
+
+  //to filter out the hotels which have no rooms available
+  hotelData = checkHotelAvailability(
+    hotelData,
+    singleRoom,
+    twinRoom,
+    familyRoom,
+    room_available
+  );
+  hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
+  hotelData=hotelData.filter((hotel) => hotel.parking > vehicle);
+
+  res.send(hotelData);
 };
 
 // Update Hotel And Parking
