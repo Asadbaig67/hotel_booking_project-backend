@@ -1,9 +1,11 @@
-import { compareDate } from "./CompareDate.js";
-export const checkRoomAvailability = (hotelRecord, dates) => {
+import { compareDate } from "../Hotel/CompareDate.js";
+export const checkRoomAndParkingAvailability = (hotelRecord, dates) => {
   const hotelData = [];
   hotelRecord.map((hotel, i) => {
     hotelData[i] = {};
     hotelData[i].hotel = hotel.hotel;
+    hotelData[i].parking =
+      hotel.hotel.parking_total_slots - hotel.hotel.parking_booked_slots;
     hotelData[i].rooms = [];
     hotel.rooms.map((room, j) => {
       hotelData[i].rooms[j] = {};

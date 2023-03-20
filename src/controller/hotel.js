@@ -98,7 +98,7 @@ export const getHotelByCity = async (req, res) => {
   );
   hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
 
-  res.send(hotelData);
+  res.send(hotelRecord);
 };
 
 // Update Parking Function

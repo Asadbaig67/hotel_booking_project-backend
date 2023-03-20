@@ -1,7 +1,7 @@
 import HotelandParking from "../models/Hotel_Parking.js";
 import { getRoomByHotel } from "../Functions/Hotel/getRoomByHotel.js";
 import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty.js";
-import { checkRoomAvailability } from "../Functions/Hotel/checkRoomAvailabilty.js";
+import { checkRoomAndParkingAvailability } from "../Functions/HotelParking/checkRoomAndParkingAvailabilty.js";
 
 // Add Hotel And Parking Function
 export const addhotelandparking = async (req, res) => {
@@ -103,12 +103,13 @@ export const getHotelAndParkingBySearch = async (req, res) => {
   let singleRoom = req.query.singleRoom;
   let twinRoom = req.query.twinRoom;
   let familyRoom = req.query.familyRoom;
+  let vehicle = req.query.vehicle;
   let room_available = [false, false, false];
   let roomsArr = [];
   let hotelRecord = [];
   let hotelData = [];
 
-  const cityHotel = await HotelandParking.find({ city });
+  let cityHotel = await HotelandParking.find({ hotel_city: city });
   if (!cityHotel) {
     res.status(404).json({ message: "No hotels found" });
   }
@@ -122,7 +123,7 @@ export const getHotelAndParkingBySearch = async (req, res) => {
   });
 
   //to check if room is available or not
-  hotelData = checkRoomAvailability(hotelRecord, dates);
+  hotelData = checkRoomAndParkingAvailability(hotelRecord, dates);
 
   //to filter out the hotels which have no rooms available
   hotelData = checkHotelAvailability(
@@ -133,7 +134,7 @@ export const getHotelAndParkingBySearch = async (req, res) => {
     room_available
   );
   hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
-  hotelData=hotelData.filter((hotel) => hotel.parking > vehicle);
+  hotelData = hotelData.filter((hotel) => hotel.parking >= vehicle);
 
   res.send(hotelData);
 };
@@ -161,7 +162,6 @@ export const updateHotelAndParking = async (req, res) => {
 // Increment Hotel And Parking Booked Slots Count
 export const incrementSlotsCount = async (req, res) => {
   try {
-
     const parking = await HotelandParking.findOne({ _id: req.params.id });
     if (parking) {
       if (parking.parking_booked_slots >= parking.parking_total_slots) {
@@ -175,7 +175,9 @@ export const incrementSlotsCount = async (req, res) => {
       { new: true }
     );
     if (result) {
-      res.status(200).json({ message: "Hotel And Parking Booked Slots Updated Successfully" });
+      res.status(200).json({
+        message: "Hotel And Parking Booked Slots Updated Successfully",
+      });
     } else {
       res.status(404).json({ message: "Hotel And Parking Not Found" });
     }
