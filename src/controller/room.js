@@ -74,3 +74,78 @@ export const getRoomById = async (req, res) => {
     console.log(error);
   }
 };
+
+// Update Room By Id And Room No
+export const updateRoomById = async (req, res) => {
+  try {
+    const room = await Room.findById(req.params.id);
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+
+    if (req.body.type) {
+      room.type = req.body.type;
+    }
+    if (req.body.price) {
+      room.price = req.body.price;
+    }
+    if (req.body.description) {
+      room.description = req.body.description;
+    }
+    if (req.body.photos) {
+      room.photos = req.body.photos;
+    }
+    if (req.body.room_no) {
+      room.room_no = req.body.room_no;
+    }
+
+    const result = await room.save();
+    if (result) {
+      res.status(200).json({ message: "Room Updated Successfully" });
+    } else {
+      res.status(500).json({ message: "Room Cannot be Updated" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// Update Unavailable Dates
+export const updateUnavailableDates = async (req, res) => {
+  try {
+
+    // Finding Room By Id
+    const room = await Room.findById(req.params.id);
+    // Checking Room is available or not
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+
+    // Updating Room Dates Manually
+    let roomFound = false;
+    let room_No = req.body.number;  // Room No To Be Updated
+    for (let i = 0; i < room.room_no.length; i++) {
+      const room_no = room.room_no[i];
+      if (room_No === room_no.number) {
+        room_no.unavailableDates.push(req.body.unavailableDates); // Updating Requested Room Dates
+        roomFound = true;
+        break; // to exit the loop after the first match
+      }
+    }
+    if (roomFound === false) {
+      return res.status(404).json({ message: `Room with Room NO:${room_No} does not exist` });
+    }
+
+    // Saving New Dates
+    const result = await Room.findOneAndUpdate({ _id: req.params.id }, { $set: { room_no: room.room_no } }, { new: true });
+
+    // Checking Result
+    if (result) {
+      res.status(200).json({ message: "Room Dates Updated Successfully", room: result });
+    } else {
+      res.status(500).json({ message: "Room Cannot be Updated" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
