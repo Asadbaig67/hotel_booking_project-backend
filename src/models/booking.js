@@ -14,13 +14,13 @@ const BookingSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Hotel",
   },
-  roomId: [
+  room: [
     {
       RoomId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Room",
       },
-      Roon_no: {
+      Room_no: {
         type: Number,
       },
     }
@@ -52,7 +52,7 @@ const BookingSchema = new Schema({
   },
   price: [
     {
-      Roon_no: {
+      Room_no: {
         type: Number,
       },
       Price: {
