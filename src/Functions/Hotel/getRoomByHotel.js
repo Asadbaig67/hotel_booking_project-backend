@@ -3,12 +3,13 @@ export const getRoomByHotel = async (cityHotel, roomsArr) => {
   await Promise.all(
     cityHotel.map(async (hotel, i) => {
       try {
-        const rooms = await Promise.all(
+        let rooms = await Promise.all(
           hotel.rooms.map(async (id) => {
             return await Room.findById(id.toString());
           })
         );
         roomsArr[i] = [];
+        rooms = rooms.filter((room) => room !== null);
         rooms.forEach((room) => {
           roomsArr[i].push(room);
         });
