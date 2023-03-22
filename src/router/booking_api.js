@@ -9,7 +9,7 @@ router.get("/getBooking", getBooking);
 // Get Specific Booking By Id
 router.get("/getBooking/:id", getBookingById);
 // Add New User Booking
-router.post("/UserBooking", UserBooking);
+router.post("/userBooking", UserBooking);
 // Update Booking
 router.put("/updateBooking/:id", updateBooking);
 // Delete Booking
