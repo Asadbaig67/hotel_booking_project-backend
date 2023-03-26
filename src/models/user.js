@@ -5,43 +5,47 @@ import jwt from "jsonwebtoken";
 const userschema = new mongoose.Schema({
   firstName: {
     type: String,
-    required: true,
+    // required: true,
   },
   lastName: {
     type: String,
-    required: true,
+    // required: true,
+  },
+  googleId: {
+    type: String,
+    unique: true
   },
   email: {
     type: String,
-    required: true,
+    // required: true,
   },
   account_type: {
     type: String,
-    required: true,
+    // required: true,
   },
   subuser: {
     type: Number,
-    required: true,
+    // required: true,
   },
   subusers: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      // required: true,
     },
   ],
   password: {
     type: String,
-    required: true,
+    // required: true,
   },
   c_password: {
     type: String,
-    required: true,
+    // required: true,
   },
   tokens: [
     {
       token: {
         type: String,
-        required: true,
+        // required: true,
       },
     },
   ],
@@ -69,9 +73,5 @@ userschema.methods.generatetoken = async function () {
 };
 
 const User = mongoose.model("USER", userschema);
-
-// module.exports = User;
-
-// export default User;
 
 export default User;

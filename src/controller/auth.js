@@ -1,6 +1,7 @@
 import bcryptjs from "bcryptjs";
 import User from "../models/user.js";
 
+// User Registration Function
 export const registration = async (req, res) => {
 
   try {
@@ -50,11 +51,13 @@ export const registration = async (req, res) => {
   }
 };
 
+// Get All Users Function
 export const getAll = async (req, res) => {
   let result = await User.find();
   res.send(result);
 };
 
+// Get All Users According To Account Type Function
 export const getAllUser = async (req, res) => {
   let { account_type } = req.params;
   account_type.toLowerCase();
@@ -62,7 +65,7 @@ export const getAllUser = async (req, res) => {
   res.send(result);
 }
 
-
+// Login Function
 export const login = async (req, res) => {
 
   // Deconstructing the request body
@@ -99,6 +102,7 @@ export const login = async (req, res) => {
   }
 };
 
+// Update Account Function
 export const updateAccount = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -116,7 +120,7 @@ export const updateAccount = async (req, res) => {
     }
 
     // Finding user by ID and updating their information
-    const user = await User.findByIdAndUpdate(userId,req.body,{ new: true });
+    const user = await User.findByIdAndUpdate(userId, req.body, { new: true });
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -129,6 +133,7 @@ export const updateAccount = async (req, res) => {
   }
 };
 
+// Delete Account Function
 export const deleteAccount = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -147,3 +152,27 @@ export const deleteAccount = async (req, res) => {
   }
 };
 
+
+// GOOGLE AUTHENTICATION FUNCTIONS
+
+// Login Failed Function
+export const loginFailed = (req, res) => {
+  res.status(401).json({ message: "Login Failed" });
+}
+
+// Login Success Function
+export const loginSuccess = (req, res) => {
+  if (req.user) {
+    res.status(200).json({ message: "Login Success", user: req.user });
+
+  } else {
+    res.status(401).json({ message: "User not authenticated" });
+  }
+}
+
+// Logout Function
+export const logout = (req, res) => {
+  req.logout();
+  // res.redirect(process.env.CLIENT_URL);
+  res.status(200).json({ message: "Logout Success" });
+}
