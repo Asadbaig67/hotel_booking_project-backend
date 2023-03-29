@@ -8,6 +8,7 @@ import Parking from "./router/parking_api.js";
 import Room from "./router/room_api.js";
 import HotelandParking from "./router/hotelandparking_api.js";
 import booking from "./router/booking_api.js";
+import mail from "./router/mail_api.js";
 import cors from "cors";
 // import cookieSession from "cookie-session";
 import expressSession from 'express-session';
@@ -76,6 +77,7 @@ app.use("/parking", Parking);
 app.use("/room", Room);
 app.use("/hotelandparking", HotelandParking);
 app.use("/booking", booking);
+app.use('/mail', mail);
 
 // To listen to port
 app.listen(port, () => {
