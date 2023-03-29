@@ -1,7 +1,7 @@
 import booking from "../models/booking.js";
 import Parking from "../models/Parking.js";
 import { validateBooking } from '../Functions/Booking/ValidateData.js'
-import { updateunavailabledates } from "../Functions/Hotel/UpdateUnavailableDates.js";
+import { updateunavailabledates } from "../Functions/Booking/UpdateUnavailableDates.js";
 
 // Add Booking Function
 export const addBooking = async (req, res) => {
