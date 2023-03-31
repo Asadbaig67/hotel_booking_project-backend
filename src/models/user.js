@@ -63,10 +63,10 @@ userschema.pre("save", async function (next) {
 // generating token
 userschema.methods.generatetoken = async function () {
   try {
-    let token = jwt.sign({ _id: this._id }, process.env.SECRET_KEY);
-    this.tokens = this.tokens.concat({ token: token });
+    let tokenValue = jwt.sign({ _id: this._id }, process.env.SECRET_KEY);
+    this.tokens = this.tokens.concat({ token: tokenValue });
     await this.save();
-    return token;
+    return tokenValue;
   } catch (error) {
     console.log(error);
   }

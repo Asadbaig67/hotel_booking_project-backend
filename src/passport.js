@@ -1,11 +1,15 @@
 import passport from 'passport';
+import bcryptjs from "bcryptjs";
+
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as LocalStrategy } from 'passport-local';
+
 import User from "./models/user.js";
 import dotenv from "dotenv";
 dotenv.config({ path: "./src/config/config.env" });
 
 
-export const passportSetup = (clientID, clientSecret) => {
+export const passportGoogleSetup = (clientID, clientSecret) => {
     passport.use(new GoogleStrategy({
         clientID: process.env.CLIENT_ID,
         clientSecret: process.env.CLIENT_SECRET,
@@ -62,6 +66,52 @@ export const passportSetup = (clientID, clientSecret) => {
         // You can perform additional actions here, like storing the user in a database
 
         done(null, userObj);
+    });
+}
+
+export const passportLocalSetup = () => {
+    // Local Strategy Middleware
+    passport.use(new LocalStrategy({
+        usernameField: 'email',
+        passwordField: 'password'
+    }, async (email, password, done) => {
+        try {
+            // Find User In DataBase
+            const user = await User.findOne({ email: email });
+            // Check If User Exists
+            if (!user) {
+                return done(null, false, { message: 'User not found' });
+            }
+            // Check If Password Is Correct
+            let result = await bcryptjs.compare(password, user.password);
+
+            // If Password Is Wrong
+            if (!result) {
+                return done(null, false, { message: 'Wrong Password' });
+            }
+
+            return done(null, user, { message: 'Login Success' });
+        } catch (error) {
+            return done(error, false);
+
+        }
+    }));
+
+
+    // Storing User In Session
+    passport.serializeUser((user, done) => {
+        done(null, user.id);
+    });
+    // Getting User From Session
+    passport.deserializeUser(async (id, done) => {
+        try {
+            const user = await User.findById(id);
+            done(null, user);
+
+        } catch (error) {
+            done(error, false);
+
+        }
     });
 }
 

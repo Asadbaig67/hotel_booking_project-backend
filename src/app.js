@@ -13,7 +13,7 @@ import cors from "cors";
 // import cookieSession from "cookie-session";
 import expressSession from 'express-session';
 import passport from "passport";
-import { passportSetup } from "./passport.js";
+import { passportGoogleSetup, passportLocalSetup } from "./passport.js";
 dotenv.config({ path: "./src/config/config.env" });
 const db = process.env.DATABASE;
 
@@ -30,8 +30,10 @@ const app = express();
 //   })
 // );
 
-// Passport Setup Function Call
-passportSetup();
+// Google Passport Function Call
+passportGoogleSetup();
+// Local Passport Function Call
+passportLocalSetup();
 
 // Express Session
 app.use(expressSession({

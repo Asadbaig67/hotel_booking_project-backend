@@ -19,11 +19,37 @@ Router.post("/registeration", registration);
 Router.get("/getall", getAll);
 
 // Login Apis
-Router.post("/login", login);
+Router.post("/userlogin", passport.authenticate("local", { successRedirect: process.env.CLIENT_URL, failureRedirect: '/userlogin' }), (req, res) => {
+
+  if (req.isAuthenticated()) {
+    res.status(200).json({ message: "Login Success", user: req.user });
+  } else {
+    res.status(401).json({ message: "User not authenticated" });
+  }
+});
+
+Router.get("/userlogout", (req, res) => {
+  req.logout(function (err) {
+    if (err) {
+      // handle error
+      console.error(err);
+      return res.status(500).json({ message: "An error occurred during logout" });
+    }
+    // logout success
+    res.status(200).json({ message: "User Logout Successful" });
+  });
+});
+
 
 // Protected Test Route
-Router.get("/protected", authorization, (req, res) => {
-  res.json({ user: { id: req.userId } });
+Router.get("/protected", (req, res) => {
+
+  if (req.isAuthenticated()) {
+    res.status(200).json({ message: "Protected", user: req.user })
+  } else {
+    res.status(400).json({ message: "Failure" });
+  }
+
 });
 
 // Update User
