@@ -23,16 +23,16 @@ const userschema = new mongoose.Schema({
     type: String,
     // required: true,
   },
-  subuser: {
-    type: Number,
-    // required: true,
-  },
-  subusers: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      // required: true,
-    },
-  ],
+  // subuser: {
+  //   type: Number,
+  //   // required: true,
+  // },
+  // subusers: [
+  //   {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     // required: true,
+  //   },
+  // ],
   password: {
     type: String,
     // required: true,

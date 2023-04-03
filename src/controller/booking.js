@@ -100,6 +100,7 @@ export const UserBooking = async (req, res) => {
 
       // Make New Booking document and save
       const newBooking = new booking(data);
+      
       // const newBooking = new booking({
       //   Booking_type,
       //   userId,
