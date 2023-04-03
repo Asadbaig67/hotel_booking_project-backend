@@ -41,7 +41,7 @@ export const sendmail = async (req, res) => {
         let mail = Mailgenerator.generate(newemail);
 
         let newmessage = {
-            from: "Backend Developer "+process.env.EMAIL,
+            from: "Backend Developer " + process.env.EMAIL,
             to: email,
             subject: 'Confirm Account',
             html: mail
@@ -62,6 +62,64 @@ export const sendmail = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: "Internal Server Error",
+        });
+    }
+};
+
+
+export const sendotp = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        let config = {
+            service: "gmail",
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASSWORD,
+            },
+        };
+        const transporter = nodemailer.createTransport(config);
+
+        let Mailgenerator = new Mailgen({
+            theme: 'default',
+            product: {
+                name: 'Password Reset',
+                link: 'https://mailgen.js/',
+            }
+        });
+
+        const newemail = {
+            body: {
+                name: 'Hassaan Ahmed',
+                intro: `Your OTP Verification code is: ${otp}`,
+            }
+        };
+
+        let mail = Mailgenerator.generate(newemail);
+
+        let newmessage = {
+            from: process.env.EMAIL,
+            to: email,
+            subject: 'OPT Verification',
+            html: mail
+        }
+
+        transporter.sendMail(newmessage, (err, info) => {
+            if (err) {
+                res.status(500).json({
+                    message: "Internal Server Error",
+                    error: err
+                });
+            } else {
+                res.status(200).json({
+                    message: "Email Sent Successfully",
+                });
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Internal Server Error",
+            error: error
         });
     }
 };
