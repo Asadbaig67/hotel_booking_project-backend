@@ -65,7 +65,7 @@ export const getParkingByCity = async (req, res) => {
 // Get Parking By Search Function
 export const getParkingBySearch = async (req, res) => {
   let city = req.query.city;
-  let dates = [req.query.checkIn, req.query.checkOut];
+  // let dates = [req.query.checkIn, req.query.checkOut];
   let vehicles = req.query.vehicles;
   let parkingData = [];
 
@@ -83,7 +83,9 @@ export const getParkingBySearch = async (req, res) => {
       }
     });
     parkingData = parkingData.filter((parking) => parking.available === true);
-    res.status(200).json(parkingData);
+
+    res.status(200).json({ parkingList: parkingData });
+
   } catch (error) {
     console.log(error);
   }
