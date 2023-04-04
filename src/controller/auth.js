@@ -3,14 +3,21 @@ import User from "../models/user.js";
 
 // User Registration Function
 export const registration = async (req, res) => {
-
   try {
 
     // Deconstructing the request body
-    let { firstName, lastName, email, account_type, password, c_password } = req.body;
+    let { firstName, lastName, email, account_type, password, c_password } =
+      req.body;
 
     // Checking if all fields are filled
-    if (!firstName || !lastName || !email || !account_type || !password || !c_password) {
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !account_type ||
+      !password ||
+      !c_password
+    ) {
       return res.status(422).json({ error: "All fields are required!" });
     }
 
@@ -66,11 +73,20 @@ export const getAllUser = async (req, res) => {
   account_type.toLowerCase();
   let result = await User.find({ account_type });
   res.send(result);
-}
+};
 
+// Get User By Id Function
+export const getuserbyid = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const result = await User.findById(id);
+    res.json(result);
+  } catch (error) {
+    res.json("User not found");
+  }
+};
 // Login Function
 export const login = async (req, res) => {
-
   // Deconstructing the request body
   const { email, password } = req.body;
 
@@ -79,7 +95,7 @@ export const login = async (req, res) => {
 
   // generating error if user does not exists
   if (!exists) {
-    return res.status(500).json({ error: "User Does'nt exist" });
+    return res.status(500).json({ error: "User Doesn't exist" });
   }
 
   // comparing password
@@ -94,13 +110,16 @@ export const login = async (req, res) => {
       // res.status(201).json(token);
       // res.cookie("user_token", token).status(201).json({ message: "Login Success" });
 
-      res.cookie('tokens', token, {
-        maxAge: 1000 * 60 * 60 * 24, // 1 day
-        httpOnly: true,
-        secure: true,
-        sameSite: 'none',
-        path: '/'
-      }).status(201).json({ message: 'Login Success' });
+      res
+        .cookie("tokens", token, {
+          maxAge: 1000 * 60 * 60 * 24, // 1 day
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
+          path: "/",
+        })
+        .status(201)
+        .json({ message: "Login Success", type: exists.account_type });
     }
   }
 };
@@ -155,27 +174,25 @@ export const deleteAccount = async (req, res) => {
   }
 };
 
-
 // GOOGLE AUTHENTICATION FUNCTIONS
 
 // Login Failed Function
 export const loginFailed = (req, res) => {
   res.status(401).json({ message: "Login Failed" });
-}
+};
 
 // Login Success Function
 export const loginSuccess = (req, res) => {
   if (req.user) {
     res.status(200).json({ message: "Login Success", user: req.user });
-
   } else {
     res.status(401).json({ message: "User not authenticated" });
   }
-}
+};
 
 // Logout Function
 export const logout = (req, res) => {
   req.logout();
   // res.redirect(process.env.CLIENT_URL);
   res.status(200).json({ message: "Logout Success" });
-}
+};

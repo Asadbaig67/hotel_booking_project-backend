@@ -2,7 +2,7 @@ import express from "express";
 import passport from "passport";
 import dotenv from "dotenv";
 
-import { getAll, login, registration, updateAccount, deleteAccount, loginSuccess, loginFailed, logout } from "../controller/auth.js";
+import { getAll, login, registration, updateAccount, deleteAccount, loginSuccess, loginFailed, logout,getuserbyid } from "../controller/auth.js";
 import { authorization } from "../middleware/authentication.js";
 import { googleAuthenticate, googleAuthenticateCallback } from "../middleware/google_auth.js";
 
@@ -17,6 +17,9 @@ Router.post("/registeration", registration);
 
 // Get All Users
 Router.get("/getall", getAll);
+
+//Get user by id
+Router.get("/getuserbyid/:id",  getuserbyid);
 
 // Login Apis
 Router.post("/userlogin", passport.authenticate("local", { successRedirect: process.env.CLIENT_URL, failureRedirect: '/userlogin' }), (req, res) => {

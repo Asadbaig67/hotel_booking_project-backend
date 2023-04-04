@@ -57,6 +57,19 @@ export const getAllHotels = async (req, res) => {
   res.send(result);
 };
 
+export const getHotelsById = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const data = await Hotel.findById(id);
+    if (!data) {
+      res.status(404).json({ message: "No hotels found" });
+    }
+    res.send(data);
+  } catch (error) {
+    res.json(error);
+  }
+};
+
 // Get Hotel By City Function
 export const getHotelByCity = async (req, res) => {
   let city = req.query.city;

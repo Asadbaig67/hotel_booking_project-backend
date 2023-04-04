@@ -13,6 +13,5 @@ export const updateunavailabledates = async (room, checkIn, checkOut) => {
         });
         return response.json();
     }));
-
     return result;
 }
