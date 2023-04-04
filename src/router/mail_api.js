@@ -1,12 +1,13 @@
 import express from "express";
-// import { addHotel, getAllHotels, getHotelByCity,updateHotel,deleteHotel } from "../controller/hotel.js";
-import { sendmail, sendotp } from "../controller/mailer.js";
+import { sendmail, sendotp,sendVerificationmail } from "../controller/mailer.js";
 const Router = express.Router();
 
 
 // Send Email
 Router.post("/sendmail", sendmail);
+
 // Email Verification
+Router.post('/emailverification', sendVerificationmail);
 
 
 // Password Change Verification
