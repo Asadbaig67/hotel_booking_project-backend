@@ -5,6 +5,7 @@ import User from "../models/user.js";
 export const registration = async (req, res) => {
 
   try {
+
     // Deconstructing the request body
     let { firstName, lastName, email, account_type, password, c_password } = req.body;
 
@@ -26,6 +27,8 @@ export const registration = async (req, res) => {
 
     // Converting account type to lowercase
     account_type.toLowerCase();
+
+    // User Email Verification API
 
     // creating new user
     const new_user = new User({

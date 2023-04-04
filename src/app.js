@@ -10,6 +10,7 @@ import HotelandParking from "./router/hotelandparking_api.js";
 import booking from "./router/booking_api.js";
 import mail from "./router/mail_api.js";
 import resetPassword from "./router/resetPassword_api.js";
+import verifyEmail from './router/emailVerification.js'
 import cors from "cors";
 // import cookieSession from "cookie-session";
 import expressSession from 'express-session';
@@ -82,6 +83,7 @@ app.use("/hotelandparking", HotelandParking);
 app.use("/booking", booking);
 app.use('/mail', mail);
 app.use('/otp', resetPassword);
+app.use('/email', verifyEmail);
 
 // To listen to port
 app.listen(port, () => {

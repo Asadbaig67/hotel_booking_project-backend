@@ -1,7 +1,10 @@
 import passport from 'passport';
 import bcryptjs from "bcryptjs";
 
+// For Google Authentication
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+
+// For Sign Up And Login Of User
 import { Strategy as LocalStrategy } from 'passport-local';
 
 import User from "./models/user.js";
@@ -100,9 +103,11 @@ export const passportLocalSetup = () => {
 
     // Storing User In Session
     passport.serializeUser((user, done) => {
+
+        // Stores User Id In The Session
         done(null, user.id);
     });
-    // Getting User From Session
+    // Getting User From Session And Storing In req.user
     passport.deserializeUser(async (id, done) => {
         try {
             const user = await User.findById(id);
