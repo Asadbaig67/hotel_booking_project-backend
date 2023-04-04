@@ -72,6 +72,16 @@ export const getAllUser = async (req, res) => {
   res.send(result);
 };
 
+// Get User By Id Function
+export const getuserbyid = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const result = await User.findById(id);
+    res.json(result);
+  } catch (error) {
+    res.json("User not found");
+  }
+};
 // Login Function
 export const login = async (req, res) => {
   // Deconstructing the request body
