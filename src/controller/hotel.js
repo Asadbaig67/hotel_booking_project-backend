@@ -111,7 +111,9 @@ export const getHotelByCity = async (req, res) => {
   );
   hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
 
-  res.send(hotelRecord);
+  // if (hotelData === []) return res.status(401).json({ message: "No Hotel Found" });
+
+  return res.status(200).json({ hoteldata: hotelData });
 };
 
 // Update Parking Function

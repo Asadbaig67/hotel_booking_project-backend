@@ -16,7 +16,7 @@ const Router = express.Router();
 // Add Parking Route
 Router.post("/addparking", addParking);
 // Get Parking By Search Route
-Router.get("/getparkingbysearch", getParkingBySearch);
+Router.get("/search", getParkingBySearch);
 // Get All Parking Route
 Router.get("/getallparkings", getAllParking);
 // Get Parking By City Route

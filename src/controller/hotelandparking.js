@@ -136,7 +136,7 @@ export const getHotelAndParkingBySearch = async (req, res) => {
   hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
   hotelData = hotelData.filter((hotel) => hotel.parking >= vehicle);
 
-  res.send(hotelData);
+  res.status(200).json({ data: hotelData });
 };
 
 // Update Hotel And Parking
