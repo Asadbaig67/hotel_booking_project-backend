@@ -8,6 +8,8 @@ import {
   getHotelAndParkingBySearch,
   incrementSlotsCount,
   gethotelandparkingbyId,
+  getPendinghotelandparkings,
+  approveHotelAndParking,
 } from "../controller/hotelandparking.js";
 
 const Router = express.Router();
@@ -16,6 +18,8 @@ const Router = express.Router();
 Router.post("/addhotelandparking", addhotelandparking);
 // Get All Hotel And Parking
 Router.get("/getallhotelandparkings", getAllhotelandparkings);
+// Get Pending Hotel And Parking
+Router.get("/getPendinghotelandparkings", getPendinghotelandparkings);
 // Get Hotel And Parking By Specific City
 Router.get("/gethotel/:city", gethotelandparkingbyCity);
 // Get hotel and parking by id
@@ -24,6 +28,8 @@ Router.get("/gethotelandparkingbyid/:id", gethotelandparkingbyId);
 Router.get("/search", getHotelAndParkingBySearch);
 // Update Hotel And Parking Booked Slots
 Router.put("/Incrementbookedslots/:id", incrementSlotsCount);
+// Update Hotel And Parking Approved Status
+Router.put("/approveHotelAndParking/:id", approveHotelAndParking);
 // Update Hotel And Parking
 Router.patch("/updatehotelandparking/:id", updateHotelAndParking);
 // Delete Hotel And Parking

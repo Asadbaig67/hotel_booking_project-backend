@@ -62,6 +62,19 @@ export const getAllParking = async (req, res) => {
   }
 };
 
+// Get Pending Parking Records Function
+export const getPendingParking = async (req, res) => {
+  let result = await Parking.find();
+  try {
+    const response = result.filter((item) => item.approved === false);
+    if (!response)
+      return res.status(404).json({ message: "Parking Not Found" });
+    res.status(200).json(response);
+  } catch (error) {
+    res.json(error);
+  }
+};
+
 // Get Parking By City Function
 export const getParkingByCity = async (req, res) => {
   let city = req.params.city;
@@ -150,6 +163,28 @@ export const updateParkingBookedSlots = async (req, res) => {
     const result = await Parking.findOneAndUpdate(
       { _id: req.params.id },
       { $inc: { booked_slots: 1 } },
+      { new: true }
+    );
+    if (result) {
+      res.status(200).json({ message: "Parking Updated Successfully" });
+    } else {
+      res.status(404).json({ message: "Parking Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Update Parking Approved Function
+export const approveParking = async (req, res) => {
+  const data = await Parking.findById(req.params.id);
+  try {
+    if (!data) return res.status(404).json({ message: "Parking Not Found" });
+    if (data.approved)
+      return res.status(422).json({ message: "Parking Already Approved" });
+    const result = await Parking.findOneAndUpdate(
+      { _id: req.params.id },
+      { approved: true },
       { new: true }
     );
     if (result) {

@@ -61,6 +61,17 @@ export const getAllHotels = async (req, res) => {
   res.send(response);
 };
 
+// Get Pending Hotels List Function
+export const getPendingHotels = async (req, res) => {
+  let result = await Hotel.find();
+  let response = result.filter((hotel) => hotel.approved === false);
+  if (!response) {
+    return res.status(404).json({ message: "No hotels found" });
+  }
+  res.send(response);
+};
+
+// Get Hotel By Id Function
 export const getHotelsById = async (req, res) => {
   const _id = req.params.id;
   try {
@@ -135,6 +146,30 @@ export const updateHotel = async (req, res) => {
       res.status(200).json({ message: "Hotel Updated Successfully" });
     } else {
       res.status(404).json({ message: "Hotel Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Approve Hotel Function
+export const approveHotel = async (req, res) => {
+  const data = await Hotel.findById(req.params.id);
+  try {
+    if (!data) return res.status(404).json({ message: "Hotel Not Found" });
+    if (data.approved === true) {
+      return res.status(200).json({ message: "Hotel Already Approved" });
+    }
+    const result = await Hotel.findByIdAndUpdate(
+      req.params.id,
+      { approved: true },
+      { new: true }
+    );
+
+    if (result !== null) {
+      return res.status(200).json({ message: "Hotel Approved Successfully" });
+    } else {
+      return res.status(404).json({ message: "Hotel Not Found" });
     }
   } catch (error) {
     console.log(error);

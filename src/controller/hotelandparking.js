@@ -94,6 +94,20 @@ export const getAllhotelandparkings = async (req, res) => {
   }
 };
 
+// Get Pending Hotels And Parking
+export const getPendinghotelandparkings = async (req, res) => {
+  let result = await HotelandParking.find();
+  try {
+    const response = result.filter((item) => item.approved === false);
+    if (!response) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    res.send(response);
+  } catch (error) {
+    res.json(error);
+  }
+};
+
 // Get All Hotel And Parking By City
 export const gethotelandparkingbyCity = async (req, res) => {
   let city = req.params.city;
@@ -215,6 +229,33 @@ export const incrementSlotsCount = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+  }
+};
+
+//Approve Hotel And Parking
+export const approveHotelAndParking = async (req, res) => {
+  const data = await HotelandParking.findById(req.params.id);
+  try {
+    if (!data) {
+      return res.status(404).json({ message: "Hotel And Parking Not Found" });
+    }
+    if (data.approved === true) {
+      return res
+        .status(404)
+        .json({ message: "Hotel And Parking Already Approved" });
+    }
+    const result = await HotelandParking.findByIdAndUpdate(
+      req.params.id,
+      { approved: true },
+      { new: true }
+    );
+    if (result) {
+      res.status(200).json({ message: "Hotel And Parking Approved" });
+    } else {
+      res.status(404).json({ message: "Hotel And Parking Not Found" });
+    }
+  } catch (error) {
+    res.jsonOnError(error);
   }
 };
 
