@@ -54,17 +54,22 @@ export const addHotel = async (req, res) => {
 // Get All Hotels List Function
 export const getAllHotels = async (req, res) => {
   let result = await Hotel.find();
-  res.send(result);
+  let response = result.filter((hotel) => hotel.approved === true);
+  if (!response) {
+    return res.status(404).json({ message: "No hotels found" });
+  }
+  res.send(response);
 };
 
 export const getHotelsById = async (req, res) => {
-  const id = req.params.id;
+  const _id = req.params.id;
   try {
-    const data = await Hotel.findById(id);
-    if (!data) {
-      res.status(404).json({ message: "No hotels found" });
+    const data = await Hotel.findById(_id);
+    const response = data.approved === true ? data : null;
+    if (!response) {
+      return res.status(404).json({ message: "No hotels found" });
     }
-    res.send(data);
+    res.send(response);
   } catch (error) {
     res.json(error);
   }
@@ -110,10 +115,12 @@ export const getHotelByCity = async (req, res) => {
     room_available
   );
   hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
+  hotelData = hotelData.filter((hotel) => hotel.hotel.approved === true);
 
-  // if (hotelData === []) return res.status(401).json({ message: "No Hotel Found" });
+  if (hotelData === [])
+    return res.status(401).json({ message: "No Hotel Found" });
 
-  return res.status(200).json({ hoteldata: hotelData });
+  return res.status(200).json(hotelData);
 };
 
 // Update Parking Function

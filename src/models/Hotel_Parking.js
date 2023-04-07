@@ -67,6 +67,10 @@ const HotelandParkingschema = new mongoose.Schema({
       type: String,
     },
   ],
+  approved: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // createing a new collection

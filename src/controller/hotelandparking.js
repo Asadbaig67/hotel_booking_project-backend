@@ -83,14 +83,45 @@ export const addhotelandparking = async (req, res) => {
 // Get All Hotels And Parking
 export const getAllhotelandparkings = async (req, res) => {
   let result = await HotelandParking.find();
-  res.send(result);
+  try {
+    const response = result.filter((item) => item.approved === true);
+    if (!response) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    res.send(response);
+  } catch (error) {
+    res.json(error);
+  }
 };
 
 // Get All Hotel And Parking By City
 export const gethotelandparkingbyCity = async (req, res) => {
   let city = req.params.city;
   let result = await HotelandParking.find({ city });
-  res.send(result);
+  try {
+    const response = result.filter((item) => item.approved === true);
+    if (!response) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    res.send(response);
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+// Get Hotel And Parking By Id
+export const gethotelandparkingbyId = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const data = await HotelandParking.findById(id);
+    const response = data.approved === true ? data : null;
+    if (!response) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    res.send(response);
+  } catch (error) {
+    res.json(error);
+  }
 };
 
 // Search Hotel And Parking By City Function
@@ -135,8 +166,9 @@ export const getHotelAndParkingBySearch = async (req, res) => {
   );
   hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
   hotelData = hotelData.filter((hotel) => hotel.parking >= vehicle);
+  hotelData = hotelData.filter((hotel) => hotel.hotel.approved === true);
 
-  res.status(200).json({ data: hotelData });
+  res.status(200).json(hotelData);
 };
 
 // Update Hotel And Parking

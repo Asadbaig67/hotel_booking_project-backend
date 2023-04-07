@@ -52,14 +52,40 @@ export const addParking = async (req, res) => {
 // Get All Parking Records Function
 export const getAllParking = async (req, res) => {
   let result = await Parking.find();
-  res.send(result);
+  try {
+    const response = result.filter((item) => item.approved === true);
+    if (!response)
+      return res.status(404).json({ message: "Parking Not Found" });
+    res.status(200).json(response);
+  } catch (error) {
+    res.json(error);
+  }
 };
 
 // Get Parking By City Function
 export const getParkingByCity = async (req, res) => {
   let city = req.params.city;
-  let result = await Parking.findOne({ city });
-  res.send(result);
+  try {
+    let result = await Parking.find({ city });
+    const response = result.filter((item) => item.approved === true);
+    if (!response)
+      return res.status(404).json({ message: "Parking Not Found" });
+    res.send(response);
+  } catch (error) {}
+};
+
+// Get Parking By Id Function
+export const getParkingById = async (req, res) => {
+  let id = req.params.id;
+  try {
+    let parking = await Parking.findById(id);
+    const response = parking.approved === true ? parking : null;
+    if (!response)
+      return res.status(404).json({ message: "Parking Not Found" });
+    res.status(200).json(response);
+  } catch (error) {
+    res.json(error);
+  }
 };
 
 // Get Parking By Search Function
@@ -83,9 +109,11 @@ export const getParkingBySearch = async (req, res) => {
       }
     });
     parkingData = parkingData.filter((parking) => parking.available === true);
+    parkingData = parkingData.filter(
+      (parking) => parking.parking.approved === true
+    );
 
     res.status(200).json({ parkingList: parkingData });
-
   } catch (error) {
     console.log(error);
   }
@@ -112,7 +140,6 @@ export const updateParking = async (req, res) => {
 // Update Parking Booked Slots Function
 export const updateParkingBookedSlots = async (req, res) => {
   try {
-
     const parking = await Parking.findOne({ _id: req.params.id });
     if (parking) {
       if (parking.booked_slots >= parking.total_slots) {
