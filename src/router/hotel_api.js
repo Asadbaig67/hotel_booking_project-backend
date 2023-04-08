@@ -1,4 +1,7 @@
 import express from "express";
+
+
+
 import {
   addHotel,
   getAllHotels,
@@ -10,10 +13,12 @@ import {
   approveHotel,
 } from "../controller/hotel.js";
 
+// Initialize multer with the storage configuration
 const Router = express.Router();
 
 // Add Hotel
-Router.post("/addhotel", addHotel);
+Router.post("/addhotel", addHotel)
+
 // Get All Hotels
 Router.get("/getallhotels", getAllHotels);
 // Get Pending Hotels

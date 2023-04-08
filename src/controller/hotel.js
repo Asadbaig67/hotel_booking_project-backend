@@ -2,31 +2,93 @@ import Hotel from "../models/Hotel.js";
 import { checkRoomAvailability } from "../Functions/Hotel/checkroomAvailabilty.js";
 import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty.js";
 import { getRoomByHotel } from "../Functions/Hotel/getRoomByHotel.js";
-
+import { fileURLToPath } from 'url';
+import path from 'path';
 // Add Hotel Function
 export const addHotel = async (req, res) => {
+
+
   try {
-    let hotel_obj = {};
-    if (
-      req.body.name &&
-      req.body.title &&
-      req.body.rating &&
-      req.body.description &&
-      req.body.photos &&
-      req.body.city &&
-      req.body.country &&
-      req.body.address
-    ) {
-      hotel_obj.name = req.body.name;
-      hotel_obj.title = req.body.title;
-      hotel_obj.rating = req.body.rating;
-      hotel_obj.description = req.body.description;
-      hotel_obj.photos = req.body.photos;
-      hotel_obj.city = req.body.city;
-      hotel_obj.country = req.body.country;
-      hotel_obj.address = req.body.address;
-    } else {
+
+
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).json({ error: "No files were uploaded." });
+    }
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const hotelsLocation = path.join(__dirname, '..', 'uploads', 'HotelImages');
+
+
+
+    const files = Object.values(req.files).flat();
+    const fileNames = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileName = file.name.replace(/\s+/g, '');
+      fileNames.push(fileName);
+      const filePath = path.join(hotelsLocation, fileName);
+      // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
+      await file.mv(filePath);
+    }
+
+    // res.status(200).json({ message: "File(s) uploaded successfully." });
+    // const promises = files.map(async (file) => {
+    //   const fileName = file.name.replace(/\s+/g, '');
+    //   fileNames.push(fileName);
+    //   const filePath = path.join(hotelsLocation, fileName);
+    //   console.log(filePath);
+    //   await file.mv(filePath);
+    // });
+
+    // await Promise.all(promises);
+
+    const baseUrl = 'http://localhost:5000';
+    const photos = fileNames.map(fileName => `${baseUrl}/uploads/HotelImages/${fileName}`);
+
+    // const hotelsLocation = path.join(process.cwd(), '/uploads', 'HotelImages');
+
+    // const files = Object.entries(req.files).map(([key, file]) => ({
+    //   file_name: file.name,
+    //   mimetype: file.mimetype,
+    //   size: file.size
+    // }));
+
+    // Object.entries(req.files).map(([key, file]) => {
+    //   console.log(Object.entries(req.files)[0][1].name);
+
+    // });
+    // Object.entries(req.files).map(([key, file]) => {
+    //   file.mv(path.join(hotelsLocation, file.name), (err) => {
+    //     if (err) {
+    //       return res.status(500).json({ error: "This message occurs when moving files to folder" + err.message });
+    //     }
+    //   });
+    // });
+
+    // res.status(200).json({ message: "File(s) uploaded successfully." });
+
+    // const baseUrl = 'http://localhost:5000';
+    // const photos = files.map((file) => `${baseUrl}/uploads/HotelImages/${file.file_name}`);
+
+
+    const { name, title, rating, description, city, country, address } = req.body;
+
+
+    if (!name || !title || !rating || !description || !city || !country || !address) {
       return res.status(422).json({ error: "All fields are required! " });
+    }
+
+    let hotel_obj = {
+      name,
+      title,
+      rating,
+      description,
+      city,
+      country,
+      address,
+      photos
     }
 
     const exists = await Hotel.findOne({
@@ -38,13 +100,22 @@ export const addHotel = async (req, res) => {
       return res.status(422).json({ error: "Hotel already exists" });
     }
 
-    const new_hotel = new Hotel(hotel_obj);
+    const new_hotel = new Hotel({
+      name,
+      title,
+      rating,
+      description,
+      city,
+      country,
+      address,
+      photos
+    });
 
     const result = await new_hotel.save();
     if (result) {
-      res.status(201).json({ message: "Hotel Added Successfully" });
+      return res.status(201).json({ message: "Hotel Added Successfully" });
     } else {
-      res.status(500).json({ message: "Hotel Cannot be Added" });
+      return res.status(500).json({ message: "Hotel Cannot be Added" });
     }
   } catch (error) {
     console.log(error);

@@ -12,10 +12,12 @@ import mail from "./router/mail_api.js";
 import resetPassword from "./router/resetPassword_api.js";
 import verifyEmail from './router/emailVerification.js'
 import cors from "cors";
-// import cookieSession from "cookie-session";
 import expressSession from 'express-session';
+import path from "path";
+import fileUpload from "express-fileupload";
 import passport from "passport";
 import { passportGoogleSetup, passportLocalSetup } from "./passport.js";
+import bodyParser from "body-parser";
 dotenv.config({ path: "./src/config/config.env" });
 const db = process.env.DATABASE;
 
@@ -48,6 +50,29 @@ app.use(expressSession({
 // Passport Middleware
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(fileUpload());
+
+const hotelimagesLocation = path.join(process.cwd(), '/src/uploads', 'HotelImages');
+// console.log(hotelimagesLocation);
+// C:\Users\X1 Yoga\Apex_Space_project_Backend\hotel_booking_project-backend\src\uploads\HotelImages
+
+app.use('/uploads/HotelImages', express.static(hotelimagesLocation));
+
+
+// app.use(express.static(hotelsLocation));
+
+// Define the multer storage configuration
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, 'uploads/') // The folder where to save the images
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + '-' + file.originalname); // Use the original name of the file
+//   }
+// })
+
+// Initialize multer with the storage configuration
+// const upload = multer({ storage: storage });
 
 
 
@@ -61,11 +86,13 @@ const port = process.env.PORT;
 app.use(express.json());
 
 // To avoid cors error
-app.use(cors({
-  origin: 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  credentials: true
-}));
+// app.use(cors({
+//   origin: 'http://localhost:3000',
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+//   credentials: true
+// }));
+app.use(cors());
+app.use(bodyParser.json());
 
 // To access static files
 app.get("/", (req, res) => {
