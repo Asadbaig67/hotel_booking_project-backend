@@ -40,6 +40,10 @@ const hotelschema = new mongoose.Schema({
       ref: "Room",
     },
   ],
+  approved: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // createing a new collection
