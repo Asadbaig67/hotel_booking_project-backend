@@ -45,15 +45,15 @@ export const addhotelandparking = async (req, res) => {
     const hotelPhotos = hotel_fileNames.map(fileName => `${baseUrl}/uploads/Hotel_Parking_Images/${fileName}`);
     const parkingPhotos = parking_fileNames.map(fileName => `${baseUrl}/uploads/Hotel_Parking_Images/${fileName}`);
 
-    const { hotel_name, hotel_title, hotel_rating, address, city, country, hotel_description, parking_name, parking_title, parking_booked_slots, parking_total_slots, price, parking_description } = req.body;
+    const { hotel_name, hotel_title, hotel_rating, address, city, country, total_slots, booked_slots, hotel_description, parking_name, parking_title, price, parking_description } = req.body;
 
     // Check if all fields are filled
-    if (!hotel_name || !hotel_title || !hotel_rating || !address || !city || !country || !hotel_description || !parking_name || !parking_title || !parking_booked_slots || !parking_total_slots || !price || !parking_description) {
+    if (!hotel_name || !hotel_title || !hotel_rating || !address || !city || !country || !hotel_description || !parking_name || !parking_title || !booked_slots || !total_slots || !price || !parking_description) {
       return res.status(422).json({ error: "All fields are required! " });
     }
 
     // Check if hotel and parking already exists
-    // $or: [ { status: "A" }, { qty: { $lt: 30 } } ]
+    // $or: [{ status: "A" }, { qty: { $lt: 30 } }]
     const exists = await HotelandParking.findOne({
       $or: [
         { hotel_name },
@@ -76,8 +76,8 @@ export const addhotelandparking = async (req, res) => {
       hotel_description,
       parking_name,
       parking_title,
-      parking_booked_slots,
-      parking_total_slots,
+      booked_slots,
+      total_slots,
       parking_description,
       price,
       hotel_photos: hotelPhotos,
