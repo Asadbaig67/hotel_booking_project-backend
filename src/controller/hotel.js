@@ -33,45 +33,8 @@ export const addHotel = async (req, res) => {
       await file.mv(filePath);
     }
 
-    // res.status(200).json({ message: "File(s) uploaded successfully." });
-    // const promises = files.map(async (file) => {
-    //   const fileName = file.name.replace(/\s+/g, '');
-    //   fileNames.push(fileName);
-    //   const filePath = path.join(hotelsLocation, fileName);
-    //   console.log(filePath);
-    //   await file.mv(filePath);
-    // });
-
-    // await Promise.all(promises);
-
     const baseUrl = 'http://localhost:5000';
     const photos = fileNames.map(fileName => `${baseUrl}/uploads/HotelImages/${fileName}`);
-
-    // const hotelsLocation = path.join(process.cwd(), '/uploads', 'HotelImages');
-
-    // const files = Object.entries(req.files).map(([key, file]) => ({
-    //   file_name: file.name,
-    //   mimetype: file.mimetype,
-    //   size: file.size
-    // }));
-
-    // Object.entries(req.files).map(([key, file]) => {
-    //   console.log(Object.entries(req.files)[0][1].name);
-
-    // });
-    // Object.entries(req.files).map(([key, file]) => {
-    //   file.mv(path.join(hotelsLocation, file.name), (err) => {
-    //     if (err) {
-    //       return res.status(500).json({ error: "This message occurs when moving files to folder" + err.message });
-    //     }
-    //   });
-    // });
-
-    // res.status(200).json({ message: "File(s) uploaded successfully." });
-
-    // const baseUrl = 'http://localhost:5000';
-    // const photos = files.map((file) => `${baseUrl}/uploads/HotelImages/${file.file_name}`);
-
 
     const { name, title, rating, description, city, country, address } = req.body;
 
@@ -80,16 +43,6 @@ export const addHotel = async (req, res) => {
       return res.status(422).json({ error: "All fields are required! " });
     }
 
-    let hotel_obj = {
-      name,
-      title,
-      rating,
-      description,
-      city,
-      country,
-      address,
-      photos
-    }
 
     const exists = await Hotel.findOne({
       name: hotel_obj.name,

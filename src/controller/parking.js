@@ -1,42 +1,62 @@
 import Parking from "../models/Parking.js";
+import { fileURLToPath } from 'url';
+import path from 'path';
 
 // Add Parking Function
 export const addParking = async (req, res) => {
   try {
-    let parking_obj = {};
-    if (
-      req.body.name &&
-      req.body.title &&
-      req.body.total_slots &&
-      req.body.description &&
-      req.body.photos &&
-      req.body.city &&
-      req.body.country &&
-      req.body.address
-    ) {
-      parking_obj.name = req.body.name;
-      parking_obj.title = req.body.title;
-      parking_obj.total_slots = req.body.total_slots;
-      parking_obj.description = req.body.description;
-      parking_obj.photos = req.body.photos;
-      parking_obj.city = req.body.city;
-      parking_obj.country = req.body.country;
-      parking_obj.address = req.body.address;
-    } else {
-      return res.status(422).json({ error: "All fields are required! " });
+
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).json({ error: "No files were uploaded." });
     }
 
-    //
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const hotelsLocation = path.join(__dirname, '..', 'uploads', 'ParkingImages');
+
+
+
+    const files = Object.values(req.files).flat();
+    const fileNames = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileName = file.name.replace(/\s+/g, '');
+      fileNames.push(fileName);
+      const filePath = path.join(hotelsLocation, fileName);
+      // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
+      await file.mv(filePath);
+    }
+
+    const baseUrl = 'http://localhost:5000';
+    const photos = fileNames.map(fileName => `${baseUrl}/uploads/ParkingImages/${fileName}`);
+
+    const { name, title, total_slots, description, booked_slots, city, country, address, price } = req.body;
+
+    if (!name || !title || !total_slots || !description || !booked_slots || !city || !country || !address || !price) {
+      return res.status(422).json({ error: "All fields are required! ", data: req.body });
+    }
+
     const exists = await Parking.findOne({
-      name: parking_obj.name,
-      city: parking_obj.city,
-      area: parking_obj.area,
+      name,
+      city,
     });
     if (exists) {
       return res.status(422).json({ error: "Parking already exists" });
     }
 
-    const new_parking = new Parking(parking_obj);
+    const new_parking = new Parking({
+      name,
+      title,
+      total_slots,
+      booked_slots,
+      description,
+      price,
+      city,
+      country,
+      address,
+      photos
+    });
 
     const result = await new_parking.save();
     if (result) {
@@ -84,7 +104,7 @@ export const getParkingByCity = async (req, res) => {
     if (!response)
       return res.status(404).json({ message: "Parking Not Found" });
     res.send(response);
-  } catch (error) {}
+  } catch (error) { }
 };
 
 // Get Parking By Id Function

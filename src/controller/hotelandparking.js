@@ -2,49 +2,53 @@ import HotelandParking from "../models/Hotel_Parking.js";
 import { getRoomByHotel } from "../Functions/Hotel/getRoomByHotel.js";
 import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty.js";
 import { checkRoomAndParkingAvailability } from "../Functions/HotelParking/checkRoomAndParkingAvailabilty.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // Add Hotel And Parking Function
 export const addhotelandparking = async (req, res) => {
   try {
-    // Create a new Hotel and Parking Object
-    let hotel_parking = {};
+
+    const { hotel_photos, parking_photos } = req.files;
+
+    if (!hotel_photos || !parking_photos || Object.keys(hotel_photos).length === 0 || Object.keys(parking_photos).length === 0) {
+      return res.status(400).json({ error: "No files were uploaded." });
+    }
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const h_p_location = path.join(__dirname, '..', 'uploads', 'Hotel_Parking_Images');
+
+    const hotel_files = Object.values(hotel_photos).flat();
+    const hotel_fileNames = [];
+    const parking_files = Object.values(parking_photos).flat();
+    const parking_fileNames = [];
+
+    for (let i = 0; i < hotel_files.length; i++) {
+      const file = hotel_files[i];
+      const fileName = file.name.replace(/\s+/g, '');
+      hotel_fileNames.push(fileName);
+      const filePath = path.join(h_p_location, fileName);
+      await file.mv(filePath);
+    }
+
+    for (let i = 0; i < parking_files.length; i++) {
+      const file = parking_files[i];
+      const fileName = file.name.replace(/\s+/g, '');
+      parking_fileNames.push(fileName);
+      const filePath = path.join(h_p_location, fileName);
+      await file.mv(filePath);
+    }
+
+
+    const baseUrl = 'http://localhost:5000';
+    const hotelPhotos = hotel_fileNames.map(fileName => `${baseUrl}/uploads/Hotel_Parking_Images/${fileName}`);
+    const parkingPhotos = parking_fileNames.map(fileName => `${baseUrl}/uploads/Hotel_Parking_Images/${fileName}`);
+
+    const { hotel_name, hotel_title, hotel_rating, address, city, country, hotel_description, parking_name, parking_title, parking_booked_slots, parking_total_slots, price, parking_description } = req.body;
 
     // Check if all fields are filled
-    if (
-      req.body.hotel_name &&
-      req.body.hotel_title &&
-      req.body.hotel_rating &&
-      req.body.hotel_description &&
-      req.body.hotel_photos &&
-      req.body.rooms &&
-      req.body.hotel_city &&
-      req.body.hotel_country &&
-      req.body.hotel_address &&
-      req.body.parking_name &&
-      req.body.parking_title &&
-      req.body.parking_total_slots &&
-      req.body.parking_description &&
-      req.body.parking_photos
-    ) {
-      // Hotel
-      hotel_parking.hotel_name = req.body.hotel_name;
-      hotel_parking.hotel_title = req.body.hotel_title;
-      hotel_parking.hotel_rating = req.body.hotel_rating;
-      hotel_parking.hotel_description = req.body.hotel_description;
-      hotel_parking.hotel_photos = req.body.hotel_photos;
-      hotel_parking.rooms = req.body.rooms;
-      hotel_parking.hotel_city = req.body.hotel_city;
-      hotel_parking.hotel_country = req.body.hotel_country;
-      hotel_parking.hotel_address = req.body.hotel_address;
-
-      // Parking
-      hotel_parking.parking_name = req.body.parking_name;
-      hotel_parking.parking_title = req.body.parking_title;
-      hotel_parking.parking_total_slots = req.body.parking_total_slots;
-      hotel_parking.parking_description = req.body.parking_description;
-      hotel_parking.parking_photos = req.body.parking_photos;
-    } else {
-      // If any field is missing
+    if (!hotel_name || !hotel_title || !hotel_rating || !address || !city || !country || !hotel_description || !parking_name || !parking_title || !parking_booked_slots || !parking_total_slots || !price || !parking_description) {
       return res.status(422).json({ error: "All fields are required! " });
     }
 
@@ -52,18 +56,33 @@ export const addhotelandparking = async (req, res) => {
     // $or: [ { status: "A" }, { qty: { $lt: 30 } } ]
     const exists = await HotelandParking.findOne({
       $or: [
-        { hotel_name: hotel_parking.hotel_name },
-        { parking_name: hotel_parking.parking_name },
+        { hotel_name },
+        { parking_name },
       ],
     });
+
     if (exists) {
-      return res
-        .status(422)
-        .json({ error: "Hotel and Parking already exists" });
+      return res.status(422).json({ error: "Hotel and Parking already exists" });
     }
 
     // Create a new Hotel and Parking
-    const new_hotelandparking = new HotelandParking(hotel_parking);
+    const new_hotelandparking = new HotelandParking({
+      hotel_name,
+      hotel_title,
+      hotel_rating,
+      address,
+      city,
+      country,
+      hotel_description,
+      parking_name,
+      parking_title,
+      parking_booked_slots,
+      parking_total_slots,
+      parking_description,
+      price,
+      hotel_photos: hotelPhotos,
+      parking_photos: parkingPhotos,
+    });
 
     // Save Hotel and Parking
     const result = await new_hotelandparking.save();
@@ -274,6 +293,7 @@ export const approveHotelAndParking = async (req, res) => {
 // Delete Hotel And Parking
 export const deleteHotelAndParking = async (req, res) => {
   try {
+
     const result = await HotelandParking.findByIdAndDelete(req.params.id);
     if (result) {
       return res
@@ -282,6 +302,7 @@ export const deleteHotelAndParking = async (req, res) => {
     } else {
       return res.status(404).json({ message: "Hotel And Parking Not Found" });
     }
+
   } catch (error) {
     console.log(error);
   }

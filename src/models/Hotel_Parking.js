@@ -18,29 +18,29 @@ const HotelandParkingschema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  hotel_photos: [
-    {
-      type: String,
-    },
-  ],
   rooms: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Room",
     },
   ],
-  hotel_city: {
+  city: {
     type: String,
     required: true,
   },
-  hotel_country: {
+  country: {
     type: String,
     required: true,
   },
-  hotel_address: {
+  address: {
     type: String,
     required: true,
   },
+  hotel_photos: [
+    {
+      type: String,
+    },
+  ],
   parking_name: {
     type: String,
     required: true,
@@ -49,17 +49,21 @@ const HotelandParkingschema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  parking_total_slots: {
+  total_slots: {
     type: Number,
     required: true,
   },
-  parking_booked_slots: {
+  booked_slots: {
     type: Number,
     required: true,
     default: 0,
   },
   parking_description: {
     type: String,
+    required: true,
+  },
+  price: {
+    type: Number,
     required: true,
   },
   parking_photos: [
