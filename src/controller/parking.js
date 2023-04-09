@@ -112,10 +112,9 @@ export const getParkingById = async (req, res) => {
   let id = req.params.id;
   try {
     let parking = await Parking.findById(id);
-    const response = parking.approved === true ? parking : null;
-    if (!response)
-      return res.status(404).json({ message: "Parking Not Found" });
-    res.status(200).json(response);
+    // const response = parking.approved === true ? parking : null;
+    if (!data) return res.status(404).json({ message: "Parking Not Found" });
+    res.status(200).json(data);
   } catch (error) {
     res.json(error);
   }

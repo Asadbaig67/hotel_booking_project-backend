@@ -100,11 +100,11 @@ export const getHotelsById = async (req, res) => {
   const _id = req.params.id;
   try {
     const data = await Hotel.findById(_id);
-    const response = data.approved === true ? data : null;
-    if (!response) {
+    // const response = data.approved === true ? data : null;
+    if (!data) {
       return res.status(404).json({ message: "No hotels found" });
     }
-    res.send(response);
+    res.send(data);
   } catch (error) {
     res.json(error);
   }

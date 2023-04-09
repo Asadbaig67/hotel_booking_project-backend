@@ -127,6 +127,19 @@ export const getPendinghotelandparkings = async (req, res) => {
   }
 };
 
+// Get approved and pending hotels and parking by city
+export const getBothhotelandparkings = async (req, res) => {
+  try {
+    const hotel = await HotelandParking.find();
+    if (!hotel) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    res.json(hotel);
+  } catch (error) {
+    res.json(error);
+  }
+};
+
 // Get All Hotel And Parking By City
 export const gethotelandparkingbyCity = async (req, res) => {
   let city = req.params.city;
@@ -147,11 +160,11 @@ export const gethotelandparkingbyId = async (req, res) => {
   const id = req.params.id;
   try {
     const data = await HotelandParking.findById(id);
-    const response = data.approved === true ? data : null;
-    if (!response) {
+    // const response = data.approved === true ? data : null;
+    if (!data) {
       return res.status(404).json({ message: "No hotels found" });
     }
-    res.send(response);
+    res.send(data);
   } catch (error) {
     res.json(error);
   }
@@ -257,8 +270,7 @@ export const approveHotelAndParking = async (req, res) => {
   try {
     if (!data) {
       return res.status(404).json({ message: "Hotel And Parking Not Found" });
-    }
-    if (data.approved === true) {
+    } else if (data.approved === true) {
       return res
         .status(404)
         .json({ message: "Hotel And Parking Already Approved" });
@@ -274,17 +286,22 @@ export const approveHotelAndParking = async (req, res) => {
       res.status(404).json({ message: "Hotel And Parking Not Found" });
     }
   } catch (error) {
-    res.jsonOnError(error);
+    res.json(error);
   }
 };
 
 // Delete Hotel And Parking
 export const deleteHotelAndParking = async (req, res) => {
   try {
-    const result = await HotelandParking.findOneAndDelete({ _id: req.params.id });
-    if (!result) res.status(404).json({ message: "Hotel And Parking Not Found" })
 
-    res.status(200).json({ message: "Hotel And Parking Deleted Successfully" })
+    const result = await HotelandParking.findByIdAndDelete(req.params.id);
+    if (result) {
+      return res
+        .status(200)
+        .json({ message: "Hotel And Parking Deleted Successfully" });
+    } else {
+      return res.status(404).json({ message: "Hotel And Parking Not Found" });
+    }
 
   } catch (error) {
     console.log(error);
