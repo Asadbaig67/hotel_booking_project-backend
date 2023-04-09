@@ -50,6 +50,8 @@ const hoteli_parking_Location = path.join(process.cwd(), '/src/uploads', 'Hotel_
 // C:\Users\X1 Yoga\Apex_Space_project_Backend\hotel_booking_project-backend\src\uploads\HotelImages
 
 app.use('/uploads/HotelImages', express.static(hotelimagesLocation));
+app.use('/uploads/ParkingImages', express.static(parkingLocation));
+app.use('/uploads/Hotel_Parking_Images', express.static(hoteli_parking_Location));
 
 
 // app.use(express.static(hotelsLocation));
