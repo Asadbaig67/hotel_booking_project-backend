@@ -1,34 +1,51 @@
 import Room from "../models/Room.js";
+import path from "path";
+import { fileURLToPath } from "url";
 
 export const addRoom = async (req, res) => {
   try {
-    let room_obj = {};
-    //new Date(year, month, day, hours, minutes, seconds, milliseconds)
 
-    if (
-      req.body.type &&
-      req.body.price &&
-      req.body.description &&
-      req.body.photos &&
-      req.body.room_no
-    ) {
-      (room_obj.type = req.body.type),
-        (room_obj.price = req.body.price),
-        (room_obj.description = req.body.description),
-        (room_obj.photos = req.body.photos),
-        (room_obj.room_no = req.body.room_no);
-    } else {
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).json({ error: "No files were uploaded." });
+    }
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const roomslocation = path.join(__dirname, "..", "uploads", "RoomImages");
+
+    const files = Object.values(req.files).flat();
+    const fileNames = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileName = file.name.replace(/\s+/g, '');
+      fileNames.push(fileName);
+      const filePath = path.join(roomslocation, fileName);
+      // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
+      await file.mv(filePath);
+    }
+
+    const baseUrl = "http://localhost:5000";
+    const photos = fileNames.map((fileName) => `${baseUrl}/uploads/RoomImages/${fileName}`);
+
+    const { type, price, description, room_no, } = req.body;
+
+    if (!type || !price || !description || !room_no) {
       return res.status(422).json({ error: "All fields are required! " });
     }
 
-    // const exists = await Room.findOne({ room_no: room_obj.room_no });
+    // const exists = await Room.findOne({ type: type });
     // if (exists) {
     //   return res.status(422).json({ error: "Room already exists" });
     // }
 
-    const new_room = new Room(room_obj);
-    new_room.markModified("reserve_date_start");
-    new_room.markModified("reserve_date_end");
+    const new_room = new Room({
+      type,
+      price,
+      description,
+      room_no,
+      photos,
+    });
+
     const result = await new_room.save();
     if (result) {
       res.status(201).json({ message: "Room Added Successfully" });

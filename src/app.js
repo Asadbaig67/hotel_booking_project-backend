@@ -25,15 +25,6 @@ const db = process.env.DATABASE;
 connect(db);
 const app = express();
 
-//For Google Authentication
-// app.use(
-//   cookieSession({
-//     name: "session",
-//     keys: ["cyberwolve"],
-//     maxAge: 24 * 60 * 60 * 100,
-//   })
-// );
-
 // Google Passport Function Call
 passportGoogleSetup();
 // Local Passport Function Call
@@ -44,7 +35,7 @@ app.use(expressSession({
   secret: 'somethingsecretgoeshere',
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false }
+  cookie: { secure: false } // set to true when secured connection
 }));
 
 // Passport Middleware
@@ -53,6 +44,8 @@ app.use(passport.session());
 app.use(fileUpload());
 
 const hotelimagesLocation = path.join(process.cwd(), '/src/uploads', 'HotelImages');
+const parkingLocation = path.join(process.cwd(), '/src/uploads', 'ParkingImages');
+const hoteli_parking_Location = path.join(process.cwd(), '/src/uploads', 'Hotel_Parking_Images');
 // console.log(hotelimagesLocation);
 // C:\Users\X1 Yoga\Apex_Space_project_Backend\hotel_booking_project-backend\src\uploads\HotelImages
 
@@ -86,12 +79,12 @@ const port = process.env.PORT;
 app.use(express.json());
 
 // To avoid cors error
-// app.use(cors({
-//   origin: 'http://localhost:3000',
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-//   credentials: true
-// }));
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  credentials: true
+}));
+// app.use(cors());
 app.use(bodyParser.json());
 
 // To access static files

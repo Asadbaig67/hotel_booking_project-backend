@@ -23,6 +23,10 @@ const parkingschema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  price: {
+    type: Number,
+    required: true,
+  },
   photos: [
     {
       type: String,
@@ -50,7 +54,5 @@ const parkingschema = new mongoose.Schema({
 // createing a new collection
 const Parking = mongoose.model("Parking", parkingschema);
 
-// export this module
-// module.exports = Parking;
 
 export default Parking;
