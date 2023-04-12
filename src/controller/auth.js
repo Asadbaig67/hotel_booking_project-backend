@@ -1,5 +1,9 @@
 import bcryptjs from "bcryptjs";
 import User from "../models/user.js";
+import Emailverification from "../models/emailVerification.js";
+import { Emailverify, SendVerificationEmail } from "./emailVerification.js";
+import { sendVerificationmail } from "./mailer.js";
+import axios from 'axios';
 
 // User Registration Function
 export const registration = async (req, res) => {
@@ -31,30 +35,80 @@ export const registration = async (req, res) => {
       return res.status(422).json({ error: "User already exists" });
     }
 
+    // axios call to send verification email
+    // const url = "http://localhost:5000/email/sendverifyemail";
+    // const options = {
+    //   method: "POST",
+    //   url: url,
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   data: {
+    //     email: email,
+    //   }
+    // }
+    // const response = await axios(options);
+    // // console.log(response.data);
+    // if (!response.data) {
+    //   return res.status(200).json({ message: "Verification Email Sent" });
+    // }
     // Converting account type to lowercase
-    account_type.toLowerCase();
+
+    // Check if the email is present in the ResetPasswordOtp database
+
+    const otp = Math.floor(Math.random() * 900000) + 100000;
+
+    // check if the email is present in the database of email verification
+    const useremail = await Emailverification.findOne({ email: email });
+
+    if(useremail){
+      return res.status(422).json({ error: "Email Already Exists" });
+    }
+
+
+    // Create new passwordreset document
+    const newUser = new Emailverification({
+      email: email,
+      otp: otp,
+    });
+
+    // Save the new passwordreset document
+    await newUser.save();
+
+    // Send the otp to the email
+    const sent = await sendVerificationmail(email, otp, firstName, lastName, password, account_type);
+
+    if (!sent) {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    return res.status(200).json({ message: "Verification Email Sent" });
+    // return res.status(200).json({ message: "Verification Email Sent" });
+
+
+    // account_type.toLowerCase();
 
     // User Email Verification API
 
     // creating new user
-    const new_user = new User({
-      firstName,
-      lastName,
-      email,
-      account_type,
-      password,
-      c_password,
-    });
+    // const new_user = new User({
+    //   firstName,
+    //   lastName,
+    //   email,
+    //   account_type,
+    //   password,
+    //   c_password,
+    // });
 
-    // saving new user
-    const result = await new_user.save();
+    // // saving new user
+    // const result = await new_user.save();
 
     // checking if user is saved
-    if (result) {
-      res.status(201).json({ message: "User Created successfully" });
-    } else {
-      res.status(500).json({ message: "User Registration Failed" });
-    }
+    // if (result) {
+    //   res.status(201).json({ message: "User Created successfully" });
+    // } else {
+    //   res.status(500).json({ message: "User Registration Failed" });
+    // }
   } catch (error) {
     console.log(error);
   }

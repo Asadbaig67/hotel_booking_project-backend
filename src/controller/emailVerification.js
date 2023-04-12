@@ -52,7 +52,8 @@ export const Emailverify = async (req, res) => {
     const decodedObj = QueryString.parse(decodeURIComponent(verifyemail));
 
     // Destructuring the decoded object
-    const { email, otp } = decodedObj;
+    // const { email, otp } = decodedObj;
+    const { email, otp, firstName, lastName, account_type, password } = decodedObj;
 
     // Find the user in the ResetPasswordOtp database
     const userVerify = await Emailverification.findOne({ email: email });
@@ -60,6 +61,27 @@ export const Emailverify = async (req, res) => {
     if (!userVerify) return res.status(400).json({ error: "OTP Expired! Please Retry" });
     // Check if the otp is correct
     if (userVerify.otp !== otp) return res.status(400).json({ error: "Invalid OTP" });
+
+    // Converting account type to lowercase
+    const accountType = account_type.toLowerCase();
+    // creating new user
+    const new_user = new User({
+        firstName,
+        lastName,
+        email,
+        account_type: accountType,
+        password
+    });
+
+    // saving new user
+    const result = await new_user.save();
+
+    // // checking if user is saved
+    // if (result) {
+    //     res.status(201).json({ message: "User Created successfully" });
+    // } else {
+    //     res.status(500).json({ message: "User Registration Failed" });
+    // }
 
     // Return Success Message
     return res.redirect("http://localhost:3000/signin");

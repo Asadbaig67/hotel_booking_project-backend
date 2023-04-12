@@ -68,9 +68,10 @@ export const sendmail = async (req, res) => {
 };
 
 // Send Email Verification Link
-export const sendVerificationmail = async (req, res) => {
+export const sendVerificationmail = async (email, otp, firstName, lastName, password, account_type) => {
     try {
-        const { email, otp } = req.body;
+        const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+
         let config = {
             service: "gmail",
             auth: {
@@ -88,12 +89,12 @@ export const sendVerificationmail = async (req, res) => {
             }
         });
 
-        let verificationObj = { email: email, otp: otp };
+        let verificationObj = { email: email, otp: otp, firstName: firstName, lastName: lastName, password: password, account_type: account_type };
         console.log(verificationObj);
         // Encode the object With QueryString
         let encodedObj = encodeURIComponent(QueryString.stringify(verificationObj));
         console.log(encodedObj);
-        const link = `http://localhost:5000/email/verify?verifyemail=${encodedObj}`;
+        const link = `${baseUrl}/email/verify?verifyemail=${encodedObj}`;
 
         const newemail = {
             body: {
@@ -120,24 +121,88 @@ export const sendVerificationmail = async (req, res) => {
             html: mail
         }
 
-        transporter.sendMail(newmessage, (err, info) => {
-            if (err) {
-                res.status(500).json({
-                    message: "Internal Server Error",
-                });
-            } else {
-                res.status(200).json({
-                    message: "Email Sent Successfully",
-                });
-            }
-        });
-
+        await transporter.sendMail(newmessage);
+        return { status: true, message: "Email Sent Successfully" };
     } catch (error) {
-        res.status(500).json({
-            message: "Internal Server Error",
-        });
+        console.error(error);
+        if (error.code === 'ECONNREFUSED') {
+            return { status: false, message: "Failed to connect to email server" };
+        } else {
+            return { status: false, message: "An unknown error occurred while sending the email" };
+        }
     }
 };
+
+// export const sendVerificationmail = async (req, res) => {
+//     try {
+//         const { email, otp } = req.body;
+//         let config = {
+//             service: "gmail",
+//             auth: {
+//                 user: process.env.EMAIL,
+//                 pass: process.env.PASSWORD,
+//             },
+//         };
+//         const transporter = nodemailer.createTransport(config);
+
+//         let Mailgenerator = new Mailgen({
+//             theme: 'default',
+//             product: {
+//                 name: 'Email Verification',
+//                 link: 'https://mailgen.js/',
+//             }
+//         });
+
+//         let verificationObj = { email: email, otp: otp };
+//         console.log(verificationObj);
+//         // Encode the object With QueryString
+//         let encodedObj = encodeURIComponent(QueryString.stringify(verificationObj));
+//         console.log(encodedObj);
+//         const link = `http://localhost:5000/email/verify?verifyemail=${encodedObj}`;
+
+//         const newemail = {
+//             body: {
+//                 name: 'Hassaan Ahmed',
+//                 intro: 'Welcome to Desalis! Thank You For Creating Account.',
+//                 action: {
+//                     instructions: 'To Verify Your Email, please click here:',
+//                     button: {
+//                         color: '#22BC66',
+//                         text: 'Confirm Account',
+//                         link: link
+//                     }
+//                 },
+//                 outro: 'Need help, or have questions? Just contact Asad(Backend Developer).'
+//             }
+//         };
+
+//         let mail = Mailgenerator.generate(newemail);
+
+//         let newmessage = {
+//             from: process.env.EMAIL,
+//             to: email,
+//             subject: 'Confirm Account',
+//             html: mail
+//         }
+
+//         transporter.sendMail(newmessage, (err, info) => {
+//             if (err) {
+//                 res.status(500).json({
+//                     message: "Internal Server Error",
+//                 });
+//             } else {
+//                 res.status(200).json({
+//                     message: "Email Sent Successfully",
+//                 });
+//             }
+//         });
+
+//     } catch (error) {
+//         res.status(500).json({
+//             message: "Internal Server Error",
+//         });
+//     }
+// };
 
 
 // Send OTP For Password Reset
