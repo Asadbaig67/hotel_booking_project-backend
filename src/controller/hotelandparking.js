@@ -70,9 +70,9 @@ export const addhotelandparking = async (req, res) => {
       hotel_name,
       hotel_title,
       hotel_rating,
-      address,
-      city,
-      country,
+      hotel_address: address,
+      hotel_city: city,
+      hotel_country: country,
       hotel_description,
       parking_name,
       parking_title,
@@ -294,7 +294,7 @@ export const approveHotelAndParking = async (req, res) => {
 export const deleteHotelAndParking = async (req, res) => {
   try {
 
-    const result = await HotelandParking.findByIdAndDelete(req.params.id);
+    const result = await HotelandParking.findByIdAndDelete({ _id: req.params.id });
     if (result) {
       return res
         .status(200)
