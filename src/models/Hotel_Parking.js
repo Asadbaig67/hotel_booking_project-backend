@@ -24,15 +24,15 @@ const HotelandParkingschema = new mongoose.Schema({
       ref: "Room",
     },
   ],
-  city: {
+  hotel_city: {
     type: String,
     required: true,
   },
-  country: {
+  hotel_country: {
     type: String,
     required: true,
   },
-  address: {
+  hotel_address: {
     type: String,
     required: true,
   },
