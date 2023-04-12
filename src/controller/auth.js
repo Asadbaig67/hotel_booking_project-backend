@@ -4,7 +4,6 @@ import User from "../models/user.js";
 // User Registration Function
 export const registration = async (req, res) => {
   try {
-
     // Deconstructing the request body
     let { firstName, lastName, email, account_type, password, c_password } =
       req.body;
@@ -80,7 +79,7 @@ export const getuserbyid = async (req, res) => {
   const id = req.params.id;
   try {
     const result = await User.findById(id);
-    res.json(result);
+    res.json({ message: "User found", user: result });
   } catch (error) {
     res.json("User not found");
   }
@@ -137,9 +136,9 @@ export const updateAccount = async (req, res) => {
     // }
 
     // Checking if password and confirm password are same
-    if (password && c_password && password !== c_password) {
-      return res.status(422).json({ error: "Passwords do not match" });
-    }
+    // if (password && c_password && password !== c_password) {
+    //   return res.status(422).json({ error: "Passwords do not match" });
+    // }
 
     // Finding user by ID and updating their information
     const user = await User.findByIdAndUpdate(userId, req.body, { new: true });

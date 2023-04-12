@@ -6,6 +6,7 @@ export const checkRoomAndParkingAvailability = (hotelRecord, dates) => {
     hotelData[i].hotel = hotel.hotel;
     hotelData[i].parking =
       hotel.hotel.parking_total_slots - hotel.hotel.parking_booked_slots;
+    console.log(hotel.hotel);
     hotelData[i].rooms = [];
     hotel.rooms.map((room, j) => {
       hotelData[i].rooms[j] = {};
