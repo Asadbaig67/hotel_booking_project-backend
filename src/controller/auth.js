@@ -3,7 +3,7 @@ import User from "../models/user.js";
 import Emailverification from "../models/emailVerification.js";
 import { Emailverify, SendVerificationEmail } from "./emailVerification.js";
 import { sendVerificationmail } from "./mailer.js";
-import axios from 'axios';
+import axios from "axios";
 
 // User Registration Function
 export const registration = async (req, res) => {
@@ -61,10 +61,9 @@ export const registration = async (req, res) => {
     // check if the email is present in the database of email verification
     const useremail = await Emailverification.findOne({ email: email });
 
-    if(useremail){
+    if (useremail) {
       return res.status(422).json({ error: "Email Already Exists" });
     }
-
 
     // Create new passwordreset document
     const newUser = new Emailverification({
@@ -76,7 +75,14 @@ export const registration = async (req, res) => {
     await newUser.save();
 
     // Send the otp to the email
-    const sent = await sendVerificationmail(email, otp, firstName, lastName, password, account_type);
+    const sent = await sendVerificationmail(
+      email,
+      otp,
+      firstName,
+      lastName,
+      password,
+      account_type
+    );
 
     if (!sent) {
       return res.status(500).json({ error: "Internal Server Error" });
@@ -84,7 +90,6 @@ export const registration = async (req, res) => {
 
     return res.status(200).json({ message: "Verification Email Sent" });
     // return res.status(200).json({ message: "Verification Email Sent" });
-
 
     // account_type.toLowerCase();
 
@@ -205,6 +210,39 @@ export const updateAccount = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Server Error" });
+  }
+};
+
+//Update Account Password Function
+export const updateAccountPassword = async (req, res) => {
+  const userId = req.params.id;
+  const { password, newPassword, confirmNewPassword } = req.body;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const passCheck = await bcryptjs.compare(password, user.password);
+    const prevCheck = await bcryptjs.compare(newPassword, user.password);
+    if (prevCheck) {
+      return res
+        .status(400)
+        .json({ message: "New Password cannot be same as old password" });
+    }
+    if (!passCheck) {
+      return res.status(400).json({ message: "Incorrect Password" });
+    }
+    if (newPassword !== confirmNewPassword) {
+      return res.status(400).json({ error: "Passwords do not match" });
+    }
+    // Change the password
+    user.password = newPassword;
+    user.c_password = newPassword;
+    // Save the changes
+    const savedChanges = await user.save();
+    res.json({ message: "Password Updated Successfully" });
+  } catch (error) {
+    res.status(502).json({ message: "error" });
   }
 };
 
