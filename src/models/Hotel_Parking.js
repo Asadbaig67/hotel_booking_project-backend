@@ -89,7 +89,6 @@
 // previous version
 
 import mongoose from "mongoose";
-
 // creating a schema
 const HotelandParkingschema = new mongoose.Schema({
   hotel_name: {
@@ -162,12 +161,10 @@ const HotelandParkingschema = new mongoose.Schema({
     default: false,
   },
 });
-
 // createing a new collection
 const HotelandParking = mongoose.model(
   "Hotel And Parking",
   HotelandParkingschema
 );
-
 // export this module
 export default HotelandParking;

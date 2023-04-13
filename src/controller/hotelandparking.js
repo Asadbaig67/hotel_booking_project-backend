@@ -353,7 +353,7 @@ export const addhotelandparking = async (req, res) => {
     const hotelPhotos = hotel_fileNames.map(fileName => `${baseUrl}/uploads/Hotel_Parking_Images/${fileName}`);
     const parkingPhotos = parking_fileNames.map(fileName => `${baseUrl}/uploads/Hotel_Parking_Images/${fileName}`);
 
-    const { hotel_name, hotel_title, hotel_rating, address, city, country, total_slots, booked_slots, hotel_description, parking_name, parking_title, price, parking_description } = req.body;
+    const { hotel_name, hotel_title, hotel_rating, hotel_address, city, country, total_slots, booked_slots, hotel_description, parking_name, parking_title, price, parking_description } = req.body;
 
     // Check if all fields are filled
     if (!hotel_name || !hotel_title || !hotel_rating || !address || !city || !country || !hotel_description || !parking_name || !parking_title || !booked_slots || !total_slots || !price || !parking_description) {
@@ -519,7 +519,7 @@ export const getHotelAndParkingBySearch = async (req, res) => {
     room_available
   );
   hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
-  hotelData = hotelData.filter((hotel) => hotel.parking >= vehicle);
+  // hotelData = hotelData.filter((hotel) => hotel.parking >= vehicle);
   hotelData = hotelData.filter((hotel) => hotel.hotel.approved === true);
 
   res.status(200).json(hotelData);
