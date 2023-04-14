@@ -356,7 +356,7 @@ export const addhotelandparking = async (req, res) => {
     const { hotel_name, hotel_title, hotel_rating, hotel_address, city, country, total_slots, booked_slots, hotel_description, parking_name, parking_title, price, parking_description } = req.body;
 
     // Check if all fields are filled
-    if (!hotel_name || !hotel_title || !hotel_rating || !address || !city || !country || !hotel_description || !parking_name || !parking_title || !booked_slots || !total_slots || !price || !parking_description) {
+    if (!ownerId || !hotel_name || !hotel_title || !hotel_rating || !address || !city || !country || !hotel_description || !parking_name || !parking_title || !booked_slots || !total_slots || !price || !parking_description) {
       return res.status(422).json({ error: "All fields are required! " });
     }
 
@@ -375,6 +375,7 @@ export const addhotelandparking = async (req, res) => {
 
     //     // Create a new Hotel and Parking
     const new_hotelandparking = new HotelandParking({
+      ownerId,
       hotel_name,
       hotel_title,
       hotel_rating,

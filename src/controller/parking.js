@@ -31,9 +31,9 @@ export const addParking = async (req, res) => {
     const baseUrl = 'http://localhost:5000';
     const photos = fileNames.map(fileName => `${baseUrl}/uploads/ParkingImages/${fileName}`);
 
-    const { name, title, total_slots, description, booked_slots, city, country, address, price } = req.body;
+    const { ownerId, name, title, total_slots, description, booked_slots, city, country, address, price } = req.body;
 
-    if (!name || !title || !total_slots || !description || !booked_slots || !city || !country || !address || !price) {
+    if (!ownerId || !name || !title || !total_slots || !description || !booked_slots || !city || !country || !address || !price) {
       return res.status(422).json({ error: "All fields are required! ", data: req.body });
     }
 
@@ -46,6 +46,7 @@ export const addParking = async (req, res) => {
     }
 
     const new_parking = new Parking({
+      ownerId,
       name,
       title,
       total_slots,

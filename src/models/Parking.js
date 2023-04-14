@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 // creating a schema
 const parkingschema = new mongoose.Schema({
+  ownerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   name: {
     type: String,
     required: true,
