@@ -91,6 +91,11 @@
 import mongoose from "mongoose";
 // creating a schema
 const HotelandParkingschema = new mongoose.Schema({
+  ownerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   hotel_name: {
     type: String,
     required: true,

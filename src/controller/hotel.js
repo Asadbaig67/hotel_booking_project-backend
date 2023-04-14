@@ -36,10 +36,10 @@ export const addHotel = async (req, res) => {
     const baseUrl = 'http://localhost:5000';
     const photos = fileNames.map(fileName => `${baseUrl}/uploads/HotelImages/${fileName}`);
 
-    const { name, title, rating, description, city, country, address } = req.body;
+    const { ownerId, name, title, rating, description, city, country, address } = req.body;
 
 
-    if (!name || !title || !rating || !description || !city || !country || !address) {
+    if (!ownerId || !name || !title || !rating || !description || !city || !country || !address) {
       return res.status(422).json({ error: "All fields are required! " });
     }
 
@@ -54,6 +54,7 @@ export const addHotel = async (req, res) => {
     }
 
     const new_hotel = new Hotel({
+      ownerId,
       name,
       title,
       rating,
@@ -83,6 +84,17 @@ export const getAllHotels = async (req, res) => {
     return res.status(404).json({ message: "No hotels found" });
   }
   res.send(response);
+};
+
+// Get Hotel By City Name
+export const getHotelByCityName = async (req, res) => {
+  let city = req.params.city;
+  city = city.toString();
+  const hotels = await Hotel.find({ city: city });
+  if (!hotels) {
+    return res.status(404).json({ message: "No hotels found" });
+  }
+  res.send(hotels);
 };
 
 // Get Pending Hotels List Function
