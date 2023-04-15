@@ -1,4 +1,5 @@
 import Hotel from "../models/Hotel.js";
+import User from "../models/user.js";
 import { checkRoomAvailability } from "../Functions/Hotel/checkroomAvailabilty.js";
 import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty.js";
 import { getRoomByHotel } from "../Functions/Hotel/getRoomByHotel.js";
@@ -217,6 +218,7 @@ export const approveHotel = async (req, res) => {
   const data = await Hotel.findById(req.params.id);
   try {
     if (!data) return res.status(404).json({ message: "Hotel Not Found" });
+    console.log(data);
     if (data.approved === true) {
       return res.status(200).json({ message: "Hotel Already Approved" });
     }
@@ -225,6 +227,12 @@ export const approveHotel = async (req, res) => {
       { approved: true },
       { new: true }
     );
+
+    const { ownerId } = data;
+    const user = await User.findById(ownerId);
+    if (!user) return res.status(404).json({ message: "User Not Found" });
+    user.partner_type = "hotel";
+    await user.save();
 
     if (result !== null) {
       return res.status(200).json({ message: "Hotel Approved Successfully" });

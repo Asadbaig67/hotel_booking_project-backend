@@ -23,6 +23,9 @@ const userschema = new mongoose.Schema({
     type: String,
     // required: true,
   },
+  partner_type: {
+    type: String,
+  },
   // subuser: {
   //   type: Number,
   //   // required: true,

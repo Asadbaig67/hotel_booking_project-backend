@@ -1,6 +1,7 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import HotelandParking from "../models/Hotel_Parking.js";
+import User from "../models/user.js";
 import { getRoomByHotel } from "../Functions/Hotel/getRoomByHotel.js";
 import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty.js";
 import { checkRoomAndParkingAvailability } from "../Functions/HotelParking/checkRoomAndParkingAvailabilty.js";
@@ -65,6 +66,8 @@ export const addhotelandparking = async (req, res) => {
       return res.status(422).json({ error: "Hotel and Parking already exists" });
     }
 
+
+
     //     // Create a new Hotel and Parking
     const new_hotelandparking = new HotelandParking({
       ownerId,
@@ -84,6 +87,8 @@ export const addhotelandparking = async (req, res) => {
       hotel_photos: hotelPhotos,
       parking_photos: parkingPhotos,
     });
+
+
 
     // Save Hotel and Parking
     const result = await new_hotelandparking.save();
@@ -301,6 +306,13 @@ export const approveHotelAndParking = async (req, res) => {
         .status(404)
         .json({ message: "Hotel And Parking Already Approved" });
     }
+
+    const { ownerId } = data;
+    const user = await User.findById(ownerId);
+    if (!user) return res.status(404).json({ message: "User Not Found" });
+    user.partner_type = "hotelAndParking";
+    await user.save();
+
     const result = await HotelandParking.findByIdAndUpdate(
       req.params.id,
       { approved: true },
