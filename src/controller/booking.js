@@ -1,5 +1,7 @@
 import booking from "../models/booking.js";
 import Parking from "../models/Parking.js";
+import Hotel from "../models/Hotel.js";
+import HotelandParking from "../models/Hotel_Parking.js";
 import { validateBooking } from "../Functions/Booking/ValidateData.js";
 import { updateunavailabledates } from "../Functions/Booking/UpdateUnavailableDates.js";
 
@@ -50,6 +52,66 @@ export const getBookingById = async (req, res) => {
   try {
     const bookingById = await booking.findById(req.params.id);
     res.status(200).json(bookingById);
+  } catch (error) {
+    res.status(404).json("Booking not found");
+    // console.log("Error: ", error);
+  }
+};
+
+// Get Specific Booking By Owner Id
+export const getBookingHotelByOwnerId = async (req, res) => {
+  const ownerId = req.params.id;
+  try {
+    const hotel = await Hotel.find({ ownerId });
+    if (!hotel) {
+      return res.status(404).json("Hotel not found");
+    }
+    const hotelId = hotel.map((hotel) => hotel._id);
+    const booking = await booking.find({ hotelId });
+    if (!booking) {
+      return res.status(404).json("Booking not found");
+    }
+    res.status(200).json(booking);
+  } catch (error) {
+    res.status(404).json("Booking not found");
+    // console.log("Error: ", error);
+  }
+};
+// Get Specific Booking By Owner Id
+export const getBookingParkingByOwnerId = async (req, res) => {
+  const ownerId = req.params.id;
+  try {
+    const parking = await Parking.find({ ownerId });
+    if (!parking) {
+      return res.status(404).json("Parking not found");
+    }
+    const parkingId = parking.map((parking) => parking._id);
+    const booking = await booking.find({ parkingId });
+    if (!booking) {
+      return res.status(404).json("Booking not found");
+    }
+    res.status(200).json(booking);
+  } catch (error) {
+    res.status(404).json("Booking not found");
+    // console.log("Error: ", error);
+  }
+};
+// Get Specific Booking By Owner Id
+export const getBookingHotelandParkingByOwnerId = async (req, res) => {
+  const ownerId = req.params.id;
+  try {
+    const HotelandParking = await HotelandParking.find({ ownerId });
+    if (!HotelandParking) {
+      return res.status(404).json("Hotel and Parking not found");
+    }
+    const HotelandParkingId = HotelandParking.map(
+      (HotelandParking) => HotelandParking._id
+    );
+    const booking = await booking.find({ HotelandParkingId });
+    if (!booking) {
+      return res.status(404).json("Booking not found");
+    }
+    res.status(200).json(booking);
   } catch (error) {
     res.status(404).json("Booking not found");
     // console.log("Error: ", error);
@@ -220,6 +282,7 @@ export const UserBooking = async (req, res) => {
     console.log("Error: ", error);
   }
 };
+
 // Update Booking
 export const updateBooking = async (req, res) => {
   const { userId, hotelId, room, checkIn, checkOut, price } = req.body;

@@ -3,47 +3,59 @@ import User from "../models/user.js";
 import { checkRoomAvailability } from "../Functions/Hotel/checkroomAvailabilty.js";
 import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty.js";
 import { getRoomByHotel } from "../Functions/Hotel/getRoomByHotel.js";
-import { fileURLToPath } from 'url';
-import path from 'path';
+import { fileURLToPath } from "url";
+import path from "path";
 // Add Hotel Function
 export const addHotel = async (req, res) => {
-
-
   try {
-
-
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).json({ error: "No files were uploaded." });
     }
 
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
-    const hotelsLocation = path.join(__dirname, '..', 'uploads', 'HotelImages');
-
-
+    const hotelsLocation = path.join(__dirname, "..", "uploads", "HotelImages");
 
     const files = Object.values(req.files).flat();
     const fileNames = [];
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const fileName = file.name.replace(/\s+/g, '');
+      const fileName = file.name.replace(/\s+/g, "");
       fileNames.push(fileName);
       const filePath = path.join(hotelsLocation, fileName);
       // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
       await file.mv(filePath);
     }
 
-    const baseUrl = 'http://localhost:5000';
-    const photos = fileNames.map(fileName => `${baseUrl}/uploads/HotelImages/${fileName}`);
+    const baseUrl = "http://localhost:5000";
+    const photos = fileNames.map(
+      (fileName) => `${baseUrl}/uploads/HotelImages/${fileName}`
+    );
 
-    const { ownerId, name, title, rating, description, city, country, address } = req.body;
+    const {
+      ownerId,
+      name,
+      title,
+      rating,
+      description,
+      city,
+      country,
+      address,
+    } = req.body;
 
-
-    if (!ownerId || !name || !title || !rating || !description || !city || !country || !address) {
+    if (
+      !ownerId ||
+      !name ||
+      !title ||
+      !rating ||
+      !description ||
+      !city ||
+      !country ||
+      !address
+    ) {
       return res.status(422).json({ error: "All fields are required! " });
     }
-
 
     const exists = await Hotel.findOne({
       name: hotel_obj.name,
@@ -63,7 +75,7 @@ export const addHotel = async (req, res) => {
       city,
       country,
       address,
-      photos
+      photos,
     });
 
     const result = await new_hotel.save();
@@ -99,12 +111,12 @@ export const getHotelByCityName = async (req, res) => {
 
   let final_array = [];
   let obj = {
-    hotel: {}
-  }
+    hotel: {},
+  };
   hotels.map((singlehotel) => {
     obj.hotel = singlehotel;
     final_array.push(obj);
-  })
+  });
 
   res.status(200).json(final_array);
 };
@@ -137,11 +149,11 @@ export const getHotelsById = async (req, res) => {
 export const getHotelByOwnerId = async (req, res) => {
   const ownerId = req.params.id;
   try {
-    const res = await Hotel.findOne({ ownerId: ownerId });
-    if (!res) {
+    const result = await Hotel.find({ ownerId });
+    if (!result) {
       return res.status(404).json({ message: "No hotels found" });
     }
-    res.send(res);
+    res.send(result);
   } catch (error) {
     res.json(error);
   }
@@ -231,7 +243,7 @@ export const approveHotel = async (req, res) => {
     const { ownerId } = data;
     const user = await User.findById(ownerId);
     if (!user) return res.status(404).json({ message: "User Not Found" });
-    user.partner_type = "hotel";
+    user.partner_type = "Hotel";
     await user.save();
 
     if (result !== null) {

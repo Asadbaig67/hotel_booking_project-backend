@@ -1,41 +1,69 @@
 import Parking from "../models/Parking.js";
 import User from "../models/user.js";
-import { fileURLToPath } from 'url';
-import path from 'path';
+import { fileURLToPath } from "url";
+import path from "path";
 
 // Add Parking Function
 export const addParking = async (req, res) => {
   try {
-
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).json({ error: "No files were uploaded." });
     }
 
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
-    const hotelsLocation = path.join(__dirname, '..', 'uploads', 'ParkingImages');
-
-
+    const hotelsLocation = path.join(
+      __dirname,
+      "..",
+      "uploads",
+      "ParkingImages"
+    );
 
     const files = Object.values(req.files).flat();
     const fileNames = [];
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const fileName = file.name.replace(/\s+/g, '');
+      const fileName = file.name.replace(/\s+/g, "");
       fileNames.push(fileName);
       const filePath = path.join(hotelsLocation, fileName);
       // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
       await file.mv(filePath);
     }
 
-    const baseUrl = 'http://localhost:5000';
-    const photos = fileNames.map(fileName => `${baseUrl}/uploads/ParkingImages/${fileName}`);
+    const baseUrl = "http://localhost:5000";
+    const photos = fileNames.map(
+      (fileName) => `${baseUrl}/uploads/ParkingImages/${fileName}`
+    );
 
-    const { ownerId, name, title, total_slots, description, booked_slots, city, country, address, price } = req.body;
+    const {
+      ownerId,
+      name,
+      title,
+      total_slots,
+      description,
+      booked_slots,
+      city,
+      country,
+      address,
+      price,
+    } = req.body;
 
-    if (!ownerId || !name || !title || !total_slots || !description || !booked_slots || !city || !country || !address || !price) {
-      return res.status(422).json({ error: "All fields are required! ", data: req.body });
+    if (
+      !ownerId ||
+      !name ||
+      !title ||
+      !total_slots ||
+      !description ||
+      !booked_slots ||
+      !city ||
+      !country ||
+      !address ||
+      !price
+    ) {
+      return res
+        .status(422)
+        .json({ error: "All fields are required! ", data: req.body });
     }
 
     const exists = await Parking.findOne({
@@ -57,7 +85,7 @@ export const addParking = async (req, res) => {
       city,
       country,
       address,
-      photos
+      photos,
     });
 
     const result = await new_parking.save();
@@ -106,16 +134,29 @@ export const getParkingByCity = async (req, res) => {
     if (!response)
       return res.status(404).json({ message: "Parking Not Found" });
     res.send(response);
-  } catch (error) { }
+  } catch (error) {}
 };
 
 // Get Parking By Id Function
 export const getParkingById = async (req, res) => {
   let id = req.params.id;
   try {
-    let parking = await Parking.findById(id);
+    let data = await Parking.findById(id);
     // const response = parking.approved === true ? parking : null;
     if (!data) return res.status(404).json({ message: "Parking Not Found" });
+    res.status(200).json(data);
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+// Get Parking By Owner Id Function
+export const getParkingByOwnerId = async (req, res) => {
+  let ownerId = req.params.id;
+  try {
+    const data = await Parking.find({ ownerId });
+    if (!data)
+      return res.status(404).json({ message: "Parking Not Found" });
     res.status(200).json(data);
   } catch (error) {
     res.json(error);
@@ -204,12 +245,12 @@ export const approveParking = async (req, res) => {
     if (data.approved)
       return res.status(422).json({ message: "Parking Already Approved" });
 
-      const { ownerId } = data;
-      console.log(ownerId);
-      const user = await User.findById(ownerId);
-      if (!user) return res.status(404).json({ message: "User Not Found" });
-      user.partner_type = "Parking";
-      await user.save();
+    const { ownerId } = data;
+    console.log(ownerId);
+    const user = await User.findById(ownerId);
+    if (!user) return res.status(404).json({ message: "User Not Found" });
+    user.partner_type = "Parking";
+    await user.save();
 
     const result = await Parking.findOneAndUpdate(
       { _id: req.params.id },

@@ -12,6 +12,7 @@ import {
   approveHotelAndParking,
   getBothhotelandparkings,
   gethotelandparkingbyCitySearch,
+  gethotelandparkingbyOwnerId,
 } from "../controller/hotelandparking.js";
 
 const Router = express.Router();
@@ -30,6 +31,8 @@ Router.get("/gethotel/:city", gethotelandparkingbyCity);
 Router.get("/cityhotel/:city", gethotelandparkingbyCitySearch);
 // Get hotel and parking by id
 Router.get("/gethotelandparkingbyid/:id", gethotelandparkingbyId);
+// Get Hotel And Parking By Owner Id
+Router.get("/gethotelandparkingbyownerid/:id", gethotelandparkingbyOwnerId);
 // Search Hotel And Parking By Search Query
 Router.get("/search", getHotelAndParkingBySearch);
 // Update Hotel And Parking Booked Slots
