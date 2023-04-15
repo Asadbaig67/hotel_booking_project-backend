@@ -94,9 +94,19 @@ export const getHotelByCityName = async (req, res) => {
   if (!hotels) {
     return res.status(404).json({ message: "No hotels found" });
   }
-  res.send(hotels);
-};
+  // res.send(hotels);
 
+  let final_array = [];
+  let obj = {
+    hotel: {}
+  }
+  hotels.map((singlehotel) => {
+    obj.hotel = singlehotel;
+    final_array.push(obj);
+  })
+
+  res.status(200).json(final_array);
+};
 // Get Pending Hotels List Function
 export const getPendingHotels = async (req, res) => {
   let result = await Hotel.find();

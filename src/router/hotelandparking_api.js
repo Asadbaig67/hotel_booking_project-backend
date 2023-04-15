@@ -54,7 +54,8 @@ import {
   gethotelandparkingbyId,
   getPendinghotelandparkings,
   approveHotelAndParking,
-  getBothhotelandparkings
+  getBothhotelandparkings,
+  gethotelandparkingbyCitySearch,
 } from "../controller/hotelandparking.js";
 
 const Router = express.Router();
@@ -69,6 +70,8 @@ Router.get("/getPendinghotelandparkings", getPendinghotelandparkings);
 Router.get("/getBothhotelandparkings", getBothhotelandparkings);
 // Get Hotel And Parking By Specific City
 Router.get("/gethotel/:city", gethotelandparkingbyCity);
+// Get Hotel And Parking By Specific City
+Router.get("/cityhotel/:city", gethotelandparkingbyCitySearch);
 // Get hotel and parking by id
 Router.get("/gethotelandparkingbyid/:id", gethotelandparkingbyId);
 // Search Hotel And Parking By Search Query
