@@ -1,4 +1,5 @@
 import Parking from "../models/Parking.js";
+import User from "../models/user.js";
 import { fileURLToPath } from 'url';
 import path from 'path';
 
@@ -202,6 +203,14 @@ export const approveParking = async (req, res) => {
     if (!data) return res.status(404).json({ message: "Parking Not Found" });
     if (data.approved)
       return res.status(422).json({ message: "Parking Already Approved" });
+
+      const { ownerId } = data;
+      console.log(ownerId);
+      const user = await User.findById(ownerId);
+      if (!user) return res.status(404).json({ message: "User Not Found" });
+      user.partner_type = "Parking";
+      await user.save();
+
     const result = await Parking.findOneAndUpdate(
       { _id: req.params.id },
       { approved: true },
