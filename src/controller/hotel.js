@@ -132,6 +132,20 @@ export const getHotelsById = async (req, res) => {
   }
 };
 
+//Get Hotel By Owner Id Function
+export const getHotelByOwnerId = async (req, res) => {
+  const ownerId = req.params.id;
+  try {
+    const res = await Hotel.findOne({ ownerId: ownerId });
+    if (!res) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    res.send(res);
+  } catch (error) {
+    res.json(error);
+  }
+};
+
 // Get Hotel By City Function
 export const getHotelByCity = async (req, res) => {
   let city = req.query.city;
