@@ -464,6 +464,31 @@ export const gethotelandparkingbyCity = async (req, res) => {
   }
 };
 
+// Get All Hotel And Parking By City Search
+export const gethotelandparkingbyCitySearch = async (req, res) => {
+  let city = req.params.city;
+  let result = await HotelandParking.find({ hotel_city: city });
+  try {
+    const response = result.filter((item) => item.approved === true);
+    if (!response) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+
+    let final_array = [];
+    let obj = {
+      hotel: {},
+    }
+    response.map((item) => {
+      obj.hotel = item;
+      final_array.push(obj);
+    });
+
+    res.send(final_array);
+  } catch (error) {
+    res.json(error);
+  }
+};
+
 // Get Hotel And Parking By Id
 export const gethotelandparkingbyId = async (req, res) => {
   const id = req.params.id;
