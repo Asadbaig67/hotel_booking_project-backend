@@ -155,9 +155,36 @@ export const getParkingByOwnerId = async (req, res) => {
   let ownerId = req.params.id;
   try {
     const data = await Parking.find({ ownerId });
-    if (!data)
-      return res.status(404).json({ message: "Parking Not Found" });
+    if (!data) return res.status(404).json({ message: "Parking Not Found" });
     res.status(200).json(data);
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+//Get approved parking by owner id
+export const getApprovedParkingByOwnerId = async (req, res) => {
+  let ownerId = req.params.id;
+  try {
+    const data = await Parking.find({ ownerId });
+    const response = data.filter((item) => item.approved === true);
+    if (!response)
+      return res.status(404).json({ message: "Parking Not Found" });
+    res.status(200).json(response);
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+//Get pending parking by owner id
+export const getUnapprovedParkingByOwnerId = async (req, res) => {
+  let ownerId = req.params.id;
+  try {
+    const data = await Parking.find({ ownerId });
+    const response = data.filter((item) => item.approved === false);
+    if (!response)
+      return res.status(404).json({ message: "Parking Not Found" });
+    res.status(200).json(response);
   } catch (error) {
     res.json(error);
   }

@@ -10,6 +10,8 @@ import {
   approveHotel,
   getHotelByCityName,
   getHotelByOwnerId,
+  getApprovedHotelByOwnerId,
+  getUnapprovedHotelByOwnerId,
 } from "../controller/hotel.js";
 
 // Initialize multer with the storage configuration
@@ -26,6 +28,10 @@ Router.get("/getPendinghotels", getPendingHotels);
 Router.get("/gethotelbyid/:id", getHotelsById);
 //Get Hotel by onwer id
 Router.get("/gethotelbyonwerid/:id", getHotelByOwnerId);
+//Get approved hotel by onwer id
+Router.get("/getApprovedhotelbyonwerid/:id", getApprovedHotelByOwnerId);
+//Get unapproved hotel by onwer id
+Router.get("/getUnapprovedhotelbyonwerid/:id", getUnapprovedHotelByOwnerId);
 // Get Hotel By City Name
 Router.get("/gethotelbycity/:city", getHotelByCityName);
 // Get Hotel By City

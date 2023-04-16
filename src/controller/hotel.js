@@ -159,6 +159,36 @@ export const getHotelByOwnerId = async (req, res) => {
   }
 };
 
+//Get Approved Hotel By Owner Id Function
+export const getApprovedHotelByOwnerId = async (req, res) => {
+  const ownerId = req.params.id;
+  try {
+    const result = await Hotel.find({ ownerId });
+    const response = result.filter((hotel) => hotel.approved === true);
+    if (!response) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    res.send(response);
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+// Get Pending Hotel By Owner Id Function
+export const getUnapprovedHotelByOwnerId = async (req, res) => {
+  const ownerId = req.params.id;
+  try {
+    const result = await Hotel.find({ ownerId });
+    const response = result.filter((hotel) => hotel.approved === false);
+    if (!response) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    res.send(response);
+  } catch (error) {
+    res.json(error);
+  }
+}
+
 // Get Hotel By City Function
 export const getHotelByCity = async (req, res) => {
   let city = req.query.city;
