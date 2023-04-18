@@ -59,6 +59,7 @@ export const addhotelandparking = async (req, res) => {
     );
 
     const {
+      ownerId,
       hotel_name,
       hotel_title,
       hotel_rating,
@@ -70,9 +71,9 @@ export const addhotelandparking = async (req, res) => {
       hotel_description,
       parking_name,
       parking_title,
+      address,
       price,
       parking_description,
-      parking_price,
     } = req.body;
 
     // Check if all fields are filled
@@ -81,7 +82,6 @@ export const addhotelandparking = async (req, res) => {
       !hotel_name ||
       !hotel_title ||
       !hotel_rating ||
-      !hotel_address ||
       !address ||
       !city ||
       !country ||
@@ -91,10 +91,29 @@ export const addhotelandparking = async (req, res) => {
       !booked_slots ||
       !total_slots ||
       !price ||
-      !parking_description ||
-      !parking_price
+      !parking_description
     ) {
-      return res.status(422).json({ error: "All fields are required! " });
+      return res.status(422).json({
+        error: "All fields are required! ", dataGot:
+        {
+          ownerId,
+          hotel_name,
+          hotel_title,
+          hotel_rating,
+          hotel_address,
+          city,
+          country,
+          hotel_description,
+          address,
+          parking_name,
+          parking_title,
+          booked_slots,
+          total_slots,
+          price,
+          parking_description,
+        }, datafrombody: req.body
+
+      });
     }
 
     // Check if hotel and parking already exists
@@ -124,10 +143,9 @@ export const addhotelandparking = async (req, res) => {
       parking_booked_slots: booked_slots,
       parking_total_slots: total_slots,
       parking_description,
-      // price,
       hotel_photos: hotelPhotos,
       parking_photos: parkingPhotos,
-      parking_price: parking_price,
+      parking_price: price,
     });
 
     // Save Hotel and Parking
