@@ -5,33 +5,202 @@ import HotelandParking from "../models/Hotel_Parking.js";
 import { validateBooking } from "../Functions/Booking/ValidateData.js";
 import { updateunavailabledates } from "../Functions/Booking/UpdateUnavailableDates.js";
 
-// Add Booking Function
+// Add Hotel Booking Function Updated
 export const addBooking = async (req, res) => {
-  const { userId, hotelId, room, checkIn, checkOut, price } = req.body;
-  const createdAt = Date.now();
-  if (!userId || !hotelId || !room || !checkIn || !checkOut || !price) {
-    return res.status(400).json({ msg: "Please enter all fields" });
+
+  let { userId, hotelId, room, checkIn, checkOut } = req.query;
+
+  if (!userId || !hotelId || !room || !checkIn || !checkOut) {
+    return res.status(400).json({ message: "Please enter all fields. All fields are required." });
   }
-  const exist = await booking.findOne({
-    room,
-    checkIn,
-    checkOut,
+
+  room = JSON.parse(room);
+  checkIn = new Date(checkIn);
+  checkOut = new Date(checkOut);
+  const createdAt = Date.now();
+
+  // Check If Booking Already Exists Or Not
+  const exists = await booking.findOne({
+    hotelId,
+    checkIn: { $lte: checkOut },
+    checkOut: { $gte: checkIn },
+    "room.RoomId": { $in: room.map((r) => r.RoomId) },
+    "room.Room_no": { $in: room.map((r) => r.Room_no) },
   });
-  if (exist) {
+  if (exists) {
     return res.status(400).json({ msg: "Booking already exists" });
   }
+
+  // On Successfull Booking Make API Request To Update The Rooms That Has Been Reserved In This Booking
+  const result = await updateunavailabledates(room, checkIn, checkOut);
+
+  // If Any Of The Rooms Failed To Update, Send Error
+  if (!result.some((result) => result)) {
+    return res.status(400).json({ msg: "Booking ==> Failed" });
+  }
+
+  const total_price = room.reduce((accumulator, currentRoom) => {
+    return accumulator + currentRoom.Room_price;
+  }, 0);
+
+
+  // Make New Booking document and save
   const newBooking = new booking({
+    Booking_type: "hotel",
     userId,
     hotelId,
     room,
     checkIn,
     checkOut,
-    price,
+    total_price,
     createdAt,
   });
+
   try {
+    // Save New Booking
+    const booking_success = await newBooking.save();
+    // If Booking Not Successfull Saved, Send Error
+    if (!booking_success) {
+      return res.status(400).json({ msg: "Booking Failed" });
+    }
+    // If Booking Successfull, Send Success Message
+    res.status(200).json({ msg: "Booking ==> Success", details: booking_success });
+
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+};
+
+// Add Hotel And Parking Booking Function Updated
+export const addBookingHotelAndParking = async (req, res) => {
+  let { userId, HotelAndParkingId, room, checkIn, checkOut, parking } = req.query;
+
+  if (!userId || !HotelAndParkingId || !room || !checkIn || !checkOut || !parking) {
+    return res.status(400).json({ message: "Please enter all fields. All fields are required." });
+  }
+
+  room = JSON.parse(room);
+  parking = JSON.parse(parking);
+  checkIn = new Date(checkIn);
+  checkOut = new Date(checkOut);
+  const createdAt = Date.now();
+
+  // Check If Booking Already Exists Or Not
+  const exists = await booking.findOne({
+    HotelAndParkingId,
+    checkIn: { $lte: checkOut },
+    checkOut: { $gte: checkIn },
+    "room.RoomId": { $in: room.map((r) => r.RoomId) },
+    "room.Room_no": { $in: room.map((r) => r.Room_no) },
+  });
+  if (exists) {
+    return res.status(400).json({ msg: "Booking already exists" });
+  }
+
+  // On Successfull Booking Make API Request To Update The Rooms That Has Been Reserved In This Booking
+  const result = await updateunavailabledates(room, checkIn, checkOut);
+  // If Any Of The Rooms Failed To Update, Send Error
+  if (!result.some((result) => result)) {
+    return res.status(400).json({ msg: "Booking ==> Failed" });
+  }
+
+  // Update Parking Booked Slots
+  const Existing = await HotelandParking.findByIdAndUpdate({ _id: HotelAndParkingId }, { $inc: { parking_booked_slots: parking.Total_slots } }, { new: true });
+  if (!Existing) {
+    return res.status(400).json({ msg: "Booking ==> Failed" });
+  }
+  // Rooms And Parking Price Calculation
+  let total_price = room.reduce((accumulator, currentRoom) => {
+    return accumulator + currentRoom.Room_price;
+  }, 0);
+  total_price = total_price + parking.Total_slots * parking.Parking_price;
+
+
+
+  // Make New Booking document and save
+  const newBooking = new booking({
+    Booking_type: "hotelandparking",
+    userId,
+    HotelAndParkingId,
+    room,
+    checkIn,
+    checkOut,
+    total_price,
+    parking,
+    createdAt,
+  });
+
+  try {
+    // Save New Booking
+    const booking_success = await newBooking.save();
+    // If Booking Not Successfull Saved, Send Error
+    if (!booking_success) {
+      return res.status(400).json({ msg: "Booking Failed" });
+    }
+    // If Booking Successfull, Send Success Message
+    return res.status(200).json({ msg: "Booking ==> Success", details: booking_success });
+
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+};
+
+// Add Parking Booking Function Updated
+export const addBookingParking = async (req, res) => {
+
+
+  let { userId, parkingId, checkIn, checkOut, parking } = req.query;
+
+  if (!userId || !parkingId || !parking || !checkIn || !checkOut) {
+    throw new Error("Please enter all fields. All fields are required.");
+  }
+
+  checkIn = new Date(checkIn);
+  checkOut = new Date(checkOut);
+  parking = JSON.parse(parking);
+  const createdAt = Date.now();
+  let total_price = parking.Total_slots * parking.Parking_price;
+
+
+  const exist = await booking.findOne({
+    userId,
+    parking,
+    checkIn,
+    checkOut,
+  });
+
+  // Add booking in parking by id
+  if (exist) {
+    return res.status(400).json({ msg: "Booking already exists" });
+  }
+
+
+
+  const newBooking = new booking({
+    Booking_type: "parking",
+    userId,
+    parkingId,
+    parking,
+    total_price,
+    checkIn,
+    checkOut,
+    createdAt,
+  });
+
+  try {
+
     const booking = await newBooking.save();
-    res.status(200).json(booking);
+    if (!booking) {
+      return res.status(400).json({ message: "Booking Failed !" })
+    }
+    const Existing_parking = await Parking.findByIdAndUpdate({ _id: parkingId }, { $inc: { total_slots: parking.Total_slots } }, { new: true });
+    if (!Existing_parking) {
+      const deleteBooking = await booking.findByIdAndDelete({ _id: booking._id.toString() });
+      return res.status(409).json({ message: "Error Occured Booking Denied!" });
+    }
+
+    return res.status(200).json(booking);
+
   } catch (error) {
     console.log("Error: ", error);
   }
@@ -89,6 +258,7 @@ export const getBookingHotelByOwnerId = async (req, res) => {
     // console.log("Error: ", error);
   }
 };
+
 // Get Specific Booking By Owner Id
 export const getBookingParkingByOwnerId = async (req, res) => {
   const ownerId = req.params.id;
@@ -108,6 +278,7 @@ export const getBookingParkingByOwnerId = async (req, res) => {
     // console.log("Error: ", error);
   }
 };
+
 // Get Specific Booking By Owner Id
 export const getBookingHotelandParkingByOwnerId = async (req, res) => {
   const ownerId = req.params.id;
