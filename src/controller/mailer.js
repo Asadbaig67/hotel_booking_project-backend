@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import Mailgen from 'mailgen';
 import QueryString from 'qs';
+import User from '../models/user.js';
 
 // Send Demo Email
 export const sendmail = async (req, res) => {
@@ -118,6 +119,75 @@ export const sendVerificationmail = async (email, otp, firstName, lastName, pass
             from: process.env.EMAIL,
             to: email,
             subject: 'Confirm Account',
+            html: mail
+        }
+
+        await transporter.sendMail(newmessage);
+        return { status: true, message: "Email Sent Successfully" };
+    } catch (error) {
+        console.error(error);
+        if (error.code === 'ECONNREFUSED') {
+            return { status: false, message: "Failed to connect to email server" };
+        } else {
+            return { status: false, message: "An unknown error occurred while sending the email" };
+        }
+    }
+};
+
+// Send OTP Verification Link
+export const sendOtpVerificationmail = async (user, email, otp) => {
+    try {
+        const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+
+        let config = {
+            service: "gmail",
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASSWORD,
+            },
+        };
+        const transporter = nodemailer.createTransport(config);
+
+        let Mailgenerator = new Mailgen({
+            theme: 'default',
+            product: {
+                name: 'OTP Verification',
+                link: 'https://mailgen.js/',
+            }
+        });
+
+
+
+
+        let verificationObj = { email: email, otp: otp };
+        console.log(verificationObj);
+        // Encode the object With QueryString
+        let encodedObj = encodeURIComponent(QueryString.stringify(verificationObj));
+        console.log(encodedObj);
+        const link = `${baseUrl}/otp/verifyotp?verifyotp=${encodedObj}`;
+
+        const newemail = {
+            body: {
+                name: user.firstName,
+                intro: 'You will be redirected to password reset page after verfication! Thank You ',
+                action: {
+                    instructions: 'For Verification, please click here:',
+                    button: {
+                        color: '#22BC66',
+                        text: 'Verify Otp',
+                        link: link
+                    }
+                },
+                outro: 'Need help, or have questions? Please Contact Desalis helpline.'
+            }
+        };
+
+        let mail = Mailgenerator.generate(newemail);
+
+        let newmessage = {
+            from: process.env.EMAIL,
+            to: email,
+            subject: 'Reset Password',
             html: mail
         }
 

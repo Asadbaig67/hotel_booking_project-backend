@@ -10,6 +10,7 @@ import {
   approveHotel,
   getHotelByCityName,
   getHotelByOwnerId,
+  getTopHotels,
   getApprovedHotelByOwnerId,
   getUnapprovedHotelByOwnerId,
 } from "../controller/hotel.js";
@@ -34,6 +35,8 @@ Router.get("/getApprovedhotelbyonwerid/:id", getApprovedHotelByOwnerId);
 Router.get("/getUnapprovedhotelbyonwerid/:id", getUnapprovedHotelByOwnerId);
 // Get Hotel By City Name
 Router.get("/gethotelbycity/:city", getHotelByCityName);
+// Get Top 4 Hotels
+Router.get("/gettophotels", getTopHotels);
 // Get Hotel By City
 Router.get("/search", getHotelByCity);
 // Update Hotel

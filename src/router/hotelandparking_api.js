@@ -13,6 +13,7 @@ import {
   getBothhotelandparkings,
   gethotelandparkingbyCitySearch,
   gethotelandparkingbyOwnerId,
+  getTopHotelAndParking,
   getApprovedhotelandparkingbyOwnerId,
   getunapprovedhotelandparkingbyOwnerId,
 } from "../controller/hotelandparking.js";
@@ -31,6 +32,8 @@ Router.get("/getBothhotelandparkings", getBothhotelandparkings);
 Router.get("/gethotel/:city", gethotelandparkingbyCity);
 // Get Hotel And Parking By Specific City
 Router.get("/cityhotel/:city", gethotelandparkingbyCitySearch);
+// Get Top 4 Hotel And Parking
+Router.get("/gettophotelandparkings", getTopHotelAndParking);
 // Get hotel and parking by id
 Router.get("/gethotelandparkingbyid/:id", gethotelandparkingbyId);
 // Get Hotel And Parking By Owner Id
