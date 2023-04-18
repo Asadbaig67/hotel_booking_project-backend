@@ -14,6 +14,14 @@ const BookingSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Hotel",
   },
+  parkingId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Parking",
+  },
+  HotelAndParkingId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "HotelAndParking",
+  },
   room: [
     {
       RoomId: {
@@ -23,12 +31,21 @@ const BookingSchema = new Schema({
       Room_no: {
         type: Number,
       },
-    }
+      Room_price: {
+        type: Number,
+      },
+    },
   ],
-  parkingId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Parking",
-  },
+  parking: [
+    {
+      Total_slots: {
+        type: Number,
+      },
+      Parking_price: {
+        type: Number,
+      },
+    },
+  ],
   checkIn: {
     type: Date,
     required: true,
@@ -37,29 +54,10 @@ const BookingSchema = new Schema({
     type: Date,
     required: true,
   },
-  parkingDetails: {
-
-    parkingName: {
-      type: String,
-    },
-    no_of_vehicles: {
-      type: Number,
-    },
-    total_price: {
-      type: Number,
-    },
-
+  total_price: {
+    type: Number,
+    required: true,
   },
-  price: [
-    {
-      Room_no: {
-        type: Number,
-      },
-      Price: {
-        type: Number,
-      },
-    }
-  ],
   createdAt: {
     type: Date,
     default: Date.now,

@@ -58,6 +58,18 @@ export const getBookingById = async (req, res) => {
   }
 };
 
+// Get Specific Booking By Type
+export const getBookingByType = async (req, res) => {
+  const type = req.params.type;
+  try {
+    const bookingByType = await booking.find({ type });
+    res.status(200).json(bookingByType);
+  } catch (error) {
+    res.status(404).json("Booking not found");
+    // console.log("Error: ", error);
+  }
+};
+
 // Get Specific Booking By Owner Id
 export const getBookingHotelByOwnerId = async (req, res) => {
   const ownerId = req.params.id;
