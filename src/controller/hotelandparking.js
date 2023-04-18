@@ -393,3 +393,18 @@ export const deleteHotelAndParking = async (req, res) => {
     console.log(error);
   }
 };
+
+// Get Top 4 Hotel And Parking
+export const getTopHotelAndParking = async (req, res) => {
+  try {
+    const data = await HotelandParking.find({ approved: true })
+      .sort({ rating: -1 })
+      .limit(4);
+    if (!data) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    res.send(data);
+  } catch (error) {
+    res.json(error);
+  }
+};

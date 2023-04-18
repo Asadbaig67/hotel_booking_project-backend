@@ -53,7 +53,7 @@ export const Emailverify = async (req, res) => {
 
     // Destructuring the decoded object
     // const { email, otp } = decodedObj;
-    const { email, otp, firstName, lastName, account_type, password } = decodedObj;
+    const { email, otp, firstName, lastName, account_type,password } = decodedObj;
 
     // Find the user in the ResetPasswordOtp database
     const userVerify = await Emailverification.findOne({ email: email });

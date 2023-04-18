@@ -269,3 +269,16 @@ export const deleteHotel = async (req, res) => {
     console.log(error);
   }
 };
+
+// Get Top 4 Hotels Function
+export const getTopHotels = async (req, res) => {
+  try {
+    const result = await Hotel.find({ approved: true }).sort({ rating: -1 }).limit(4);
+    if (!result) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+  }
+};

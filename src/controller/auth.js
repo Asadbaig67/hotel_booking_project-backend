@@ -81,7 +81,8 @@ export const registration = async (req, res) => {
       firstName,
       lastName,
       password,
-      account_type
+      account_type,
+
     );
 
     if (!sent) {
