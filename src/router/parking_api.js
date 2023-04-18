@@ -11,6 +11,8 @@ import {
   getPendingParking,
   approveParking,
   getParkingByOwnerId,
+  getApprovedParkingByOwnerId,
+  getUnapprovedParkingByOwnerId
 } from "../controller/parking.js";
 
 const Router = express.Router();
@@ -29,6 +31,10 @@ Router.get("/getParking/:city", getParkingByCity);
 Router.get("/getParkingById/:id", getParkingById);
 //Get Parking By Owner Id Route
 Router.get("/getParkingByOwnerId/:id", getParkingByOwnerId);
+//Get Approved Parking By Owner Id Route
+Router.get("/getApprovedParkingByOwnerId/:id", getApprovedParkingByOwnerId);
+//Get unapproved Parking By Owner Id Route
+Router.get("/getUnapprovedParkingByOwnerId/:id", getUnapprovedParkingByOwnerId);
 // Update Parking Route
 Router.patch("/updateparking/:id", updateParking);
 // Increment Booked Slots Route
