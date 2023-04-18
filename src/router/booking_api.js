@@ -10,6 +10,7 @@ import {
   getBookingHotelByOwnerId,
   getBookingParkingByOwnerId,
   getBookingHotelandParkingByOwnerId,
+  getBookingByType
 } from "../controller/booking.js";
 
 // Add Booking
@@ -18,6 +19,8 @@ router.post("/addBooking", addBooking);
 router.get("/getBooking", getBooking);
 // Get Specific Booking By Id
 router.get("/getBooking/:id", getBookingById);
+//Get booking by type
+router.get("/getBookingByType/:type", getBookingByType);
 //Get Specific Hotel Booking By Owner Id
 router.get("/getBookingHotelByOwnerId/:id", getBookingHotelByOwnerId);
 //Get Specific Parking Booking By Owner Id

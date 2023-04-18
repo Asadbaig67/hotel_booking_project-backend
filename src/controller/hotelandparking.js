@@ -72,6 +72,7 @@ export const addhotelandparking = async (req, res) => {
       parking_title,
       price,
       parking_description,
+      parking_price,
     } = req.body;
 
     // Check if all fields are filled
@@ -80,6 +81,7 @@ export const addhotelandparking = async (req, res) => {
       !hotel_name ||
       !hotel_title ||
       !hotel_rating ||
+      !hotel_address ||
       !address ||
       !city ||
       !country ||
@@ -89,7 +91,8 @@ export const addhotelandparking = async (req, res) => {
       !booked_slots ||
       !total_slots ||
       !price ||
-      !parking_description
+      !parking_description ||
+      !parking_price
     ) {
       return res.status(422).json({ error: "All fields are required! " });
     }
@@ -124,6 +127,7 @@ export const addhotelandparking = async (req, res) => {
       // price,
       hotel_photos: hotelPhotos,
       parking_photos: parkingPhotos,
+      parking_price: parking_price,
     });
 
     // Save Hotel and Parking
@@ -352,7 +356,9 @@ export const updateHotelAndParking = async (req, res) => {
 export const incrementSlotsCount = async (req, res) => {
   try {
     const parking = await HotelandParking.findOne({ _id: req.params.id });
-    if (parking) {
+    if (!parking) {
+      return res.status(404).json({ message: "Hotel And Parking Not Found" });
+    } else {
       if (parking.parking_booked_slots >= parking.parking_total_slots) {
         return res.status(422).json({ error: "Parking is full" });
       }
