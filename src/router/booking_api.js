@@ -10,11 +10,17 @@ import {
   getBookingHotelByOwnerId,
   getBookingParkingByOwnerId,
   getBookingHotelandParkingByOwnerId,
-  getBookingByType
+  getBookingByType,
+  addBookingParking,
+  addBookingHotelAndParking
 } from "../controller/booking.js";
 
-// Add Booking
+// Add Hotel Booking
 router.post("/addBooking", addBooking);
+// Add Parking Booking
+router.post("/addParkingBooking", addBookingParking);
+// Add Hotel and Parking Booking
+router.post("/addHotelAndParkingBooking", addBookingHotelAndParking);
 // Get All Bookings
 router.get("/getBooking", getBooking);
 // Get Specific Booking By Id
@@ -30,6 +36,8 @@ router.get(
   "/getBookingHotelandParkingByOwnerId/:id",
   getBookingHotelandParkingByOwnerId
 );
+
+
 // Add New User Booking
 router.post("/userBooking", UserBooking);
 // Update Booking
