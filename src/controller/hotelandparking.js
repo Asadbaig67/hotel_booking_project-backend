@@ -94,8 +94,8 @@ export const addhotelandparking = async (req, res) => {
       !parking_description
     ) {
       return res.status(422).json({
-        error: "All fields are required! ", dataGot:
-        {
+        error: "All fields are required! ",
+        dataGot: {
           ownerId,
           hotel_name,
           hotel_title,
@@ -111,8 +111,8 @@ export const addhotelandparking = async (req, res) => {
           total_slots,
           price,
           parking_description,
-        }, datafrombody: req.body
-
+        },
+        datafrombody: req.body,
       });
     }
 
@@ -411,17 +411,26 @@ export const approveHotelAndParking = async (req, res) => {
         .json({ message: "Hotel And Parking Already Approved" });
     }
 
-    const { ownerId } = data;
-    const user = await User.findById(ownerId);
-    if (!user) return res.status(404).json({ message: "User Not Found" });
-    user.partner_type = "HotelAndParking";
-    await user.save();
-
     const result = await HotelandParking.findByIdAndUpdate(
       req.params.id,
       { approved: true },
       { new: true }
     );
+    if (result) {
+      const { ownerId } = data;
+      if (!ownerId) {
+        await HotelandParking.findByIdAndUpdate(
+          req.params.id,
+          { approved: false },
+          { new: true }
+        );
+        return res.status(404).json({ message: "User Not Found" });
+      }
+      const user = await User.findById(ownerId);
+      if (!user) return res.status(404).json({ message: "User Not Found" });
+      user.partner_type = "HotelAndParking";
+      await user.save();
+    }
     if (result) {
       res.status(200).json({ message: "Hotel And Parking Approved" });
     } else {

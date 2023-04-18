@@ -272,18 +272,27 @@ export const approveParking = async (req, res) => {
     if (data.approved)
       return res.status(422).json({ message: "Parking Already Approved" });
 
-    const { ownerId } = data;
-    console.log(ownerId);
-    const user = await User.findById(ownerId);
-    if (!user) return res.status(404).json({ message: "User Not Found" });
-    user.partner_type = "Parking";
-    await user.save();
-
     const result = await Parking.findOneAndUpdate(
       { _id: req.params.id },
       { approved: true },
       { new: true }
     );
+
+    if (result) {
+      const { ownerId } = data;
+      if (!ownerId) {
+        await Parking.findByIdAndUpdate(
+          req.params.id,
+          { approved: false },
+          { new: true }
+        );
+        return res.status(404).json({ message: "Owner Not Found" });
+      }
+      const user = await User.findById(ownerId);
+      if (!user) return res.status(404).json({ message: "User Not Found" });
+      user.partner_type = "Parking";
+      await user.save();
+    }
     if (result) {
       res.status(200).json({ message: "Parking Updated Successfully" });
     } else {
