@@ -12,7 +12,13 @@ import {
   getBookingHotelandParkingByOwnerId,
   getBookingByType,
   addBookingParking,
-  addBookingHotelAndParking
+  addBookingHotelAndParking,
+  getPreviousBookingHotelByUserId,
+  getPreviousBookingParkingByUserId,
+  getPreviousBookingHotelandParkingByUserId,
+  getUpcomingBookingHotelByUserId,
+  getUpcomingBookingParkingByUserId,
+  getUpcomingBookingHotelandParkingByUserId,
 } from "../controller/booking.js";
 
 // Add Hotel Booking
@@ -37,7 +43,29 @@ router.get(
   getBookingHotelandParkingByOwnerId
 );
 
+//Get Previous hotel booking by user id
+router.get("/getPreviousBookingHotelByUserId/:id", getPreviousBookingHotelByUserId);
 
+//Get Previous parking booking by user id
+router.get("/getPreviousBookingParkingByUserId/:id", getPreviousBookingParkingByUserId);
+
+//Get Previous hotel and parking booking by user id
+router.get(
+  "/getPreviousBookingHotelandParkingByUserId/:id",
+  getPreviousBookingHotelandParkingByUserId
+);
+
+//Get Upcoming hotel booking by user id
+router.get("/getUpcomingBookingHotelByUserId/:id", getUpcomingBookingHotelByUserId);
+
+//Get Upcoming parking booking by user id
+router.get("/getUpcomingBookingParkingByUserId/:id", getUpcomingBookingParkingByUserId);
+
+//Get Upcoming hotel and parking booking by user id
+router.get(
+  "/getUpcomingBookingHotelandParkingByUserId/:id",
+  getUpcomingBookingHotelandParkingByUserId
+);
 // Add New User Booking
 router.post("/userBooking", UserBooking);
 // Update Booking
