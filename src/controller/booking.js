@@ -346,7 +346,18 @@ export const getPreviousBookingHotelByUserId = async (req, res) => {
     if (!result) {
       return res.status(404).json("Booking not found");
     }
-    res.status(200).json(result);
+
+    let currentDate = new Date();
+
+    const filteredResult = result.filter((booking) => {
+      const bookingCheckIn = new Date(booking.checkIn);
+      const bookingCheckOut = new Date(booking.checkOut);
+      return (bookingCheckIn < currentDate && bookingCheckOut < currentDate) ||
+        (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate);
+    });
+
+
+    res.status(200).json(filteredResult);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -363,7 +374,17 @@ export const getPreviousBookingParkingByUserId = async (req, res) => {
     if (!result) {
       return res.status(404).json("Booking not found");
     }
-    res.status(200).json(result);
+    let currentDate = new Date();
+
+    const filteredResult = result.filter((booking) => {
+      const bookingCheckIn = new Date(booking.checkIn);
+      const bookingCheckOut = new Date(booking.checkOut);
+      return (bookingCheckIn < currentDate && bookingCheckOut < currentDate) ||
+        (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate);
+    });
+
+
+    res.status(200).json(filteredResult);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -380,7 +401,17 @@ export const getPreviousBookingHotelandParkingByUserId = async (req, res) => {
     if (!result) {
       return res.status(404).json("Booking not found");
     }
-    res.status(200).json(result);
+    let currentDate = new Date();
+
+    const filteredResult = result.filter((booking) => {
+      const bookingCheckIn = new Date(booking.checkIn);
+      const bookingCheckOut = new Date(booking.checkOut);
+      return (bookingCheckIn < currentDate && bookingCheckOut < currentDate) ||
+        (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate);
+    });
+
+
+    res.status(200).json(filteredResult);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -397,7 +428,16 @@ export const getUpcomingBookingHotelByUserId = async (req, res) => {
     if (!result) {
       return res.status(404).json("Booking not found");
     }
-    res.status(200).json(result);
+    let currentDate = new Date();
+
+    const filteredResult = result.filter((booking) => {
+      const bookingCheckIn = new Date(booking.checkIn);
+      const bookingCheckOut = new Date(booking.checkOut);
+      return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
+    });
+
+
+    res.status(200).json(filteredResult);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -414,7 +454,16 @@ export const getUpcomingBookingParkingByUserId = async (req, res) => {
     if (!result) {
       return res.status(404).json("Booking not found");
     }
-    res.status(200).json(result);
+    let currentDate = new Date();
+
+    const filteredResult = result.filter((booking) => {
+      const bookingCheckIn = new Date(booking.checkIn);
+      const bookingCheckOut = new Date(booking.checkOut);
+      return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
+    });
+
+
+    res.status(200).json(filteredResult);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -431,11 +480,21 @@ export const getUpcomingBookingHotelandParkingByUserId = async (req, res) => {
     if (!result) {
       return res.status(404).json("Booking not found");
     }
-    res.status(200).json(result);
+    let currentDate = new Date();
+
+    const filteredResult = result.filter((booking) => {
+      const bookingCheckIn = new Date(booking.checkIn);
+      const bookingCheckOut = new Date(booking.checkOut);
+      return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
+    });
+
+
+    res.status(200).json(filteredResult);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
 };
+
 // Add New User Booking Function
 export const UserBooking = async (req, res) => {
   try {
