@@ -187,7 +187,7 @@ export const getUnapprovedHotelByOwnerId = async (req, res) => {
   } catch (error) {
     res.json(error);
   }
-}
+};
 
 // Get Hotel By City Function
 export const getHotelByCity = async (req, res) => {
@@ -270,11 +270,20 @@ export const approveHotel = async (req, res) => {
       { new: true }
     );
 
-    const { ownerId } = data;
-    const user = await User.findById(ownerId);
-    if (!user) return res.status(404).json({ message: "User Not Found" });
-    user.partner_type = "Hotel";
-    await user.save();
+    if (result) {
+      const { ownerId } = data;
+      if (!ownerId) {
+        await Hotel.findByIdAndUpdate(
+          req.params.id,
+          { approved: false },
+          { new: true }
+        );
+        return res.status(404).json({ message: "User Not Found" });
+      }
+      const user = await User.findById(ownerId);
+      user.partner_type = "Hotel";
+      await user.save();
+    }
 
     if (result !== null) {
       return res.status(200).json({ message: "Hotel Approved Successfully" });
@@ -303,7 +312,9 @@ export const deleteHotel = async (req, res) => {
 // Get Top 4 Hotels Function
 export const getTopHotels = async (req, res) => {
   try {
-    const result = await Hotel.find({ approved: true }).sort({ rating: -1 }).limit(4);
+    const result = await Hotel.find({ approved: true })
+      .sort({ rating: -1 })
+      .limit(4);
     if (!result) {
       return res.status(404).json({ message: "No hotels found" });
     }

@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import booking from "../models/booking.js";
 import Parking from "../models/Parking.js";
 import Hotel from "../models/Hotel.js";
@@ -7,11 +8,12 @@ import { updateunavailabledates } from "../Functions/Booking/UpdateUnavailableDa
 
 // Add Hotel Booking Function Updated
 export const addBooking = async (req, res) => {
-
   let { userId, hotelId, room, checkIn, checkOut } = req.query;
 
   if (!userId || !hotelId || !room || !checkIn || !checkOut) {
-    return res.status(400).json({ message: "Please enter all fields. All fields are required." });
+    return res
+      .status(400)
+      .json({ message: "Please enter all fields. All fields are required." });
   }
 
   room = JSON.parse(room);
@@ -43,7 +45,6 @@ export const addBooking = async (req, res) => {
     return accumulator + currentRoom.Room_price;
   }, 0);
 
-
   // Make New Booking document and save
   const newBooking = new booking({
     Booking_type: "hotel",
@@ -64,8 +65,9 @@ export const addBooking = async (req, res) => {
       return res.status(400).json({ msg: "Booking Failed" });
     }
     // If Booking Successfull, Send Success Message
-    res.status(200).json({ msg: "Booking ==> Success", details: booking_success });
-
+    res
+      .status(200)
+      .json({ msg: "Booking ==> Success", details: booking_success });
   } catch (error) {
     console.log("Error: ", error);
   }
@@ -73,10 +75,20 @@ export const addBooking = async (req, res) => {
 
 // Add Hotel And Parking Booking Function Updated
 export const addBookingHotelAndParking = async (req, res) => {
-  let { userId, HotelAndParkingId, room, checkIn, checkOut, parking } = req.query;
+  let { userId, HotelAndParkingId, room, checkIn, checkOut, parking } =
+    req.query;
 
-  if (!userId || !HotelAndParkingId || !room || !checkIn || !checkOut || !parking) {
-    return res.status(400).json({ message: "Please enter all fields. All fields are required." });
+  if (
+    !userId ||
+    !HotelAndParkingId ||
+    !room ||
+    !checkIn ||
+    !checkOut ||
+    !parking
+  ) {
+    return res
+      .status(400)
+      .json({ message: "Please enter all fields. All fields are required." });
   }
 
   room = JSON.parse(room);
@@ -105,7 +117,11 @@ export const addBookingHotelAndParking = async (req, res) => {
   }
 
   // Update Parking Booked Slots
-  const Existing = await HotelandParking.findByIdAndUpdate({ _id: HotelAndParkingId }, { $inc: { parking_booked_slots: parking.Total_slots } }, { new: true });
+  const Existing = await HotelandParking.findByIdAndUpdate(
+    { _id: HotelAndParkingId },
+    { $inc: { parking_booked_slots: parking.Total_slots } },
+    { new: true }
+  );
   if (!Existing) {
     return res.status(400).json({ msg: "Booking ==> Failed" });
   }
@@ -114,8 +130,6 @@ export const addBookingHotelAndParking = async (req, res) => {
     return accumulator + currentRoom.Room_price;
   }, 0);
   total_price = total_price + parking.Total_slots * parking.Parking_price;
-
-
 
   // Make New Booking document and save
   const newBooking = new booking({
@@ -138,8 +152,9 @@ export const addBookingHotelAndParking = async (req, res) => {
       return res.status(400).json({ msg: "Booking Failed" });
     }
     // If Booking Successfull, Send Success Message
-    return res.status(200).json({ msg: "Booking ==> Success", details: booking_success });
-
+    return res
+      .status(200)
+      .json({ msg: "Booking ==> Success", details: booking_success });
   } catch (error) {
     console.log("Error: ", error);
   }
@@ -147,8 +162,6 @@ export const addBookingHotelAndParking = async (req, res) => {
 
 // Add Parking Booking Function Updated
 export const addBookingParking = async (req, res) => {
-
-
   let { userId, parkingId, checkIn, checkOut, parking } = req.query;
 
   if (!userId || !parkingId || !parking || !checkIn || !checkOut) {
@@ -160,7 +173,6 @@ export const addBookingParking = async (req, res) => {
   parking = JSON.parse(parking);
   const createdAt = Date.now();
   let total_price = parking.Total_slots * parking.Parking_price;
-
 
   const exist = await booking.findOne({
     userId,
@@ -174,8 +186,6 @@ export const addBookingParking = async (req, res) => {
     return res.status(400).json({ msg: "Booking already exists" });
   }
 
-
-
   const newBooking = new booking({
     Booking_type: "parking",
     userId,
@@ -188,19 +198,23 @@ export const addBookingParking = async (req, res) => {
   });
 
   try {
-
     const booking = await newBooking.save();
     if (!booking) {
-      return res.status(400).json({ message: "Booking Failed !" })
+      return res.status(400).json({ message: "Booking Failed !" });
     }
-    const Existing_parking = await Parking.findByIdAndUpdate({ _id: parkingId }, { $inc: { total_slots: parking.Total_slots } }, { new: true });
+    const Existing_parking = await Parking.findByIdAndUpdate(
+      { _id: parkingId },
+      { $inc: { total_slots: parking.Total_slots } },
+      { new: true }
+    );
     if (!Existing_parking) {
-      const deleteBooking = await booking.findByIdAndDelete({ _id: booking._id.toString() });
+      const deleteBooking = await booking.findByIdAndDelete({
+        _id: booking._id.toString(),
+      });
       return res.status(409).json({ message: "Error Occured Booking Denied!" });
     }
 
     return res.status(200).json(booking);
-
   } catch (error) {
     console.log("Error: ", error);
   }
@@ -241,20 +255,27 @@ export const getBookingByType = async (req, res) => {
 
 // Get Specific Booking By Owner Id
 export const getBookingHotelByOwnerId = async (req, res) => {
-  const ownerId = req.params.id;
+  const ownerId = mongoose.Types.ObjectId(req.params.id);
   try {
     const hotel = await Hotel.find({ ownerId });
     if (!hotel) {
       return res.status(404).json("Hotel not found");
     }
     const hotelId = hotel.map((hotel) => hotel._id);
-    const booking = await booking.find({ hotelId });
-    if (!booking) {
+    let bookings = [];
+    for (const id of hotelId) {
+      const objectId = mongoose.Types.ObjectId(id);
+      const document = await booking.find({ hotelId: objectId });
+      if (document.length !== 0) bookings.push(document);
+    }
+    bookings = bookings.filter((booking) => booking !== null);
+    const result = bookings.flat();
+    if (bookings.length === 0) {
       return res.status(404).json("Booking not found");
     }
-    res.status(200).json(booking);
+    res.status(200).json(result);
   } catch (error) {
-    res.status(404).json("Booking not found");
+    res.status(404).json("Bookings not found");
     // console.log("Error: ", error);
   }
 };
@@ -268,11 +289,18 @@ export const getBookingParkingByOwnerId = async (req, res) => {
       return res.status(404).json("Parking not found");
     }
     const parkingId = parking.map((parking) => parking._id);
-    const booking = await booking.find({ parkingId });
-    if (!booking) {
+    let bookings = [];
+    for (const id of parkingId) {
+      const objectId = mongoose.Types.ObjectId(id);
+      const document = await booking.find({ parkingId: objectId });
+      if (document.length !== 0) bookings.push(document);
+    }
+    bookings = bookings.filter((booking) => booking !== null);
+    const result = bookings.flat();
+    if (bookings.length === 0) {
       return res.status(404).json("Booking not found");
     }
-    res.status(200).json(booking);
+    res.status(200).json(result);
   } catch (error) {
     res.status(404).json("Booking not found");
     // console.log("Error: ", error);
@@ -281,26 +309,133 @@ export const getBookingParkingByOwnerId = async (req, res) => {
 
 // Get Specific Booking By Owner Id
 export const getBookingHotelandParkingByOwnerId = async (req, res) => {
-  const ownerId = req.params.id;
+  const ownerId = mongoose.Types.ObjectId(req.params.id);
   try {
-    const HotelandParking = await HotelandParking.find({ ownerId });
-    if (!HotelandParking) {
+    const HotelAndParkingData = await HotelandParking.find({ ownerId });
+    if (!HotelAndParkingData) {
       return res.status(404).json("Hotel and Parking not found");
     }
-    const HotelandParkingId = HotelandParking.map(
-      (HotelandParking) => HotelandParking._id
+    const HotelAndParkingId = HotelAndParkingData.map((HotelAndParking) =>
+      mongoose.Types.ObjectId(HotelAndParking._id)
     );
-    const booking = await booking.find({ HotelandParkingId });
-    if (!booking) {
+    let bookings = [];
+    for (const id of HotelAndParkingId) {
+      const objectId = mongoose.Types.ObjectId(id);
+      const document = await booking.find({ HotelAndParkingId: objectId });
+      if (document.length !== 0) bookings.push(document);
+    }
+    bookings = bookings.filter((booking) => booking !== null);
+    const result = bookings.flat();
+    if (bookings.length === 0) {
       return res.status(404).json("Booking not found");
     }
-    res.status(200).json(booking);
+    res.status(200).json(result);
   } catch (error) {
-    res.status(404).json("Booking not found");
-    // console.log("Error: ", error);
+    res.status(404).json("Bookings not found");
   }
 };
 
+//Get Previous Hotel Booking By User Id
+export const getPreviousBookingHotelByUserId = async (req, res) => {
+  const userId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    const bookingByUserId = await booking.find({ userId });
+    const result = bookingByUserId.filter(
+      (booking) => booking.Booking_type === "hotel"
+    );
+    if (!result) {
+      return res.status(404).json("Booking not found");
+    }
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(404).json("Booking not found");
+  }
+};
+
+//Get Previous Parking Booking By User Id
+export const getPreviousBookingParkingByUserId = async (req, res) => {
+  const userId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    const bookingByUserId = await booking.find({ userId });
+    const result = bookingByUserId.filter(
+      (booking) => booking.Booking_type === "parking"
+    );
+    if (!result) {
+      return res.status(404).json("Booking not found");
+    }
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(404).json("Booking not found");
+  }
+};
+
+//Get Previous Hotel and Parking Booking By User Id
+export const getPreviousBookingHotelandParkingByUserId = async (req, res) => {
+  const userId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    const bookingByUserId = await booking.find({ userId });
+    const result = bookingByUserId.filter(
+      (booking) => booking.Booking_type === "hotelandparking"
+    );
+    if (!result) {
+      return res.status(404).json("Booking not found");
+    }
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(404).json("Booking not found");
+  }
+};
+
+//Get Upcoming Hotel Booking By User Id
+export const getUpcomingBookingHotelByUserId = async (req, res) => {
+  const userId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    const bookingByUserId = await booking.find({ userId });
+    const result = bookingByUserId.filter(
+      (booking) => booking.Booking_type === "hotel"
+    );
+    if (!result) {
+      return res.status(404).json("Booking not found");
+    }
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(404).json("Booking not found");
+  }
+};
+
+//Get Upcoming Parking Booking By User Id
+export const getUpcomingBookingParkingByUserId = async (req, res) => {
+  const userId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    const bookingByUserId = await booking.find({ userId });
+    const result = bookingByUserId.filter(
+      (booking) => booking.Booking_type === "parking"
+    );
+    if (!result) {
+      return res.status(404).json("Booking not found");
+    }
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(404).json("Booking not found");
+  }
+};
+
+//Get Upcoming Hotel and Parking Booking By User Id
+export const getUpcomingBookingHotelandParkingByUserId = async (req, res) => {
+  const userId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    const bookingByUserId = await booking.find({ userId });
+    const result = bookingByUserId.filter(
+      (booking) => booking.Booking_type === "hotelandparking"
+    );
+    if (!result) {
+      return res.status(404).json("Booking not found");
+    }
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(404).json("Booking not found");
+  }
+};
 // Add New User Booking Function
 export const UserBooking = async (req, res) => {
   try {
