@@ -3,6 +3,7 @@ import User from "../models/user.js";
 import { checkRoomAvailability } from "../Functions/Hotel/checkroomAvailabilty.js";
 import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty.js";
 import { getRoomByHotel } from "../Functions/Hotel/getRoomByHotel.js";
+import { getRoomByPrices } from "../Functions/Hotel/getRoomsPrices.js";
 import { fileURLToPath } from "url";
 import path from "path";
 // Add Hotel Function
@@ -312,14 +313,25 @@ export const deleteHotel = async (req, res) => {
 // Get Top 4 Hotels Function
 export const getTopHotels = async (req, res) => {
   try {
-    const result = await Hotel.find({ approved: true })
+    const hotels = await Hotel.find({ approved: true })
       .sort({ rating: -1 })
       .limit(4);
-    if (!result) {
+
+    if (!hotels) {
       return res.status(404).json({ message: "No hotels found" });
     }
-    res.send(result);
+
+    const results = await Promise.all(hotels.map(async (hotel) => {
+      const StandardPrice = await getRoomByPrices(hotel.rooms);
+      // const updatedHotel = { ...hotel._doc, roomPrices };
+      const updatedHotel = { ...hotel._doc, StandardPrice };
+      return updatedHotel;
+    }));
+
+    res.send(results);
   } catch (error) {
     console.log(error);
+    res.status(500).send("Internal Server Error");
   }
 };
+
