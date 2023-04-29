@@ -19,6 +19,9 @@ import {
   getUpcomingBookingHotelByUserId,
   getUpcomingBookingParkingByUserId,
   getUpcomingBookingHotelandParkingByUserId,
+  cancelHotelReservation,
+  cancelParkingReservation,
+  cancelHotelAndParkingReservation
 } from "../controller/booking.js";
 
 // Add Hotel Booking
@@ -72,5 +75,13 @@ router.post("/userBooking", UserBooking);
 router.put("/updateBooking/:id", updateBooking);
 // Delete Booking
 router.delete("/deleteBooking/:id", deleteBooking);
+// Cancel Hotel Reservation
+router.delete("/cancelHotelReservation/:id", cancelHotelReservation);
+// Cancel Parking Reservation
+router.delete("/cancelParkingReservation/:id", cancelParkingReservation);
+// Cancel Hotel And Parking Reservation
+router.delete("/cancelHotelAndParkingReservation/:id", cancelHotelReservation);
+
+
 
 export default router;
