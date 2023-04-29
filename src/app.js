@@ -95,7 +95,6 @@ app.get("/", (req, res) => {
 });
 
 
-
 // To access private routes
 app.use("/user", user);
 app.use("/hotels", Hotel);
