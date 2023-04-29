@@ -352,10 +352,11 @@ export const getPreviousBookingHotelByUserId = async (req, res) => {
     const filteredResult = result.filter((booking) => {
       const bookingCheckIn = new Date(booking.checkIn);
       const bookingCheckOut = new Date(booking.checkOut);
-      return (bookingCheckIn < currentDate && bookingCheckOut < currentDate) ||
-        (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate);
+      return (
+        (bookingCheckIn < currentDate && bookingCheckOut < currentDate) ||
+        (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate)
+      );
     });
-
 
     res.status(200).json(filteredResult);
   } catch (error) {
@@ -379,10 +380,11 @@ export const getPreviousBookingParkingByUserId = async (req, res) => {
     const filteredResult = result.filter((booking) => {
       const bookingCheckIn = new Date(booking.checkIn);
       const bookingCheckOut = new Date(booking.checkOut);
-      return (bookingCheckIn < currentDate && bookingCheckOut < currentDate) ||
-        (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate);
+      return (
+        (bookingCheckIn < currentDate && bookingCheckOut < currentDate) ||
+        (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate)
+      );
     });
-
 
     res.status(200).json(filteredResult);
   } catch (error) {
@@ -406,10 +408,11 @@ export const getPreviousBookingHotelandParkingByUserId = async (req, res) => {
     const filteredResult = result.filter((booking) => {
       const bookingCheckIn = new Date(booking.checkIn);
       const bookingCheckOut = new Date(booking.checkOut);
-      return (bookingCheckIn < currentDate && bookingCheckOut < currentDate) ||
-        (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate);
+      return (
+        (bookingCheckIn < currentDate && bookingCheckOut < currentDate) ||
+        (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate)
+      );
     });
-
 
     res.status(200).json(filteredResult);
   } catch (error) {
@@ -436,7 +439,6 @@ export const getUpcomingBookingHotelByUserId = async (req, res) => {
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
 
-
     res.status(200).json(filteredResult);
   } catch (error) {
     res.status(404).json("Booking not found");
@@ -462,7 +464,6 @@ export const getUpcomingBookingParkingByUserId = async (req, res) => {
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
 
-
     res.status(200).json(filteredResult);
   } catch (error) {
     res.status(404).json("Booking not found");
@@ -487,7 +488,6 @@ export const getUpcomingBookingHotelandParkingByUserId = async (req, res) => {
       const bookingCheckOut = new Date(booking.checkOut);
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
-
 
     res.status(200).json(filteredResult);
   } catch (error) {
