@@ -98,6 +98,15 @@ export const addParking = async (req, res) => {
         Date.now(),
         ownerId
       );
+      (await User.find({ account_type: "admin" })).forEach((user)=>{
+        createNotificationProperty(
+          "Parking",
+          "parking added",
+          `A parking has been added`,
+          Date.now(),
+          user._id
+        );
+      })
       res.status(201).json({ message: "Parking Added Successfully" });
     } else {
       res.status(500).json({ message: "Parking Cannot be Added" });
@@ -245,6 +254,15 @@ export const updateParking = async (req, res) => {
         Date.now(),
         result.ownerId
       );
+      (await User.find({ account_type: "admin" })).forEach((user)=>{
+        createNotificationProperty(
+          "Parking",
+          "parking updated",
+          `A parking has been updated`,
+          Date.now(),
+          user._id
+        );
+      })
       res.status(200).json({ message: "Parking Updated Successfully" });
     } else {
       res.status(404).json({ message: "Parking Not Found" });
@@ -277,6 +295,15 @@ export const updateParkingBookedSlots = async (req, res) => {
         Date.now(),
         result.ownerId
       );
+      (await User.find({ account_type: "admin" })).forEach((user)=>{
+        createNotificationProperty(
+          "Parking",
+          "parking slots added",
+          `A parking slots has been updated`,
+          Date.now(),
+          user._id
+        );
+      })
       res.status(200).json({ message: "Parking Updated Successfully" });
     } else {
       res.status(404).json({ message: "Parking Not Found" });
@@ -313,6 +340,7 @@ export const approveParking = async (req, res) => {
       const user = await User.findById(ownerId);
       if (!user) return res.status(404).json({ message: "User Not Found" });
       user.partner_type = "Parking";
+      user.account_type = "partner";
       await user.save();
     }
     if (result) {
@@ -323,6 +351,15 @@ export const approveParking = async (req, res) => {
         Date.now(),
         data.ownerId
       );
+      (await User.find({ account_type: "admin" })).forEach((user)=>{
+        createNotificationProperty(
+          "Parking",
+          "parking approved",
+          `A parking has been approved`,
+          Date.now(),
+          user._id
+        );
+      })
       res.status(200).json({ message: "Parking Updated Successfully" });
     } else {
       res.status(404).json({ message: "Parking Not Found" });
@@ -344,6 +381,15 @@ export const deleteParking = async (req, res) => {
         Date.now(),
         result.ownerId
       );
+      (await User.find({ account_type: "admin" })).forEach((user)=>{
+        createNotificationProperty(
+          "Parking",
+          "parking added",
+          `A parking has been deleted`,
+          Date.now(),
+          user._id
+        );
+      })
       res.status(200).json({ message: "Parking Deleted Successfully" });
     } else {
       res.status(404).json({ message: "Parking Not Found" });

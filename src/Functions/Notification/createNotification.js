@@ -38,15 +38,15 @@ export const createNotificationProperty = async (
   ownerId
 ) => {
   try {
-    if (!type || !title || !message || !date) {
-      return { message: "Please fill all the fields" };
-    }
-    const newNotification = new Notification({ type, title, message, date });
-    await newNotification.save();
     const user = await User.findById(ownerId);
-    user.notifications.push(newNotification._id);
-    await user.save();
-    return { message: "Notification added" };
+    if (user) {
+      const newNotification = new Notification({ type, title, message, date });
+      await newNotification.save();
+      user.notifications.push(newNotification._id);
+      await user.save();
+      return { message: "Notification added" };
+    }
+    return { message: "Error" };
   } catch (error) {
     return { message: error.message };
   }

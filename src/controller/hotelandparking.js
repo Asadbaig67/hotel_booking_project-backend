@@ -162,6 +162,15 @@ export const addhotelandparking = async (req, res) => {
         Date.now(),
         result.ownerId
       );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel and parking",
+          "pending",
+          `New hotel and parking added`,
+          Date.now(),
+          user._id
+        );
+      });
       res.status(201).json({ message: "Hotel and Parking Added Successfully" });
     } else {
       res.status(500).json({ message: "Hotel and Parking Cannot be Added" });
@@ -375,6 +384,15 @@ export const updateHotelAndParking = async (req, res) => {
         Date.now(),
         result.ownerId
       );
+      (await User.find({ account_type: "admin" })).forEach((user)=>{
+        createNotificationProperty(
+          "hotel and parking",
+          "update success",
+          `A hotel and parking has been updated`,
+          Date.now(),
+          user._id
+        );
+      })
       res
         .status(200)
         .json({ message: "Hotel And Parking Updated Successfully" });
@@ -411,6 +429,15 @@ export const incrementSlotsCount = async (req, res) => {
         Date.now(),
         result.ownerId
       );
+      (await User.find({ account_type: "admin" })).forEach((user)=>{
+        createNotificationProperty(
+          "hotel and parking",
+          "Slots increment",
+          `A hotel and parking slots has been incremented`,
+          Date.now(),
+          user._id
+        );
+      })
       res.status(200).json({
         message: "Hotel And Parking Booked Slots Updated Successfully",
       });
@@ -452,6 +479,7 @@ export const approveHotelAndParking = async (req, res) => {
       const user = await User.findById(ownerId);
       if (!user) return res.status(404).json({ message: "User Not Found" });
       user.partner_type = "HotelAndParking";
+      user.account_type = "partner";
       await user.save();
     }
     if (result) {
@@ -462,6 +490,15 @@ export const approveHotelAndParking = async (req, res) => {
         Date.now(),
         result.ownerId
       );
+      (await User.find({ account_type: "admin" })).forEach((user)=>{
+        createNotificationProperty(
+          "hotel and parking",
+          "approve success",
+          `A hotel and parking has been approved`,
+          Date.now(),
+          user._id
+        );
+      })
       res.status(200).json({ message: "Hotel And Parking Approved" });
     } else {
       res.status(404).json({ message: "Hotel And Parking Not Found" });
@@ -483,6 +520,15 @@ export const deleteHotelAndParking = async (req, res) => {
         Date.now(),
         result.ownerId
       );
+      (await User.find({ account_type: "admin" })).forEach((user)=>{
+        createNotificationProperty(
+          "hotel and parking",
+          "delete success",
+          `A hotel and parking has been deleted`,
+          Date.now(),
+          user._id
+        );
+      })
       return res
         .status(200)
         .json({ message: "Hotel And Parking Deleted Successfully" });

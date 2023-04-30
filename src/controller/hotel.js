@@ -89,6 +89,15 @@ export const addHotel = async (req, res) => {
         Date.now(),
         ownerId
       );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel",
+          "add success",
+          `hotel abc`,
+          Date.now(),
+          user._id
+        );
+      });
       return res.status(201).json({ message: "Hotel Added Successfully" });
     } else {
       return res.status(500).json({ message: "Hotel Cannot be Added" });
@@ -262,6 +271,15 @@ export const updateHotel = async (req, res) => {
         Date.now(),
         result.ownerId
       );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel",
+          "add update",
+          `hotel updated`,
+          Date.now(),
+          user._id
+        );
+      });
       res.status(200).json({ message: "Hotel Updated Successfully" });
     } else {
       res.status(404).json({ message: "Hotel Not Found" });
@@ -287,6 +305,7 @@ export const approveHotel = async (req, res) => {
 
     if (result) {
       const { ownerId } = data;
+      console.log(ownerId);
       if (!ownerId) {
         await Hotel.findByIdAndUpdate(
           req.params.id,
@@ -297,6 +316,7 @@ export const approveHotel = async (req, res) => {
       }
       const user = await User.findById(ownerId);
       user.partner_type = "Hotel";
+      user.account_type = "partner";
       await user.save();
     }
 
@@ -308,6 +328,15 @@ export const approveHotel = async (req, res) => {
         Date.now(),
         data.ownerId
       );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel",
+          "add approve",
+          `hotel approved`,
+          Date.now(),
+          user._id
+        );
+      });
       return res.status(200).json({ message: "Hotel Approved Successfully" });
     } else {
       return res.status(404).json({ message: "Hotel Not Found" });
@@ -329,6 +358,15 @@ export const deleteHotel = async (req, res) => {
         Date.now(),
         result.ownerId
       );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel",
+          "add delete",
+          `hotel deleted`,
+          Date.now(),
+          user._id
+        );
+      });
       res.status(200).json({ message: "Hotel Deleted Successfully" });
     } else {
       res.status(404).json({ message: "Hotel Not Found" });

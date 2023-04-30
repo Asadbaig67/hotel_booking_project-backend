@@ -1,4 +1,6 @@
+import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import OperatingCities from "../models/OperatingCities.js";
+import User from "../models/user.js";
 
 export const addOperatingHotelCity = async (req, res) => {
   const { type, city } = req.query;
@@ -6,6 +8,9 @@ export const addOperatingHotelCity = async (req, res) => {
     return res.status(400).json({ message: "Please enter all fields" });
   }
   try {
+    const userAdmin = await User.find({ account_type: "admin" });
+    const userPartner = await User.find({ account_type: "partner" });
+    const user = [...userAdmin, ...userPartner];
     const operatingCities = await OperatingCities.findOne({
       type: type.toLowerCase(),
     });
@@ -21,6 +26,18 @@ export const addOperatingHotelCity = async (req, res) => {
           createdAt: Date.now(),
         });
         await operatingCities.save();
+        if (user) {
+          user.forEach(async (user) => {
+            const id = user._id.toString();
+            createNotificationProperty(
+              "city",
+              "City Added",
+              `City ${city} has been added to ${type} cities`,
+              Date.now(),
+              id
+            );
+          });
+        }
         return res.status(200).json({ message: "City updated successfully" });
       }
     } else {
@@ -32,6 +49,18 @@ export const addOperatingHotelCity = async (req, res) => {
         },
       });
       await newOperatingCities.save();
+      if (user) {
+        user.forEach(async (user) => {
+          const id = user._id.toString();
+          createNotificationProperty(
+            "city",
+            "City Added",
+            `City ${city} has been added to ${type} cities`,
+            Date.now(),
+            id
+          );
+        });
+      }
       return res.status(200).json({ message: "City added successfully" });
     }
   } catch (error) {
@@ -45,6 +74,9 @@ export const deleteOperatingCity = async (req, res) => {
     return res.status(400).json({ message: "Please enter all fields" });
   }
   try {
+    const userAdmin = await User.find({ account_type: "admin" });
+    const userPartner = await User.find({ account_type: "partner" });
+    const users = [...userAdmin, ...userPartner];
     const operatingCities = await OperatingCities.findOne({
       type: type.toLowerCase(),
     });
@@ -56,6 +88,18 @@ export const deleteOperatingCity = async (req, res) => {
         const index = operatingCities.cities.indexOf(city.toLowerCase());
         operatingCities.cities.splice(index, 1);
         await operatingCities.save();
+        if (users) {
+          users.forEach(async (user) => {
+            const id = user._id.toString();
+            createNotificationProperty(
+              "city",
+              "City Deleted",
+              `City ${city} has been deleted from ${type} cities`,
+              Date.now(),
+              id
+            );
+          });
+        }
         return res.status(200).json({ message: "City deleted successfully" });
       } else {
         return res.status(400).json({ message: "City not available" });
