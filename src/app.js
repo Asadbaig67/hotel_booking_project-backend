@@ -10,9 +10,10 @@ import HotelandParking from "./router/hotelandparking_api.js";
 import booking from "./router/booking_api.js";
 import mail from "./router/mail_api.js";
 import resetPassword from "./router/resetPassword_api.js";
-import verifyEmail from './router/emailVerification.js'
+import verifyEmail from "./router/emailVerification.js";
+import OperatingCities from "./router/operatingCities.js";
 import cors from "cors";
-import expressSession from 'express-session';
+import expressSession from "express-session";
 import path from "path";
 import fileUpload from "express-fileupload";
 import passport from "passport";
@@ -20,7 +21,6 @@ import { passportGoogleSetup, passportLocalSetup } from "./passport.js";
 import bodyParser from "body-parser";
 dotenv.config({ path: "./src/config/config.env" });
 const db = process.env.DATABASE;
-
 
 connect(db);
 const app = express();
@@ -31,28 +31,44 @@ passportGoogleSetup();
 passportLocalSetup();
 
 // Express Session
-app.use(expressSession({
-  secret: 'somethingsecretgoeshere',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false } // set to true when secured connection
-}));
+app.use(
+  expressSession({
+    secret: "somethingsecretgoeshere",
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // set to true when secured connection
+  })
+);
 
 // Passport Middleware
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(fileUpload());
 
-const hotelimagesLocation = path.join(process.cwd(), '/src/uploads', 'HotelImages');
-const parkingLocation = path.join(process.cwd(), '/src/uploads', 'ParkingImages');
-const hoteli_parking_Location = path.join(process.cwd(), '/src/uploads', 'Hotel_Parking_Images');
+const hotelimagesLocation = path.join(
+  process.cwd(),
+  "/src/uploads",
+  "HotelImages"
+);
+const parkingLocation = path.join(
+  process.cwd(),
+  "/src/uploads",
+  "ParkingImages"
+);
+const hoteli_parking_Location = path.join(
+  process.cwd(),
+  "/src/uploads",
+  "Hotel_Parking_Images"
+);
 // console.log(hotelimagesLocation);
 // C:\Users\X1 Yoga\Apex_Space_project_Backend\hotel_booking_project-backend\src\uploads\HotelImages
 
-app.use('/uploads/HotelImages', express.static(hotelimagesLocation));
-app.use('/uploads/ParkingImages', express.static(parkingLocation));
-app.use('/uploads/Hotel_Parking_Images', express.static(hoteli_parking_Location));
-
+app.use("/uploads/HotelImages", express.static(hotelimagesLocation));
+app.use("/uploads/ParkingImages", express.static(parkingLocation));
+app.use(
+  "/uploads/Hotel_Parking_Images",
+  express.static(hoteli_parking_Location)
+);
 
 // app.use(express.static(hotelsLocation));
 
@@ -69,9 +85,6 @@ app.use('/uploads/Hotel_Parking_Images', express.static(hoteli_parking_Location)
 // Initialize multer with the storage configuration
 // const upload = multer({ storage: storage });
 
-
-
-
 // To parse cookies
 app.use(cookieParser());
 
@@ -81,11 +94,13 @@ const port = process.env.PORT;
 app.use(express.json());
 
 // To avoid cors error
-app.use(cors({
-  origin: 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true,
+  })
+);
 // app.use(cors());
 app.use(bodyParser.json());
 
@@ -94,7 +109,6 @@ app.get("/", (req, res) => {
   res.send("This is server");
 });
 
-
 // To access private routes
 app.use("/user", user);
 app.use("/hotels", Hotel);
@@ -102,9 +116,10 @@ app.use("/parking", Parking);
 app.use("/room", Room);
 app.use("/hotelandparking", HotelandParking);
 app.use("/booking", booking);
-app.use('/mail', mail);
-app.use('/otp', resetPassword);
-app.use('/email', verifyEmail);
+app.use("/mail", mail);
+app.use("/otp", resetPassword);
+app.use("/email", verifyEmail);
+app.use("/OperatingProperty", OperatingCities);
 
 // To listen to port
 app.listen(port, () => {
