@@ -7,6 +7,8 @@ import HotelandParking from "../models/Hotel_Parking.js";
 import { validateBooking } from "../Functions/Booking/ValidateData.js";
 import { updateunavailabledates } from "../Functions/Booking/UpdateUnavailableDates.js";
 import { updateRoomDates } from "../Functions/Booking/UpdateRoomDates.js";
+import { createNotification } from "../Functions/Notification/createNotification.js";
+
 // import { updateRoomDatesFun } from "../Functions/Booking/UpdateRoomDates.js";
 // import { updateDates } from "../Functions/Booking/UpdateDates.js";
 
@@ -68,6 +70,15 @@ export const addBooking = async (req, res) => {
     if (!booking_success) {
       return res.status(400).json({ msg: "Booking Failed" });
     }
+
+    createNotification(
+      "booking",
+      "Booking success",
+      `Booking abc`,
+      Date.now(),
+      hotelId,
+      userId
+    );
     // If Booking Successfull, Send Success Message
     res
       .status(200)
@@ -155,6 +166,15 @@ export const addBookingHotelAndParking = async (req, res) => {
     if (!booking_success) {
       return res.status(400).json({ msg: "Booking Failed" });
     }
+
+    createNotification(
+      "booking",
+      "Booking success",
+      `Booking abc`,
+      Date.now(),
+      hotelId,
+      userId
+    );
     // If Booking Successfull, Send Success Message
     return res
       .status(200)
@@ -677,6 +697,14 @@ export const updateBooking = async (req, res) => {
       price,
     };
     const bookingById = await booking.findByIdAndUpdate(req.params.id, update);
+    createNotification(
+      "booking",
+      "Booking success",
+      `Booking abc`,
+      Date.now(),
+      hotelId,
+      userId
+    );
     res.status(200).json(bookingById);
   } catch (error) {
     console.log("Error: ", error);
@@ -687,6 +715,14 @@ export const updateBooking = async (req, res) => {
 export const deleteBooking = async (req, res) => {
   try {
     const bookingById = await booking.findByIdAndDelete(req.params.id);
+    createNotification(
+      "booking",
+      "Booking success",
+      `Booking abc`,
+      Date.now(),
+      hotelId,
+      userId
+    );
     res.status(200).json(bookingById);
   } catch (error) {
     console.log("Error: ", error);
@@ -744,6 +780,14 @@ export const cancelHotelReservation = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
+    createNotification(
+      "booking",
+      "Booking success",
+      `Booking abc`,
+      Date.now(),
+      hotelId,
+      userId
+    );
     return res.status(200).json({ msg: "Reservation canceled successfully" });
 
     // return res.status(200).json({ msg: "Reservation cancelled successfully" });
@@ -800,13 +844,18 @@ export const cancelParkingReservation = async (req, res) => {
 
     const deleteBooking = await booking.findByIdAndDelete(req.params.id);
     if (!deleteBooking)
-      return res
-        .status(200)
-        .json({
-          message:
-            "Reservation is cancelled . Booking will be deleted after sometime",
-        });
-
+      return res.status(200).json({
+        message:
+          "Reservation is cancelled . Booking will be deleted after sometime",
+      });
+    createNotification(
+      "booking",
+      "Booking success",
+      `Booking abc`,
+      Date.now(),
+      hotelId,
+      userId
+    );
     return res
       .status(200)
       .json({ message: "Parking Reservation Cancelled Successfully" });
@@ -849,6 +898,14 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
+    createNotification(
+      "booking",
+      "Booking success",
+      `Booking abc`,
+      Date.now(),
+      hotelId,
+      userId
+    );
     return res.status(200).json({ msg: "Reservation canceled successfully" });
   } catch (error) {
     console.log("Error: ", error);

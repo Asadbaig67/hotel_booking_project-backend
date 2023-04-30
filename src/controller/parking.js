@@ -2,6 +2,7 @@ import Parking from "../models/Parking.js";
 import User from "../models/user.js";
 import { fileURLToPath } from "url";
 import path from "path";
+import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 
 // Add Parking Function
 export const addParking = async (req, res) => {
@@ -90,6 +91,13 @@ export const addParking = async (req, res) => {
 
     const result = await new_parking.save();
     if (result) {
+      createNotificationProperty(
+        "Parking",
+        "Parking added",
+        "Your new parking added",
+        Date.now(),
+        ownerId
+      );
       res.status(201).json({ message: "Parking Added Successfully" });
     } else {
       res.status(500).json({ message: "Parking Cannot be Added" });
@@ -230,6 +238,13 @@ export const updateParking = async (req, res) => {
       { new: true }
     );
     if (result) {
+      createNotificationProperty(
+        "Parking",
+        "Parking updated",
+        "Your parking updated",
+        Date.now(),
+        result.ownerId
+      );
       res.status(200).json({ message: "Parking Updated Successfully" });
     } else {
       res.status(404).json({ message: "Parking Not Found" });
@@ -255,6 +270,13 @@ export const updateParkingBookedSlots = async (req, res) => {
       { new: true }
     );
     if (result) {
+      createNotificationProperty(
+        "Parking",
+        "Parking slots updated",
+        "Your parking slots updated",
+        Date.now(),
+        result.ownerId
+      );
       res.status(200).json({ message: "Parking Updated Successfully" });
     } else {
       res.status(404).json({ message: "Parking Not Found" });
@@ -294,6 +316,13 @@ export const approveParking = async (req, res) => {
       await user.save();
     }
     if (result) {
+      createNotificationProperty(
+        "Parking",
+        "Parking approved",
+        "Your parking approved",
+        Date.now(),
+        data.ownerId
+      );
       res.status(200).json({ message: "Parking Updated Successfully" });
     } else {
       res.status(404).json({ message: "Parking Not Found" });
@@ -308,6 +337,13 @@ export const deleteParking = async (req, res) => {
   try {
     const result = await Parking.findOneAndDelete({ _id: req.params.id });
     if (result) {
+      createNotificationProperty(
+        "Parking",
+        "Parking deleted",
+        "Your new parking deleted",
+        Date.now(),
+        result.ownerId
+      );
       res.status(200).json({ message: "Parking Deleted Successfully" });
     } else {
       res.status(404).json({ message: "Parking Not Found" });

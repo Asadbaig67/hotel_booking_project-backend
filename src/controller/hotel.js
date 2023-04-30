@@ -5,6 +5,7 @@ import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty
 import { getRoomByHotel } from "../Functions/Hotel/getRoomByHotel.js";
 import { getRoomByPrices } from "../Functions/Hotel/getRoomsPrices.js";
 import { fileURLToPath } from "url";
+import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import path from "path";
 // Add Hotel Function
 export const addHotel = async (req, res) => {
@@ -59,9 +60,9 @@ export const addHotel = async (req, res) => {
     }
 
     const exists = await Hotel.findOne({
-      name: hotel_obj.name,
-      city: hotel_obj.city,
-      address: hotel_obj.address,
+      name: name,
+      city: city,
+      address: address,
     });
     if (exists) {
       return res.status(422).json({ error: "Hotel already exists" });
@@ -81,6 +82,13 @@ export const addHotel = async (req, res) => {
 
     const result = await new_hotel.save();
     if (result) {
+      createNotificationProperty(
+        "hotel",
+        "add success",
+        `hotel abc`,
+        Date.now(),
+        ownerId
+      );
       return res.status(201).json({ message: "Hotel Added Successfully" });
     } else {
       return res.status(500).json({ message: "Hotel Cannot be Added" });
@@ -247,6 +255,13 @@ export const updateHotel = async (req, res) => {
       { new: true }
     );
     if (result) {
+      createNotificationProperty(
+        "hotel",
+        "Update Hotel",
+        "Your hotel updated",
+        Date.now(),
+        result.ownerId
+      );
       res.status(200).json({ message: "Hotel Updated Successfully" });
     } else {
       res.status(404).json({ message: "Hotel Not Found" });
@@ -261,7 +276,6 @@ export const approveHotel = async (req, res) => {
   const data = await Hotel.findById(req.params.id);
   try {
     if (!data) return res.status(404).json({ message: "Hotel Not Found" });
-    console.log(data);
     if (data.approved === true) {
       return res.status(200).json({ message: "Hotel Already Approved" });
     }
@@ -287,6 +301,13 @@ export const approveHotel = async (req, res) => {
     }
 
     if (result !== null) {
+      createNotificationProperty(
+        "Hotel",
+        "Approve Hotel",
+        "Your hotel is approved",
+        Date.now(),
+        data.ownerId
+      );
       return res.status(200).json({ message: "Hotel Approved Successfully" });
     } else {
       return res.status(404).json({ message: "Hotel Not Found" });
@@ -301,6 +322,13 @@ export const deleteHotel = async (req, res) => {
   try {
     const result = await Hotel.findOneAndDelete({ _id: req.params.id });
     if (result) {
+      createNotificationProperty(
+        "Hotel",
+        "Hotel Deleted",
+        "Your hotel is deleted",
+        Date.now(),
+        result.ownerId
+      );
       res.status(200).json({ message: "Hotel Deleted Successfully" });
     } else {
       res.status(404).json({ message: "Hotel Not Found" });
@@ -321,12 +349,14 @@ export const getTopHotels = async (req, res) => {
       return res.status(404).json({ message: "No hotels found" });
     }
 
-    const results = await Promise.all(hotels.map(async (hotel) => {
-      const StandardPrice = await getRoomByPrices(hotel.rooms);
-      // const updatedHotel = { ...hotel._doc, roomPrices };
-      const updatedHotel = { ...hotel._doc, StandardPrice };
-      return updatedHotel;
-    }));
+    const results = await Promise.all(
+      hotels.map(async (hotel) => {
+        const StandardPrice = await getRoomByPrices(hotel.rooms);
+        // const updatedHotel = { ...hotel._doc, roomPrices };
+        const updatedHotel = { ...hotel._doc, StandardPrice };
+        return updatedHotel;
+      })
+    );
 
     res.send(results);
   } catch (error) {
@@ -334,4 +364,3 @@ export const getTopHotels = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
-

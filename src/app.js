@@ -12,6 +12,7 @@ import mail from "./router/mail_api.js";
 import resetPassword from "./router/resetPassword_api.js";
 import verifyEmail from "./router/emailVerification.js";
 import OperatingCities from "./router/operatingCities.js";
+import Notification from "./router/notifications.js";
 import cors from "cors";
 import expressSession from "express-session";
 import path from "path";
@@ -120,6 +121,7 @@ app.use("/mail", mail);
 app.use("/otp", resetPassword);
 app.use("/email", verifyEmail);
 app.use("/OperatingProperty", OperatingCities);
+app.use("/notification",Notification)
 
 // To listen to port
 app.listen(port, () => {
