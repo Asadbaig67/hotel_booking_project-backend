@@ -1,33 +1,11 @@
 import Room from "../models/Room.js";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createNotification } from "../Functions/Notification/createNotification.js";
 
 export const addRoom = async (req, res) => {
   try {
-
-    if (!req.files || Object.keys(req.files).length === 0) {
-      return res.status(400).json({ error: "No files were uploaded." });
-    }
-
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const roomslocation = path.join(__dirname, "..", "uploads", "RoomImages");
-
-    const files = Object.values(req.files).flat();
-    const fileNames = [];
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const fileName = file.name.replace(/\s+/g, '');
-      fileNames.push(fileName);
-      const filePath = path.join(roomslocation, fileName);
-      // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
-      await file.mv(filePath);
-    }
-
-    const baseUrl = "http://localhost:5000";
-    const photos = fileNames.map((fileName) => `${baseUrl}/uploads/RoomImages/${fileName}`);
-
-    const { type, price, description, room_no, } = req.body;
+    const { type, price, description, room_no } = req.body;
 
     if (!type || !price || !description || !room_no) {
       return res.status(422).json({ error: "All fields are required! " });
@@ -43,11 +21,17 @@ export const addRoom = async (req, res) => {
       price,
       description,
       room_no,
-      photos,
     });
 
     const result = await new_room.save();
     if (result) {
+      createNotification(
+        "Room",
+        "Room Added",
+        `Room ${type} has been added to the system`,
+        Date.now(),
+        result._id
+      );
       res.status(201).json({ message: "Room Added Successfully" });
     } else {
       res.status(500).json({ message: "Room Cannot be Added" });
@@ -109,15 +93,20 @@ export const updateRoomById = async (req, res) => {
     if (req.body.description) {
       room.description = req.body.description;
     }
-    if (req.body.photos) {
-      room.photos = req.body.photos;
-    }
+
     if (req.body.room_no) {
       room.room_no = req.body.room_no;
     }
 
     const result = await room.save();
     if (result) {
+      createNotification(
+        "Room",
+        "Room Updated",
+        `Room ${room.type} has been updated`,
+        Date.now(),
+        result._id
+      );
       res.status(200).json({ message: "Room Updated Successfully" });
     } else {
       res.status(500).json({ message: "Room Cannot be Updated" });
@@ -125,12 +114,11 @@ export const updateRoomById = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-}
+};
 
 // Update Unavailable Dates
 export const updateUnavailableDates = async (req, res) => {
   try {
-
     // Finding Room By Id
     const room = await Room.findById(req.params.id);
     // Checking Room is available or not
@@ -140,7 +128,7 @@ export const updateUnavailableDates = async (req, res) => {
 
     // Updating Room Dates Manually
     let roomFound = false;
-    let room_No = req.body.number;  // Room No To Be Updated
+    let room_No = req.body.number; // Room No To Be Updated
     for (let i = 0; i < room.room_no.length; i++) {
       const room_no = room.room_no[i];
       if (room_No === room_no.number) {
@@ -150,19 +138,27 @@ export const updateUnavailableDates = async (req, res) => {
       }
     }
     if (roomFound === false) {
-      return res.status(404).json({ message: `Room with Room NO:${room_No} does not exist` });
+      return res
+        .status(404)
+        .json({ message: `Room with Room NO:${room_No} does not exist` });
     }
 
     // Saving New Dates
-    const result = await Room.findOneAndUpdate({ _id: req.params.id }, { $set: { room_no: room.room_no } }, { new: true });
+    const result = await Room.findOneAndUpdate(
+      { _id: req.params.id },
+      { $set: { room_no: room.room_no } },
+      { new: true }
+    );
 
     // Checking Result
     if (result) {
-      res.status(200).json({ message: "Room Dates Updated Successfully", room: result });
+      res
+        .status(200)
+        .json({ message: "Room Dates Updated Successfully", room: result });
     } else {
       res.status(500).json({ message: "Room Cannot be Updated" });
     }
   } catch (error) {
     console.log(error);
   }
-}
+};

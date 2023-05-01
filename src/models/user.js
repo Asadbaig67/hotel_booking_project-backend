@@ -26,6 +26,12 @@ const userschema = new mongoose.Schema({
   partner_type: {
     type: String,
   },
+  notifications:[
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Notification",
+    }
+  ],
   // subuser: {
   //   type: Number,
   //   // required: true,
