@@ -1,7 +1,6 @@
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import OperatingCities from "../models/OperatingCities.js";
 import User from "../models/user.js";
-import mongoose from "mongoose";
 
 export const addOperatingHotelCity = async (req, res) => {
   const { type, city } = req.body;
@@ -75,7 +74,12 @@ export const getHotelOperatingCities = async (req, res) => {
       type: "hotel",
     });
     if (operatingCities) {
-      return res.status(200).json(operatingCities.cities);
+      let responseArr = [];
+      operatingCities.cities.map((city) => {
+        city.city = city.city.charAt(0).toUpperCase() + city.city.slice(1);
+        responseArr.push(city.city);
+      });
+      return res.status(200).json(responseArr);
     } else {
       return res.status(200).json([]);
     }
@@ -90,7 +94,12 @@ export const getParkingOperatingCity = async (req, res) => {
       type: "parking",
     });
     if (operatingCities) {
-      return res.status(200).json(operatingCities.cities);
+      let responseArr = [];
+      operatingCities.cities.map((city) => {
+        city.city = city.city.charAt(0).toUpperCase() + city.city.slice(1);
+        responseArr.push(city.city);
+      });
+      return res.status(200).json(responseArr);
     } else {
       return res.status(200).json([]);
     }
@@ -100,6 +109,57 @@ export const getParkingOperatingCity = async (req, res) => {
 };
 
 export const getHotelAndParkingOperatingCity = async (req, res) => {
+  try {
+    const operatingCities = await OperatingCities.findOne({
+      type: "hotelandparking",
+    });
+    if (operatingCities) {
+      let responseArr = [];
+      operatingCities.cities.map((city) => {
+        city.city = city.city.charAt(0).toUpperCase() + city.city.slice(1);
+        responseArr.push(city.city);
+      });
+      return res.status(200).json(responseArr);
+    } else {
+      return res.status(200).json([]);
+    }
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const getHotelOperatingCitiesObj = async (req, res) => {
+  try {
+    const operatingCities = await OperatingCities.findOne({
+      type: "hotel",
+    });
+    if (operatingCities) {
+      let responseArr = [];
+      return res.status(200).json(operatingCities.cities);
+    } else {
+      return res.status(200).json([]);
+    }
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const getParkingOperatingCityObj = async (req, res) => {
+  try {
+    const operatingCities = await OperatingCities.findOne({
+      type: "parking",
+    });
+    if (operatingCities) {
+      return res.status(200).json(operatingCities.cities);
+    } else {
+      return res.status(200).json([]);
+    }
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const getHotelAndParkingOperatingCityObj = async (req, res) => {
   try {
     const operatingCities = await OperatingCities.findOne({
       type: "hotelandparking",
@@ -132,7 +192,6 @@ export const getOperatingCityByType = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
-
 // export const deleteOperatingCity = async (req, res) => {
 //   const { type, city } = req.body;
 //   if (!type || !city) {

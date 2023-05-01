@@ -6,6 +6,9 @@ import {
   getParkingOperatingCity,
   getHotelAndParkingOperatingCity,
   getOperatingCityByType,
+  getHotelOperatingCitiesObj,
+  getParkingOperatingCityObj,
+  getHotelAndParkingOperatingCityObj,
 } from "../controller/operatingCities.js";
 const Router = express.Router();
 
@@ -16,6 +19,12 @@ Router.get("/getHotelOperatingCity", getHotelOperatingCities);
 Router.get("/getParkingOperatingCity", getParkingOperatingCity);
 
 Router.get("/getHotelAndParkingOperatingCity", getHotelAndParkingOperatingCity);
+
+Router.get("/getHotelOperatingCityObj", getHotelOperatingCitiesObj);
+
+Router.get("/getParkingOperatingCityObj", getParkingOperatingCityObj);
+
+Router.get("/getHotelAndParkingOperatingCityObj", getHotelAndParkingOperatingCityObj);
 
 Router.get("/getOperatingCityByType/:type", getOperatingCityByType);
 
