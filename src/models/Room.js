@@ -14,11 +14,11 @@ const roomschema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  photos: [
-    {
-      type: String,
-    },
-  ],
+  // photos: [
+  //   {
+  //     type: String,
+  //   },
+  // ],
   room_no: [
     { 
       number: Number,
