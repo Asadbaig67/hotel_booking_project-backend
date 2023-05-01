@@ -25,6 +25,11 @@ export const addBooking = async (req, res) => {
   checkOut = new Date(checkOut);
   const createdAt = Date.now();
 
+  // const hotel = await Hotel.findById(hotelId).exec();
+  // console.log("hotel: ", hotel);
+
+  // res.send({ message: "ok", data: { userId, hotelId, room, checkIn, checkOut, createdAt } });
+
   // Check If Booking Already Exists Or Not
   const exists = await booking.findOne({
     hotelId,
@@ -172,24 +177,28 @@ export const addBookingParking = async (req, res) => {
     throw new Error("Please enter all fields. All fields are required.");
   }
 
-  checkIn = new Date(checkIn);
-  checkOut = new Date(checkOut);
+  // checkIn = new Date(checkIn);
+  // checkOut = new Date(checkOut);
   parking = JSON.parse(parking);
   const createdAt = Date.now();
   let total_price = parking.Total_slots * parking.Parking_price;
 
   const exist = await booking.findOne({
     userId,
-    parking,
+    "parking.Total_slots": parking.Total_slots,
+    "parking.Parking_price": parking.Parking_price,
     checkIn,
     checkOut,
   });
+
 
   // Add booking in parking by id
   if (exist) {
     return res.status(400).json({ msg: "Booking already exists" });
   }
 
+
+  // res.send({ msg: "Booking ==> Success", details: { userId, parkingId, parking, checkIn, checkOut, total_price } });
   const newBooking = new booking({
     Booking_type: "parking",
     userId,
@@ -208,7 +217,7 @@ export const addBookingParking = async (req, res) => {
     }
     const Existing_parking = await Parking.findByIdAndUpdate(
       { _id: parkingId },
-      { $inc: { total_slots: parking.Total_slots } },
+      { $inc: { booked_slots: parking.Total_slots } },
       { new: true }
     );
     if (!Existing_parking) {

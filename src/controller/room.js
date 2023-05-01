@@ -1,60 +1,150 @@
+import Hotel from "../models/Hotel.js";
 import Room from "../models/Room.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
 export const addRoom = async (req, res) => {
+  // try {
+
+  // if (!req.files || Object.keys(req.files).length === 0) {
+  //   return res.status(400).json({ error: "No files were uploaded." });
+  // }
+
+  // const __filename = fileURLToPath(import.meta.url);
+  // const __dirname = path.dirname(__filename);
+  // const roomslocation = path.join(__dirname, "..", "uploads", "RoomImages");
+
+  // const files = Object.values(req.files).flat();
+  // const fileNames = [];
+  // for (let i = 0; i < files.length; i++) {
+  //   const file = files[i];
+  //   const fileName = file.name.replace(/\s+/g, '');
+  //   fileNames.push(fileName);
+  //   const filePath = path.join(roomslocation, fileName);
+  //   // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
+  //   await file.mv(filePath);
+  // }
+
+  // const baseUrl = "http://localhost:5000";
+  // const photos = fileNames.map((fileName) => `${baseUrl}/uploads/RoomImages/${fileName}`);
+
+  //   let { hotelId, type, price, description, room_no, } = req.body;
+
+  //   if (!type || !price || !description || !room_no) {
+  //     return res.status(422).json({ error: "All fields are required! " });
+  //   }
+
+  //   const getHotel = await Hotel.findById(hotelId);
+
+  //   if (!getHotel) {
+  //     return res.status(422).json({ error: "Hotel does not exist" });
+  //   }
+
+  //   const roomsArray = getHotel.rooms;
+  //   if (roomsArray) {
+  //     try {
+  //       await Promise.all(roomsArray.map(async (roomId) => {
+  //         const roomExists = await Room.findById(roomId);
+  //         if (roomExists.type.toLowerCase() === type.toLowerCase()) {
+  //           for (const roomNo of room_no) {
+  //             roomExists.room_no.push({ number: roomNo, unavailableDates: [] });
+  //           }
+  //           await roomExists.save();
+  //         }
+  //       }));
+  //     } catch (err) {
+  //       console.error(err);
+  //       return res.status(400).json({ error: "Room Could Not Be Added" })
+  //     }
+  //   } else {
+
+  //     // const exists = await Room.findOne({ type: type });
+  //     // if (exists) {
+  //     //   return res.status(422).json({ error: "Room already exists" });
+  //     // }
+
+  //     // Converting Rooms Array to Object with Room No and Unavailable Dates 
+  //     room_no = room_no.map((roomNo) => {
+  //       return { number: roomNo, unavailableDates: [] };
+  //     });
+
+  //     const new_room = new Room({
+  //       hotelId,
+  //       type,
+  //       price,
+  //       description,
+  //       room_no,
+  //     });
+
+  //     const result = await new_room.save();
+
+  //     if (!result) {
+  //       return res.status(500).json({ message: "Room Cannot be Added" });
+  //     }
+  //     // Add New Room to Its Hotel And Save
+  //     const hotel = await Hotel.findById(hotelId);
+  //     hotel.rooms.push(new_room._id);
+  //     await hotel.save();
+
+  //     return res.status(201).json({ message: "Rooms Added Successfully" });
+  //   }
+
+  // } catch (error) {
+  //   console.log(error);
+  // }
+
   try {
 
-    if (!req.files || Object.keys(req.files).length === 0) {
-      return res.status(400).json({ error: "No files were uploaded." });
-    }
+    const { hotelId, type, price, description, room_no } = req.body;
 
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const roomslocation = path.join(__dirname, "..", "uploads", "RoomImages");
-
-    const files = Object.values(req.files).flat();
-    const fileNames = [];
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const fileName = file.name.replace(/\s+/g, '');
-      fileNames.push(fileName);
-      const filePath = path.join(roomslocation, fileName);
-      // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
-      await file.mv(filePath);
-    }
-
-    const baseUrl = "http://localhost:5000";
-    const photos = fileNames.map((fileName) => `${baseUrl}/uploads/RoomImages/${fileName}`);
-
-    const { type, price, description, room_no, } = req.body;
-
-    if (!type || !price || !description || !room_no) {
+    if (!hotelId || !type || !price || !description || !room_no) {
       return res.status(422).json({ error: "All fields are required! " });
     }
 
-    // const exists = await Room.findOne({ type: type });
-    // if (exists) {
-    //   return res.status(422).json({ error: "Room already exists" });
-    // }
+    const hotel = await Hotel.findById(hotelId);
 
-    const new_room = new Room({
+    if (!hotel) {
+      return res.status(422).json({ error: "Hotel does not exist" });
+    }
+
+    const existingRooms = await Room.find({ _id: { $in: hotel.rooms } });
+    const existingRoom = existingRooms.find(room => room.type.toLowerCase() === type.toLowerCase());
+
+    if (existingRoom) {
+      existingRoom.price = price;
+      existingRoom.description = description;
+      room_no.forEach(roomNo => {
+        existingRoom.room_no.push({ number: roomNo, unavailableDates: [] });
+      });
+      await existingRoom.save();
+      return res.status(201).json({ message: "Rooms Added Successfully" });
+    }
+
+    const roomObjects = room_no.map(roomNo => ({ number: roomNo, unavailableDates: [] }));
+    const newRoom = new Room({
+      hotelId,
       type,
       price,
       description,
-      room_no,
-      photos,
+      room_no: roomObjects,
     });
 
-    const result = await new_room.save();
-    if (result) {
-      res.status(201).json({ message: "Room Added Successfully" });
-    } else {
-      res.status(500).json({ message: "Room Cannot be Added" });
+    const result = await newRoom.save();
+
+    if (!result) {
+      return res.status(500).json({ message: "Room Cannot be Added" });
     }
+
+    hotel.rooms.push(newRoom._id);
+    await hotel.save();
+
+    return res.status(201).json({ message: "Rooms Added Successfully" });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    return res.status(500).json({ error: "Room Could Not Be Added" });
   }
+
+
 };
 
 export const getAllRoom = async (req, res) => {
