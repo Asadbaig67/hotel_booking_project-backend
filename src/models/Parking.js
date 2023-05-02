@@ -38,6 +38,11 @@ const parkingschema = new mongoose.Schema({
       required: true,
     },
   ],
+  Facilities: [
+    {
+      type: String,
+    }
+  ],
   city: {
     type: String,
     required: true,

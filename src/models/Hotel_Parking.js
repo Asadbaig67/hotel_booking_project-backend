@@ -71,6 +71,11 @@ const HotelandParkingschema = new mongoose.Schema({
       type: String,
     },
   ],
+  Facilities: [
+    {
+      type: String,
+    }
+  ],
   parking_price: {
     type: Number,
     required: true,
