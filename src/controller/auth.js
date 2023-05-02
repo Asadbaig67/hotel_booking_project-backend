@@ -82,7 +82,6 @@ export const registration = async (req, res) => {
       lastName,
       password,
       account_type,
-
     );
 
     if (!sent) {
@@ -144,6 +143,7 @@ export const getuserbyid = async (req, res) => {
     res.json("User not found");
   }
 };
+
 // Login Function
 export const login = async (req, res) => {
   // Deconstructing the request body
@@ -206,7 +206,13 @@ export const updateAccount = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-
+    createNotificationProperty(
+      "User",
+      "User updated",
+      "Your account updated",
+      Date.now(),
+      user._id
+    );
     res.status(200).json({ message: "User updated successfully", user });
   } catch (error) {
     console.log(error);
@@ -241,6 +247,13 @@ export const updateAccountPassword = async (req, res) => {
     user.c_password = newPassword;
     // Save the changes
     const savedChanges = await user.save();
+    createNotificationProperty(
+      "User",
+      "User password updated",
+      "Your Password updated",
+      Date.now(),
+      user._id
+    );
     res.json({ message: "Password Updated Successfully" });
   } catch (error) {
     res.status(502).json({ message: "error" });
@@ -258,7 +271,13 @@ export const deleteAccount = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-
+    createNotificationProperty(
+      "Parking",
+      "Parking added",
+      "Your new parking added",
+      Date.now(),
+      user._id
+    );
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     console.log(error);
@@ -276,6 +295,13 @@ export const loginFailed = (req, res) => {
 // Login Success Function
 export const loginSuccess = (req, res) => {
   if (req.user) {
+    createNotificationProperty(
+      "User",
+      "User login",
+      "User loggedin",
+      Date.now(),
+      ownerId
+    );
     res.status(200).json({ message: "Login Success", user: req.user });
   } else {
     res.status(401).json({ message: "User not authenticated" });
