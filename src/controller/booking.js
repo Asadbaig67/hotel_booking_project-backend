@@ -857,14 +857,6 @@ export const cancelParkingReservation = async (req, res) => {
         message:
           "Reservation is cancelled . Booking will be deleted after sometime",
       });
-    createNotification(
-      "booking",
-      "Booking success",
-      `Booking abc`,
-      Date.now(),
-      hotelId,
-      userId
-    );
     return res
       .status(200)
       .json({ message: "Parking Reservation Cancelled Successfully" });
