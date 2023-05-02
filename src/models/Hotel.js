@@ -39,6 +39,11 @@ const hotelschema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  Facilities: [
+    {
+      type: String,
+    }
+  ],
   rooms: [
     {
       type: mongoose.Schema.Types.ObjectId,

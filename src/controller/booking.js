@@ -118,16 +118,32 @@ export const addBookingHotelAndParking = async (req, res) => {
   const createdAt = Date.now();
 
   // Check If Booking Already Exists Or Not
-  const exists = await booking.findOne({
-    HotelAndParkingId,
-    checkIn: { $lte: checkOut },
-    checkOut: { $gte: checkIn },
-    "room.RoomId": { $in: room.map((r) => r.RoomId) },
-    "room.Room_no": { $in: room.map((r) => r.Room_no) },
-  });
-  if (exists) {
-    return res.status(400).json({ msg: "Booking already exists" });
-  }
+  // const exists = await booking.findOne({
+  //   HotelAndParkingId,
+  //   checkIn: { $lte: checkOut },
+  //   checkOut: { $gte: checkIn },
+  //   "room.RoomId": { $in: room.map((r) => r.RoomId) },
+  //   "room.Room_no": { $in: room.map((r) => r.Room_no) },
+  // });
+  // const exists = await booking.findOne({
+  //   HotelAndParkingId,
+  //   checkIn: { $lte: checkOut },
+  //   checkOut: { $gte: checkIn },
+  //   "room.Room_no": { $in: room.map((r) => r.Room_no) },
+  // });
+  // const exists = await booking.findOne({
+  //   $and: [
+  //     // { HotelAndParkingId },
+  //     { checkIn: { $lte: checkOut } },
+  //     { checkOut: { $gte: checkIn } },
+  //     { "room.RoomId": { $in: room.map((r) => r.RoomId) } },
+  //     { "room.Room_no": { $in: room.map((r) => r.Room_no) } }
+  //   ]
+  // });
+
+  // if (exists) {
+  //   return res.status(400).json({ msg: "Booking already exists" });
+  // }
 
   // On Successfull Booking Make API Request To Update The Rooms That Has Been Reserved In This Booking
   const result = await updateunavailabledates(room, checkIn, checkOut);
