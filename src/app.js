@@ -102,6 +102,7 @@ app.use(
     credentials: true,
   })
 );
+
 // app.use(cors());
 app.use(bodyParser.json());
 
@@ -121,7 +122,7 @@ app.use("/mail", mail);
 app.use("/otp", resetPassword);
 app.use("/email", verifyEmail);
 app.use("/OperatingProperty", OperatingCities);
-app.use("/notification",Notification)
+app.use("/notification", Notification)
 
 // To listen to port
 app.listen(port, () => {

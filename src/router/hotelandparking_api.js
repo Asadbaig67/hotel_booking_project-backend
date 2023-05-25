@@ -16,6 +16,9 @@ import {
   getTopHotelAndParking,
   getApprovedhotelandparkingbyOwnerId,
   getunapprovedhotelandparkingbyOwnerId,
+  updateHotelAndParkingNew,
+  deleteHotelImages,
+  deleteParkingImages,
 } from "../controller/hotelandparking.js";
 
 const Router = express.Router();
@@ -50,6 +53,8 @@ Router.get(
 );
 // Search Hotel And Parking By Search Query
 Router.get("/search", getHotelAndParkingBySearch);
+// Update Hotel And Parking New
+Router.patch("/updatehotelandparkingdata/:id", updateHotelAndParkingNew);
 // Update Hotel And Parking Booked Slots
 Router.put("/Incrementbookedslots/:id", incrementSlotsCount);
 // Update Hotel And Parking Approved Status
@@ -58,6 +63,10 @@ Router.put("/approveHotelAndParking/:id", approveHotelAndParking);
 Router.patch("/updatehotelandparking/:id", updateHotelAndParking);
 // Delete Hotel And Parking
 Router.delete("/deletehotelandparking/:id", deleteHotelAndParking);
+// Delete Hotel Images
+Router.delete("/deletehotelimage/:id", deleteHotelImages);
+// Delete Parking Images
+Router.delete("/deleteparkingimage/:id", deleteParkingImages);
 
 // Exporting Router
 export default Router;
