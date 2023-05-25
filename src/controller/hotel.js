@@ -44,6 +44,7 @@ export const addHotel = async (req, res) => {
       city,
       country,
       address,
+      facilities,
     } = req.body;
 
     if (
@@ -55,6 +56,7 @@ export const addHotel = async (req, res) => {
       !city ||
       !country ||
       !address
+      || !facilities
     ) {
       return res.status(422).json({ error: "All fields are required! " });
     }
@@ -78,6 +80,7 @@ export const addHotel = async (req, res) => {
       country,
       address,
       photos,
+      Facilities: facilities,
     });
 
     const result = await new_hotel.save();

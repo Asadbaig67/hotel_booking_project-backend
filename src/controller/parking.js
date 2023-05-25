@@ -48,6 +48,7 @@ export const addParking = async (req, res) => {
       country,
       address,
       price,
+      facilities,
     } = req.body;
 
     if (
@@ -60,7 +61,8 @@ export const addParking = async (req, res) => {
       !city ||
       !country ||
       !address ||
-      !price
+      !price ||
+      !facilities
     ) {
       return res
         .status(422)
@@ -87,6 +89,7 @@ export const addParking = async (req, res) => {
       country,
       address,
       photos,
+      Facilities: facilities
     });
 
     const result = await new_parking.save();
@@ -98,7 +101,7 @@ export const addParking = async (req, res) => {
         Date.now(),
         ownerId
       );
-      (await User.find({ account_type: "admin" })).forEach((user)=>{
+      (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "Parking",
           "parking added",
@@ -151,7 +154,7 @@ export const getParkingByCity = async (req, res) => {
     if (!response)
       return res.status(404).json({ message: "Parking Not Found" });
     res.send(response);
-  } catch (error) {}
+  } catch (error) { }
 };
 
 // Get Parking By Id Function
@@ -254,7 +257,7 @@ export const updateParking = async (req, res) => {
         Date.now(),
         result.ownerId
       );
-      (await User.find({ account_type: "admin" })).forEach((user)=>{
+      (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "Parking",
           "parking updated",
@@ -295,7 +298,7 @@ export const updateParkingBookedSlots = async (req, res) => {
         Date.now(),
         result.ownerId
       );
-      (await User.find({ account_type: "admin" })).forEach((user)=>{
+      (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "Parking",
           "parking slots added",
@@ -351,7 +354,7 @@ export const approveParking = async (req, res) => {
         Date.now(),
         data.ownerId
       );
-      (await User.find({ account_type: "admin" })).forEach((user)=>{
+      (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "Parking",
           "parking approved",
@@ -381,7 +384,7 @@ export const deleteParking = async (req, res) => {
         Date.now(),
         result.ownerId
       );
-      (await User.find({ account_type: "admin" })).forEach((user)=>{
+      (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "Parking",
           "parking added",

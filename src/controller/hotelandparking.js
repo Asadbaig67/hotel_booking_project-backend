@@ -76,6 +76,7 @@ export const addhotelandparking = async (req, res) => {
       address,
       price,
       parking_description,
+      facilities,
     } = req.body;
 
     // Check if all fields are filled
@@ -93,7 +94,8 @@ export const addhotelandparking = async (req, res) => {
       !booked_slots ||
       !total_slots ||
       !price ||
-      !parking_description
+      !parking_description ||
+      !facilities
     ) {
       return res.status(422).json({
         error: "All fields are required! ",
@@ -148,6 +150,7 @@ export const addhotelandparking = async (req, res) => {
       hotel_photos: hotelPhotos,
       parking_photos: parkingPhotos,
       parking_price: price,
+      Facilities: facilities
     });
 
     // Save Hotel and Parking
@@ -384,7 +387,7 @@ export const updateHotelAndParking = async (req, res) => {
         Date.now(),
         result.ownerId
       );
-      (await User.find({ account_type: "admin" })).forEach((user)=>{
+      (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "hotel and parking",
           "update success",
@@ -429,7 +432,7 @@ export const incrementSlotsCount = async (req, res) => {
         Date.now(),
         result.ownerId
       );
-      (await User.find({ account_type: "admin" })).forEach((user)=>{
+      (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "hotel and parking",
           "Slots increment",
@@ -490,7 +493,7 @@ export const approveHotelAndParking = async (req, res) => {
         Date.now(),
         result.ownerId
       );
-      (await User.find({ account_type: "admin" })).forEach((user)=>{
+      (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "hotel and parking",
           "approve success",
@@ -520,7 +523,7 @@ export const deleteHotelAndParking = async (req, res) => {
         Date.now(),
         result.ownerId
       );
-      (await User.find({ account_type: "admin" })).forEach((user)=>{
+      (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "hotel and parking",
           "delete success",
