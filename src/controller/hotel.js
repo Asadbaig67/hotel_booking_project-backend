@@ -212,6 +212,20 @@ export const getUnapprovedHotelByOwnerId = async (req, res) => {
   }
 };
 
+//Get hotel count by city name
+export const getHotelByCityCount = async (req, res) => {
+  const city = req.params.city;
+  try {
+    const count = await Hotel.countDocuments({ city: city, approved: true });
+    // if (!count) {
+    //   return res.status(404).json({ message: "No hotels found" });
+    // }
+    res.send({ count: count });
+  } catch (error) {
+    res.json(error);
+  }
+};
+
 // Get Hotel By City Function
 export const getHotelByCity = async (req, res) => {
   let city = req.query.city;

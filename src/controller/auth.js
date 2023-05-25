@@ -206,13 +206,13 @@ export const updateAccount = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    createNotificationProperty(
-      "User",
-      "User updated",
-      "Your account updated",
-      Date.now(),
-      user._id
-    );
+    // createNotificationProperty(
+    //   "User",
+    //   "User updated",
+    //   "Your account updated",
+    //   Date.now(),
+    //   user._id
+    // );
     res.status(200).json({ message: "User updated successfully", user });
   } catch (error) {
     console.log(error);

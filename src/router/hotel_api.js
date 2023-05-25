@@ -15,6 +15,7 @@ import {
   getUnapprovedHotelByOwnerId,
   deleteHotelImages,
   UpdateHotel,
+  getHotelByCityCount
 } from "../controller/hotel.js";
 
 // Initialize multer with the storage configuration
@@ -31,6 +32,8 @@ Router.get("/getPendinghotels", getPendingHotels);
 Router.get("/gethotelbyid/:id", getHotelsById);
 //Get Hotel by onwer id
 Router.get("/gethotelbyonwerid/:id", getHotelByOwnerId);
+//Get count of approved hotel by city name
+Router.get("/getcountofapprovedhotelbycity/:city", getHotelByCityCount);
 //Get approved hotel by onwer id
 Router.get("/getApprovedhotelbyonwerid/:id", getApprovedHotelByOwnerId);
 //Get unapproved hotel by onwer id
