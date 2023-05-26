@@ -421,7 +421,7 @@ export const getPreviousBookingParkingByUserId = async (req, res) => {
     const result = bookingByUserId.filter(
       (booking) => booking.Booking_type === "parking"
     );
-    if (!result) {
+    if (!bookingByUserId || bookingByUserId.length === 0) {
       return res.status(404).json("Booking not found");
     }
     let currentDate = new Date();
@@ -449,7 +449,7 @@ export const getPreviousBookingHotelandParkingByUserId = async (req, res) => {
     const result = bookingByUserId.filter(
       (booking) => booking.Booking_type === "hotelandparking"
     );
-    if (!result) {
+    if (!bookingByUserId || !result.length > 0) {
       return res.status(404).json("Booking not found");
     }
     let currentDate = new Date();
@@ -477,7 +477,7 @@ export const getUpcomingBookingHotelByUserId = async (req, res) => {
     const result = bookingByUserId.filter(
       (booking) => booking.Booking_type === "hotel"
     );
-    if (!result) {
+    if (!bookingByUserId || result.length === 0) {
       return res.status(404).json("Booking not found");
     }
     let currentDate = new Date();
@@ -487,7 +487,9 @@ export const getUpcomingBookingHotelByUserId = async (req, res) => {
       const bookingCheckOut = new Date(booking.checkOut);
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
-
+    if (filteredResult.length === 0) {
+      return res.status(404).json("No Booking Found");
+    }
     res.status(200).json(filteredResult);
   } catch (error) {
     res.status(404).json("Booking not found");
@@ -502,7 +504,7 @@ export const getUpcomingBookingParkingByUserId = async (req, res) => {
     const result = bookingByUserId.filter(
       (booking) => booking.Booking_type === "parking"
     );
-    if (!result) {
+    if (!bookingByUserId || result.length === 0) {
       return res.status(404).json("Booking not found");
     }
     let currentDate = new Date();
@@ -512,6 +514,9 @@ export const getUpcomingBookingParkingByUserId = async (req, res) => {
       const bookingCheckOut = new Date(booking.checkOut);
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
+    if (filteredResult.length === 0) {
+      return res.status(404).json("No Booking Found");
+    }
 
     res.status(200).json(filteredResult);
   } catch (error) {
@@ -527,7 +532,7 @@ export const getUpcomingBookingHotelandParkingByUserId = async (req, res) => {
     const result = bookingByUserId.filter(
       (booking) => booking.Booking_type === "hotelandparking"
     );
-    if (!result) {
+    if (!bookingByUserId || result.length === 0) {
       return res.status(404).json("Booking not found");
     }
     let currentDate = new Date();
@@ -538,6 +543,9 @@ export const getUpcomingBookingHotelandParkingByUserId = async (req, res) => {
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
 
+    if (filteredResult.length === 0) {
+      return res.status(404).json("No Booking Found");
+    }
     res.status(200).json(filteredResult);
   } catch (error) {
     res.status(404).json("Booking not found");
@@ -757,7 +765,6 @@ export const deleteBooking = async (req, res) => {
 // Cancel Hotel Reservation
 export const cancelHotelReservation = async (req, res) => {
   try {
-    // console.log("User Id =  ", req.user);
     const user = req.user;
     console.log("User Id =  ", user._id);
 
@@ -793,9 +800,11 @@ export const cancelHotelReservation = async (req, res) => {
     // if (!Canceled.some((result) => result)) {
     //   return res.status(400).json({ msg: "Failed to cancel reservation" });
     // }
+    const PendingRooms = [];
     const promises = room.map(async (room) => {
       const result = await updateRoomDates(room, checkIn, checkOut);
       if (!result) {
+        PendingRooms.push(room);
         throw new Error("Failed to update room: " + room.RoomId);
       }
       return true;
@@ -805,14 +814,14 @@ export const cancelHotelReservation = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
-    createNotification(
-      "booking",
-      "Booking success",
-      `Booking abc`,
-      Date.now(),
-      hotelId,
-      userId
-    );
+    // createNotification(
+    //   "booking",
+    //   "Booking success",
+    //   `Booking abc`,
+    //   Date.now(),
+    //   hotelId,
+    //   userId
+    // );
     return res.status(200).json({ msg: "Reservation canceled successfully" });
 
     // return res.status(200).json({ msg: "Reservation cancelled successfully" });
@@ -928,3 +937,4 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
     console.log("Error: ", error);
   }
 };
+

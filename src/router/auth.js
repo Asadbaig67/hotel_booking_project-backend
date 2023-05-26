@@ -88,7 +88,7 @@ Router.get("/login", loginSuccess);
 Router.get(
   "/google/callback",
   passport.authenticate("google", {
-    successRedirect: process.env.CLIENT_URL,
+    successRedirect: "http://localhost:3000/",
     failureRedirect: "/login/failed",
   })
 );
@@ -100,8 +100,8 @@ Router.get("/login/failed", loginFailed);
 // Google Authentication First Link To Be Visited
 Router.get(
   "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
+  passport.authenticate("google", { scope: ["profile", "email"] }
+  ));
 // Router.get("/google", googleAuthenticate);
 
 // Logout Api

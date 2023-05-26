@@ -294,19 +294,24 @@ export const loginFailed = (req, res) => {
 
 // Login Success Function
 export const loginSuccess = (req, res) => {
-  if (req.user) {
-    createNotificationProperty(
-      "User",
-      "User login",
-      "User loggedin",
-      Date.now(),
-      ownerId
-    );
+  console.log("Yahan User Hai=", req.user);
+  if (req.isAuthenticated()) {
+    // createNotificationProperty(
+    //   "User",
+    //   "User login",
+    //   "User loggedin",
+    //   Date.now(),
+    //   ownerId
+    // );
+    console.log("Yahan User Ander Hai=", req.user);
+
     res.status(200).json({ message: "Login Success", user: req.user });
   } else {
     res.status(401).json({ message: "User not authenticated" });
   }
 };
+
+
 
 // Logout Function
 export const logout = (req, res) => {
