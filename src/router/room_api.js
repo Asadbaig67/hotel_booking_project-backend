@@ -1,5 +1,13 @@
 import express from "express";
-import { addRoom, getAllRoom, getRoomById, updateRoomById, updateUnavailableDates } from "../controller/room.js";
+import {
+  addRoom,
+  getAllRoom,
+  getRoomById,
+  updateRoomById,
+  updateUnavailableDates,
+  deleteRoomByIdFromHotel,
+  deleteRoomByIdFromHotelAndParking,
+} from "../controller/room.js";
 
 const Router = express.Router();
 
@@ -13,6 +21,13 @@ Router.get("/getroombyid/:id", getRoomById);
 Router.patch("/updateroombyid/:id", updateRoomById);
 // Update Unavailable Dates
 Router.put("/updateunavailabledates/:id", updateUnavailableDates);
+// Delete Room By Id (Hotel)
+Router.delete("/deleteroombyidfromhotel", deleteRoomByIdFromHotel);
+// Delete Room By Id (HotelAndParking)
+Router.delete(
+  "/deleteroombyidfromhotelandparking",
+  deleteRoomByIdFromHotelAndParking
+);
 
 // module.exports = Router;
 export default Router;

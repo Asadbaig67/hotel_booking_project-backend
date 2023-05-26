@@ -21,7 +21,10 @@ import {
   getUpcomingBookingHotelandParkingByUserId,
   cancelHotelReservation,
   cancelParkingReservation,
-  cancelHotelAndParkingReservation
+  cancelHotelAndParkingReservation,
+  getBookingByHotelId,
+  getBookingByParkingId,
+  getBookingByHotelAndParkingId,
 } from "../controller/booking.js";
 
 // Add Hotel Booking
@@ -47,10 +50,16 @@ router.get(
 );
 
 //Get Previous hotel booking by user id
-router.get("/getPreviousBookingHotelByUserId/:id", getPreviousBookingHotelByUserId);
+router.get(
+  "/getPreviousBookingHotelByUserId/:id",
+  getPreviousBookingHotelByUserId
+);
 
 //Get Previous parking booking by user id
-router.get("/getPreviousBookingParkingByUserId/:id", getPreviousBookingParkingByUserId);
+router.get(
+  "/getPreviousBookingParkingByUserId/:id",
+  getPreviousBookingParkingByUserId
+);
 
 //Get Previous hotel and parking booking by user id
 router.get(
@@ -59,16 +68,31 @@ router.get(
 );
 
 //Get Upcoming hotel booking by user id
-router.get("/getUpcomingBookingHotelByUserId/:id", getUpcomingBookingHotelByUserId);
+router.get(
+  "/getUpcomingBookingHotelByUserId/:id",
+  getUpcomingBookingHotelByUserId
+);
 
 //Get Upcoming parking booking by user id
-router.get("/getUpcomingBookingParkingByUserId/:id", getUpcomingBookingParkingByUserId);
+router.get(
+  "/getUpcomingBookingParkingByUserId/:id",
+  getUpcomingBookingParkingByUserId
+);
 
 //Get Upcoming hotel and parking booking by user id
 router.get(
   "/getUpcomingBookingHotelandParkingByUserId/:id",
   getUpcomingBookingHotelandParkingByUserId
 );
+
+//Get Specific Parking Booking By Hotel Id
+router.get("/getBookingByHotelId/:id", getBookingByHotelId);
+
+//Get Specific Parking Booking By Hotel Id
+router.get("/getBookingByParkingId/:id", getBookingByParkingId);
+
+//Get Specific Parking Booking By Hotel Id
+router.get("/getBookingByHotelAndParkingId/:id", getBookingByHotelAndParkingId);
 // Add New User Booking
 router.post("/userBooking", UserBooking);
 // Update Booking
@@ -81,7 +105,5 @@ router.delete("/cancelHotelReservation/:id", cancelHotelReservation);
 router.delete("/cancelParkingReservation/:id", cancelParkingReservation);
 // Cancel Hotel And Parking Reservation
 router.delete("/cancelHotelAndParkingReservation/:id", cancelHotelReservation);
-
-
 
 export default router;

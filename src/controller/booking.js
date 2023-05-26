@@ -227,12 +227,10 @@ export const addBookingParking = async (req, res) => {
     checkOut,
   });
 
-
   // Add booking in parking by id
   if (exist) {
     return res.status(400).json({ msg: "Booking already exists" });
   }
-
 
   // res.send({ msg: "Booking ==> Success", details: { userId, parkingId, parking, checkIn, checkOut, total_price } });
   const newBooking = new booking({
@@ -938,3 +936,40 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
   }
 };
 
+// Get All Bookings by Hotel Id
+export const getBookingByHotelId = async (req, res) => {
+  try {
+    const hotelId = req.params.id;
+    const bookings = await booking.find({ hotelId: hotelId });
+    if (!bookings) return res.status(400).json({ msg: "No Bookings Found" });
+    res.status(200).json(bookings);
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+};
+
+// Get All Bookings by Parking Id
+export const getBookingByParkingId = async (req, res) => {
+  try {
+    const parkingId = req.params.id;
+    const bookings = await booking.find({ parkingId: parkingId });
+    if (!bookings) return res.status(400).json({ msg: "No Bookings Found" });
+    res.status(200).json(bookings);
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+};
+
+// Get All Bookings by hotelAndParking Id
+export const getBookingByHotelAndParkingId = async (req, res) => {
+  try {
+    const hotelAndParkingId = req.params.id;
+    const bookings = await booking.find({
+      HotelAndParkingId: hotelAndParkingId,
+    });
+    if (!bookings) return res.status(400).json({ msg: "No Bookings Found" });
+    res.status(200).json(bookings);
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+};

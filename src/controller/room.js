@@ -1,4 +1,5 @@
 import Hotel from "../models/Hotel.js";
+import HotelAndParking from "../models/Hotel_Parking.js";
 import Room from "../models/Room.js";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -64,7 +65,7 @@ export const addRoom = async (req, res) => {
   //     //   return res.status(422).json({ error: "Room already exists" });
   //     // }
 
-  //     // Converting Rooms Array to Object with Room No and Unavailable Dates 
+  //     // Converting Rooms Array to Object with Room No and Unavailable Dates
   //     room_no = room_no.map((roomNo) => {
   //       return { number: roomNo, unavailableDates: [] };
   //     });
@@ -95,7 +96,6 @@ export const addRoom = async (req, res) => {
   // }
 
   try {
-
     const { hotelId, type, price, description, room_no } = req.body;
 
     if (!hotelId || !type || !price || !description || !room_no) {
@@ -114,7 +114,9 @@ export const addRoom = async (req, res) => {
     }
 
     const existingRooms = await Room.find({ _id: { $in: hotel.rooms } });
-    const existingRoom = existingRooms.find(room => room.type.toLowerCase() === type.toLowerCase());
+    const existingRoom = existingRooms.find(
+      (room) => room.type.toLowerCase() === type.toLowerCase()
+    );
 
     if (existingRoom) {
       existingRoom.price = price;
@@ -128,6 +130,7 @@ export const addRoom = async (req, res) => {
 
       // Add only the new room numbers that don't already exist
       newRoomNumbers.forEach(roomNo => {
+      // room_no.forEach((roomNo) => {
         existingRoom.room_no.push({ number: roomNo, unavailableDates: [] });
       });
       // room_no.forEach(roomNo => {
@@ -137,7 +140,10 @@ export const addRoom = async (req, res) => {
       return res.status(200).json({ message: "Rooms Added Successfully" });
     }
 
-    const roomObjects = room_no.map(roomNo => ({ number: roomNo, unavailableDates: [] }));
+    const roomObjects = room_no.map((roomNo) => ({
+      number: roomNo,
+      unavailableDates: [],
+    }));
     const newRoom = new Room({
       hotelId,
       type,
@@ -160,8 +166,6 @@ export const addRoom = async (req, res) => {
     console.error(error);
     return res.status(500).json({ error: "Room Could Not Be Added" });
   }
-
-
 };
 
 export const getAllRoom = async (req, res) => {
@@ -280,6 +284,54 @@ export const updateUnavailableDates = async (req, res) => {
         .json({ message: "Room Dates Updated Successfully", room: result });
     } else {
       res.status(500).json({ message: "Room Cannot be Updated" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Delete Room By Id (Hotel)
+export const deleteRoomByIdFromHotel = async (req, res) => {
+  try {
+    const hotel = await Hotel.findById(req.query.hotelId);
+    if (!hotel) {
+      return res.status(404).json({ message: "Hotel not found" });
+    }
+    const room = await Room.findById(req.query.roomId);
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+    const result = await Room.findByIdAndDelete(req.query.roomId);
+    if (result) {
+      res.status(200).json({ message: "Room Deleted Successfully" });
+      hotel.rooms.pull(req.query.roomId);
+      await hotel.save();
+    } else {
+      res.status(500).json({ message: "Room Cannot be Deleted" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Delete Room By Id (HotelAndParking)
+export const deleteRoomByIdFromHotelAndParking = async (req, res) => {
+  try {
+    const hotel = await HotelAndParking.findById(req.query.hotelAndParkingId);
+    if (!hotel) {
+      return res.status(404).json({ message: "Hotel not found" });
+    }
+    const room = await Room.findById(req.query.roomId);
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+    const result = await Room.findByIdAndDelete(req.query.roomId);
+    if (result) {
+      res.status(200).json({ message: "Room Deleted Successfully" });
+      hotel.rooms.pull(req.query.roomId);
+      await hotel.save();
+    } else {
+      res.status(500).json({ message: "Room Cannot be Deleted" });
     }
   } catch (error) {
     console.log(error);
