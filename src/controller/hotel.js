@@ -524,7 +524,7 @@ export const getTopHotels = async (req, res) => {
       return res.status(404).json({ message: "No hotels found" });
     }
 
-    console.log(hotels);
+    // console.log(hotels);
 
     const results = await Promise.all(
       hotels.map(async (hotel) => {

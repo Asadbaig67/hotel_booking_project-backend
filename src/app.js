@@ -17,8 +17,10 @@ import cors from "cors";
 import expressSession from "express-session";
 import path from "path";
 import fileUpload from "express-fileupload";
+import Newsletteremail from "./router/newsletterEmail.js";
 import passport from "passport";
 import { passportGoogleSetup, passportLocalSetup } from "./passport.js";
+
 import bodyParser from "body-parser";
 dotenv.config({ path: "./src/config/config.env" });
 const db = process.env.DATABASE;
@@ -122,7 +124,8 @@ app.use("/mail", mail);
 app.use("/otp", resetPassword);
 app.use("/email", verifyEmail);
 app.use("/OperatingProperty", OperatingCities);
-app.use("/notification", Notification)
+app.use("/notification", Notification);
+app.use("/newsletteremail", Newsletteremail);
 
 // To listen to port
 app.listen(port, () => {
