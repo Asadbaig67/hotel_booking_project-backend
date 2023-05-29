@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import booking from "../models/booking.js";
 import Parking from "../models/Parking.js";
 import Hotel from "../models/Hotel.js";
-import QueryString from "qs";
 import HotelandParking from "../models/Hotel_Parking.js";
 import { validateBooking } from "../Functions/Booking/ValidateData.js";
 import { updateunavailabledates } from "../Functions/Booking/UpdateUnavailableDates.js";
@@ -14,7 +13,7 @@ import { createNotification } from "../Functions/Notification/createNotification
 
 // Add Hotel Booking Function Updated
 export const addBooking = async (req, res) => {
-  let { userId, hotelId, room, checkIn, checkOut } = req.query;
+  let { userId, hotelId, room, checkIn, checkOut, adults, children } = req.query;
 
   if (!userId || !hotelId || !room || !checkIn || !checkOut) {
     return res
@@ -27,22 +26,23 @@ export const addBooking = async (req, res) => {
   checkOut = new Date(checkOut);
   const createdAt = Date.now();
 
-  // const hotel = await Hotel.findById(hotelId).exec();
-  // console.log("hotel: ", hotel);
+  // res.status(200).json({ message: "ok", data: { userId, hotelId, room, checkIn, checkOut, createdAt } });
+
+  const hotel = await Hotel.findById(hotelId).exec();
 
   // res.send({ message: "ok", data: { userId, hotelId, room, checkIn, checkOut, createdAt } });
 
   // Check If Booking Already Exists Or Not
-  const exists = await booking.findOne({
-    hotelId,
-    checkIn: { $lte: checkOut },
-    checkOut: { $gte: checkIn },
-    "room.RoomId": { $in: room.map((r) => r.RoomId) },
-    "room.Room_no": { $in: room.map((r) => r.Room_no) },
-  });
-  if (exists) {
-    return res.status(400).json({ msg: "Booking already exists" });
-  }
+  // const exists = await booking.findOne({
+  //   hotelId,
+  //   checkIn: { $lte: checkOut },
+  //   checkOut: { $gte: checkIn },
+  //   "room.RoomId": { $in: room.map((r) => r.RoomId) },
+  //   "room.Room_no": { $in: room.map((r) => r.Room_no) },
+  // });
+  // if (exists) {
+  //   return res.status(400).json({ msg: "Booking already exists" });
+  // }
 
   // On Successfull Booking Make API Request To Update The Rooms That Has Been Reserved In This Booking
   const result = await updateunavailabledates(room, checkIn, checkOut);
@@ -56,12 +56,18 @@ export const addBooking = async (req, res) => {
     return accumulator + currentRoom.Room_price;
   }, 0);
 
+  const persons = {
+    adults: adults,
+    children: children
+  }
+
   // Make New Booking document and save
   const newBooking = new booking({
     Booking_type: "hotel",
     userId,
     hotelId,
     room,
+    persons,
     checkIn,
     checkOut,
     total_price,
@@ -231,6 +237,8 @@ export const addBookingParking = async (req, res) => {
   if (exist) {
     return res.status(400).json({ msg: "Booking already exists" });
   }
+
+
 
   // res.send({ msg: "Booking ==> Success", details: { userId, parkingId, parking, checkIn, checkOut, total_price } });
   const newBooking = new booking({
@@ -763,11 +771,12 @@ export const deleteBooking = async (req, res) => {
 // Cancel Hotel Reservation
 export const cancelHotelReservation = async (req, res) => {
   try {
-    const user = req.user;
-    console.log("User Id =  ", user._id);
+    // console.log("User Id =  ", req.user);
+    // const user = req.user;
+    // console.log("User Id =  ", user._id);
 
     const bookingId = req.params.id;
-    const UserId = user._id;
+    // const UserId = user._id;
 
     // Get Booking By Id
     const bookingById = await booking.findById(bookingId);
@@ -775,15 +784,15 @@ export const cancelHotelReservation = async (req, res) => {
       return res.status(400).json({ msg: "Booking Not Found" });
     }
 
-    console.log("Booking By Id = ", bookingById.userId);
-    console.log("User Id in Request Object = ", UserId);
+    // console.log("Booking By Id = ", bookingById.userId);
+    // console.log("User Id in Request Object = ", UserId);
 
     // Check If User Cancelling reservation is the same user who made the reservation
-    if (bookingById.userId.toString() !== UserId) {
-      return res
-        .status(400)
-        .json({ msg: "You are not authorized to cancel this reservation" });
-    }
+    // if (bookingById.userId.toString() !== UserId) {
+    //   return res
+    //     .status(400)
+    //     .json({ msg: "You are not authorized to cancel this reservation" });
+    // }
 
     // Get Booked Rooms From Booking By Id
     const { room, checkIn, checkOut } = bookingById;
@@ -851,17 +860,17 @@ export const cancelHotelReservation = async (req, res) => {
 // Cancel Parking reservation
 export const cancelParkingReservation = async (req, res) => {
   try {
-    const user = req.user;
-    const UserId = user._id;
+    // const user = req.user;
+    // const UserId = user._id;
 
     // Check If User Cancelling reservation is the same user who made the reservation
     const bookingById = await booking.findById(req.params.id);
 
-    if (bookingById.userId.toString() !== UserId) {
-      return res
-        .status(400)
-        .json({ msg: "You are not authorized to cancel this reservation" });
-    }
+    // if (bookingById.userId.toString() !== UserId) {
+    //   return res
+    //     .status(400)
+    //     .json({ msg: "You are not authorized to cancel this reservation" });
+    // }
     const parkingId = bookingById.parkingId;
     const booked_slots = bookingById.parking.Total_slots;
 
@@ -892,8 +901,8 @@ export const cancelParkingReservation = async (req, res) => {
 export const cancelHotelAndParkingReservation = async (req, res) => {
   try {
     const bookingId = req.params.id;
-    const user = req.user;
-    const UserId = user._id;
+    // const user = req.user;
+    // const UserId = user._id;
 
     // Get Booking By Id
     const bookingById = await booking.findById(bookingId);
@@ -902,11 +911,11 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
     }
 
     // Check If User Cancelling reservation is the same user who made the reservation
-    if (bookingById.userId.toString() !== UserId) {
-      return res
-        .status(400)
-        .json({ msg: "You are not authorized to cancel this reservation" });
-    }
+    // if (bookingById.userId.toString() !== UserId) {
+    //   return res
+    //     .status(400)
+    //     .json({ msg: "You are not authorized to cancel this reservation" });
+    // }
 
     // Get Booked Rooms From Booking By Id
     const { room, checkIn, checkOut } = bookingById;
@@ -922,14 +931,14 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
-    createNotification(
-      "booking",
-      "Booking success",
-      `Booking abc`,
-      Date.now(),
-      hotelId,
-      userId
-    );
+    // createNotification(
+    //   "booking",
+    //   "Booking success",
+    //   `Booking abc`,
+    //   Date.now(),
+    //   hotelId,
+    //   userId
+    // );
     return res.status(200).json({ msg: "Reservation canceled successfully" });
   } catch (error) {
     console.log("Error: ", error);

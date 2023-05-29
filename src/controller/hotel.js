@@ -156,6 +156,7 @@ export const getPendingHotels = async (req, res) => {
 // Get Hotel By Id Function
 export const getHotelsById = async (req, res) => {
   const _id = req.params.id;
+  // res.send("_id");
   try {
     const data = await Hotel.findById(_id);
     // const response = data.approved === true ? data : null;

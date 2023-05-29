@@ -199,6 +199,20 @@ export const getAllhotelandparkings = async (req, res) => {
   }
 };
 
+// Get Hotel By Id
+export const getHotelById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const hotel = await HotelandParking.findById(id);
+    if (!hotel) {
+      return res.status(404).json({ message: "No hotel found" });
+    }
+    res.json(hotel);
+  } catch (error) {
+    res.json(error);
+  }
+};
+
 // Get Pending Hotels And Parking
 export const getPendinghotelandparkings = async (req, res) => {
   let result = await HotelandParking.find();

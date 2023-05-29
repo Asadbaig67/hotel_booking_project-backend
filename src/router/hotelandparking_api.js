@@ -19,12 +19,15 @@ import {
   updateHotelAndParkingNew,
   deleteHotelImages,
   deleteParkingImages,
+  getHotelById
 } from "../controller/hotelandparking.js";
 
 const Router = express.Router();
 
 // Add Hotel And Parking
 Router.post("/addhotelandparking", addhotelandparking);
+// get Hotel by Id
+Router.get("/gethotelandparkingById/:id", getHotelById);
 // Get All Hotel And Parking
 Router.get("/getallhotelandparkings", getAllhotelandparkings);
 // Get Pending Hotel And Parking
