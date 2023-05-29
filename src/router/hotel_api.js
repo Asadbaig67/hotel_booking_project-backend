@@ -13,7 +13,8 @@ import {
   getTopHotels,
   getApprovedHotelByOwnerId,
   getUnapprovedHotelByOwnerId,
-  getHotelByCityCount
+  getHotelByCityCount,
+  getHotelByRatingFilter,
 } from "../controller/hotel.js";
 
 // Initialize multer with the storage configuration
@@ -48,5 +49,7 @@ Router.patch("/updatehotel/:id", updateHotel);
 Router.put("/approvehotel/:id", approveHotel);
 // Delete Hotel
 Router.delete("/deletehotel/:id", deleteHotel);
+//Filter data
+Router.get("/filterRating", getHotelByRatingFilter);
 
 export default Router;

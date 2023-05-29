@@ -55,8 +55,8 @@ export const addHotel = async (req, res) => {
       !description ||
       !city ||
       !country ||
-      !address
-      || !facilities
+      !address ||
+      !facilities
     ) {
       return res.status(422).json({ error: "All fields are required! " });
     }
@@ -175,6 +175,18 @@ export const getHotelByOwnerId = async (req, res) => {
       return res.status(404).json({ message: "No hotels found" });
     }
     res.send(result);
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+//Get hotel by rating filter
+export const getHotelByRatingFilter = async (req, res) => {
+  let rating = req.query.filter;
+  rating = JSON.parse(rating);
+  console.log(rating);
+  try {
+    
   } catch (error) {
     res.json(error);
   }
