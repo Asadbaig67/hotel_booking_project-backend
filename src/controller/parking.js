@@ -3,7 +3,7 @@ import User from "../models/user.js";
 import { fileURLToPath } from "url";
 import path from "path";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
-
+import fs from 'fs';
 // Add Parking Function
 export const addParking = async (req, res) => {
   try {
@@ -275,6 +275,140 @@ export const updateParking = async (req, res) => {
   }
 };
 
+// Update Parking New
+export const UpdateParkingNew = async (req, res) => {
+
+  try {
+
+    let photos = [];
+
+    if (req.files && Object.keys(req.files).length !== 0) {
+
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const hotelsLocation = path.join(
+        __dirname,
+        "..",
+        "uploads",
+        "ParkingImages"
+      );
+
+      const files = Object.values(req.files).flat();
+      const fileNames = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileName = file.name.replace(/\s+/g, "");
+        fileNames.push(fileName);
+        const filePath = path.join(hotelsLocation, fileName);
+        // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
+        await file.mv(filePath);
+      }
+
+      const baseUrl = "http://localhost:5000";
+      photos = fileNames.map(
+        (fileName) => `${baseUrl}/uploads/ParkingImages/${fileName}`
+      );
+    }
+
+
+    const {
+      name,
+      title,
+      total_slots,
+      description,
+      booked_slots,
+      city,
+      country,
+      address,
+      price,
+      facilities,
+    } = req.body;
+
+    if (
+      !name ||
+      !title ||
+      !total_slots ||
+      !description ||
+      !booked_slots ||
+      !city ||
+      !country ||
+      !address ||
+      !price ||
+      !facilities
+    ) {
+      return res
+        .status(422)
+        .json({ error: "All fields are required! ", data: req.body });
+    }
+
+    // const exists = await Parking.findOne({
+    //   name,
+    //   city,
+    // });
+    // if (exists) {
+    //   return res.status(422).json({ error: "Parking already exists" });
+    // }
+
+    const new_parking = new Parking({
+      ownerId,
+      name,
+      title,
+      total_slots,
+      booked_slots,
+      description,
+      price,
+      city,
+      country,
+      address,
+      photos,
+      Facilities: facilities
+    });
+
+    const Updated_parking = await Parking.findByIdAndUpdate(req.params.id, {
+      name,
+      title,
+      total_slots,
+      booked_slots,
+      description,
+      price,
+      city,
+      country,
+      address,
+      ...(photos.length > 0 && { $push: { photos: { $each: photos } } }),
+      $addToSet: { Facilities: { $each: facilities } },
+      // Facilities: facilities
+
+    }, { new: true });
+
+    // const result = await Updated_parking.save();
+    if (Updated_parking) {
+      // createNotificationProperty(
+      //   "Parking",
+      //   "Parking added",
+      //   "Your new parking added",
+      //   Date.now(),
+      //   ownerId
+      // );
+      // (await User.find({ account_type: "admin" })).forEach((user) => {
+      //   createNotificationProperty(
+      //     "Parking",
+      //     "parking added",
+      //     `A parking has been added`,
+      //     Date.now(),
+      //     user._id
+      //   );
+      // })
+      res.status(201).json({ message: "Parking Added Successfully" });
+    } else {
+      res.status(500).json({ message: "Parking Cannot be Added" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+
+}
+
 // Update Parking Booked Slots Function
 export const updateParkingBookedSlots = async (req, res) => {
   try {
@@ -400,4 +534,40 @@ export const deleteParking = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+// Delete  Parking  Images
+export const deleteParkingImages = async (req, res) => {
+
+  const { link } = req.body;
+  const parking = await Parking.findById(req.params.id);
+
+  // Remove Image from database
+  const newPhotos = parking.photos.filter(imglink => imglink !== link);
+  parking.photos = newPhotos;
+  await parking.save();
+
+  // Remove Image from Disk Storage
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const linkarray = link.split('/');
+  // Delete Image from location
+  const filename = linkarray[linkarray.length - 1];
+  const filePath = path.join(__dirname, '../uploads/HotelImages', filename);
+  // Check if the file exists
+  if (fs.existsSync(filePath)) {
+    // Delete the file
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Failed to delete file.' });
+      }
+
+      // File deletion successful
+      return res.status(200).json({ message: 'File deleted successfully.' });
+    });
+  } else {
+    return res.status(404).json({ error: 'File not found.' });
+  }
+
 };

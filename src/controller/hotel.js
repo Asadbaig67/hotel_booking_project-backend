@@ -7,6 +7,8 @@ import { getRoomByPrices } from "../Functions/Hotel/getRoomsPrices.js";
 import { fileURLToPath } from "url";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import path from "path";
+import fs from 'fs';
+
 // Add Hotel Function
 export const addHotel = async (req, res) => {
   try {
@@ -154,6 +156,7 @@ export const getPendingHotels = async (req, res) => {
 // Get Hotel By Id Function
 export const getHotelsById = async (req, res) => {
   const _id = req.params.id;
+  // res.send("_id");
   try {
     const data = await Hotel.findById(_id);
     // const response = data.approved === true ? data : null;
@@ -306,6 +309,124 @@ export const updateHotel = async (req, res) => {
   }
 };
 
+// Update Hotel Function
+export const UpdateHotel = async (req, res) => {
+  try {
+
+    let photos = [];
+    // If User Adds new Images 
+    if (req.files && Object.keys(req.files).length !== 0) {
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const hotelsLocation = path.join(
+        __dirname,
+        "..",
+        "uploads",
+        "HotelImages"
+      );
+
+      const files = Object.values(req.files).flat();
+      const fileNames = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileName = file.name.replace(/\s+/g, "");
+        fileNames.push(fileName);
+        const filePath = path.join(hotelsLocation, fileName);
+        // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
+        await file.mv(filePath);
+      }
+
+      const baseUrl = "http://localhost:5000";
+      photos = fileNames.map(
+        (fileName) => `${baseUrl}/uploads/HotelImages/${fileName}`
+      );
+    }
+
+    const {
+      // ownerId,
+      name,
+      title,
+      rating,
+      description,
+      city,
+      country,
+      address,
+      facilities,
+    } = req.body;
+
+    if (
+      // !ownerId ||
+      !name ||
+      !title ||
+      !rating ||
+      !description ||
+      !city ||
+      !country ||
+      !address
+      || !facilities
+    ) {
+      return res.status(422).json({ error: "All fields are required! " });
+    }
+
+
+
+    const updated_hotel = await Hotel.findByIdAndUpdate(req.params.id, {
+      // ownerId,
+      name,
+      title,
+      rating,
+      description,
+      city,
+      country,
+      address,
+      ...(photos.length > 0 && { $push: { photos: { $each: photos } } }),
+      // $push: { photos: { $each: photos } }, // will appends new and keeps the existing images
+      $addToSet: { Facilities: { $each: facilities } }, // will not duplicate entries
+    }, { new: true });
+
+    // const result = await updated_hotel.save();
+    // const updated_hotel = true;
+    if (updated_hotel) {
+      // createNotificationProperty(
+      //   "hotel",
+      //   "add success",
+      //   `hotel abc`,
+      //   Date.now(),
+      //   ownerId
+      // );
+      // (await User.find({ account_type: "admin" })).forEach((user) => {
+      //   createNotificationProperty(
+      //     "hotel",
+      //     "add success",
+      //     `hotel abc`,
+      //     Date.now(),
+      //     user._id
+      //   );
+      // });
+      // console.log("photos Array =", photos);
+      return res.status(201).json({
+        message: "Hotel Updated Successfully"
+        // , data: {
+        //   name,
+        //   title,
+        //   rating,
+        //   description,
+        //   city,
+        //   country,
+        //   address,
+        //   ...(photos.length > 0 && photos),
+        //   facilities,
+        // }
+      });
+    } else {
+      return res.status(500).json({ message: "Hotel Cannot be Updated" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 // Approve Hotel Function
 export const approveHotel = async (req, res) => {
   const data = await Hotel.findById(req.params.id);
@@ -404,6 +525,8 @@ export const getTopHotels = async (req, res) => {
       return res.status(404).json({ message: "No hotels found" });
     }
 
+    // console.log(hotels);
+
     const results = await Promise.all(
       hotels.map(async (hotel) => {
         const StandardPrice = await getRoomByPrices(hotel.rooms);
@@ -418,4 +541,40 @@ export const getTopHotels = async (req, res) => {
     console.log(error);
     res.status(500).send("Internal Server Error");
   }
+};
+
+
+export const deleteHotelImages = async (req, res) => {
+
+  const { link } = req.body;
+  const hotel = await Hotel.findById(req.params.id);
+
+  // Remove Image from database
+  const newPhotos = hotel.photos.filter(imglink => imglink !== link);
+  hotel.photos = newPhotos;
+  await hotel.save();
+
+  // Remove Image from Disk Storage
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const linkarray = link.split('/');
+  // Delete Image from location
+  const filename = linkarray[linkarray.length - 1];
+  const filePath = path.join(__dirname, '../uploads/HotelImages', filename);
+  // Check if the file exists
+  if (fs.existsSync(filePath)) {
+    // Delete the file
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Failed to delete file.' });
+      }
+
+      // File deletion successful
+      return res.status(200).json({ message: 'File deleted successfully.' });
+    });
+  } else {
+    return res.status(404).json({ error: 'File not found.' });
+  }
+
 };

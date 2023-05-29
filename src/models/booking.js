@@ -24,6 +24,9 @@ const BookingSchema = new Schema({
   },
   room: [
     {
+      Room_type: {
+        type: String,
+      },
       RoomId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Room",
@@ -41,6 +44,14 @@ const BookingSchema = new Schema({
       type: Number,
     },
     Parking_price: {
+      type: Number,
+    },
+  },
+  persons: {
+    adults: {
+      type: Number,
+    },
+    children: {
       type: Number,
     },
   },

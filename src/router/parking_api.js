@@ -12,7 +12,9 @@ import {
   approveParking,
   getParkingByOwnerId,
   getApprovedParkingByOwnerId,
-  getUnapprovedParkingByOwnerId
+  getUnapprovedParkingByOwnerId,
+  UpdateParkingNew,
+  deleteParkingImages
 } from "../controller/parking.js";
 
 const Router = express.Router();
@@ -37,11 +39,15 @@ Router.get("/getApprovedParkingByOwnerId/:id", getApprovedParkingByOwnerId);
 Router.get("/getUnapprovedParkingByOwnerId/:id", getUnapprovedParkingByOwnerId);
 // Update Parking Route
 Router.patch("/updateparking/:id", updateParking);
+// Update Parking New
+Router.patch("/updateparkingdata/:id", UpdateParkingNew);
 // Increment Booked Slots Route
 Router.put("/increasebookedslots/:id", updateParkingBookedSlots);
 //Approve Parking Route
 Router.put("/approveParking/:id", approveParking);
 // Delete Parking Route
 Router.delete("/deleteparking/:id", deleteParking);
+// Delete Parking Images
+Router.delete("/deleteparkingimage/:id", deleteParkingImages);
 
 export default Router;
