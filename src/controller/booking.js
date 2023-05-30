@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import booking from "../models/booking.js";
 import Parking from "../models/Parking.js";
 import Hotel from "../models/Hotel.js";
+import User from "../models/user.js";
 import HotelandParking from "../models/Hotel_Parking.js";
 import { validateBooking } from "../Functions/Booking/ValidateData.js";
 import { updateunavailabledates } from "../Functions/Booking/UpdateUnavailableDates.js";
@@ -13,7 +14,8 @@ import { createNotification } from "../Functions/Notification/createNotification
 
 // Add Hotel Booking Function Updated
 export const addBooking = async (req, res) => {
-  let { userId, hotelId, room, checkIn, checkOut, adults, children } = req.query;
+  let { userId, hotelId, room, checkIn, checkOut, adults, children } =
+    req.query;
 
   if (!userId || !hotelId || !room || !checkIn || !checkOut) {
     return res
@@ -58,8 +60,8 @@ export const addBooking = async (req, res) => {
 
   const persons = {
     adults: adults,
-    children: children
-  }
+    children: children,
+  };
 
   // Make New Booking document and save
   const newBooking = new booking({
@@ -238,8 +240,6 @@ export const addBookingParking = async (req, res) => {
     return res.status(400).json({ msg: "Booking already exists" });
   }
 
-
-
   // res.send({ msg: "Booking ==> Success", details: { userId, parkingId, parking, checkIn, checkOut, total_price } });
   const newBooking = new booking({
     Booking_type: "parking",
@@ -279,7 +279,46 @@ export const addBookingParking = async (req, res) => {
 export const getBooking = async (req, res) => {
   try {
     const bookings = await booking.find();
-    res.status(200).json(bookings);
+    const bookingOut = [];
+    await Promise.all(
+      bookings.map(async (booking, i) => {
+        bookingOut[i] = {};
+        bookingOut[i]._id = booking._id;
+        bookingOut[i].total_price = booking.total_price;
+        bookingOut[i].Booking_type = booking.Booking_type;
+        bookingOut[i].bookingData = booking;
+        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
+        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
+        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
+        bookingOut[i].userId = await User.findById(booking.userId);
+        if (bookingOut[i].userId)
+          bookingOut[i].userName =
+            bookingOut[i].userId.firstName +
+            " " +
+            bookingOut[i].userId.lastName;
+        else bookingOut[i].userName = "N/A";
+        if (booking.HotelAndParkingId) {
+          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
+            booking.HotelAndParkingId
+          );
+          if (bookingOut[i].HotelAndParkingId)
+            bookingOut[i].hotelAndParkingName =
+              bookingOut[i].HotelAndParkingId.hotel_name;
+          else bookingOut[i].hotelAndParkingName = "N/A";
+        } else if (booking.parkingId) {
+          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
+          if (bookingOut[i].parkingData)
+            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
+          else bookingOut[i].parkingName = "N/A";
+        } else if (booking.hotelId) {
+          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
+          if (bookingOut[i].hotelData)
+            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
+          else bookingOut[i].hotelName = "N/A";
+        }
+      })
+    );
+    res.status(200).json(bookingOut);
   } catch (error) {
     console.log("Error: ", error);
   }
@@ -289,8 +328,44 @@ export const getBooking = async (req, res) => {
 export const getBookingById = async (req, res) => {
   try {
     const bookingById = await booking.findById(req.params.id);
-    res.status(200).json(bookingById);
+    const bookingOut = {};
+    if (booking) {
+      bookingOut._id = bookingById._id;
+      bookingOut.total_price = bookingById.total_price;
+      bookingOut.Booking_type = bookingById.Booking_type;
+      bookingOut.bookingData = bookingById;
+      bookingOut.createdAt = new Date(bookingById.createdAt).toLocaleString();
+      bookingOut.checkIn = new Date(bookingById.checkIn).toLocaleString();
+      bookingOut.checkOut = new Date(bookingById.checkOut).toLocaleString();
+      bookingOut.userId = await User.findById(bookingById.userId);
+      if (bookingOut.userId)
+        bookingOut.userName =
+          bookingOut.userId.firstName + " " + bookingOut.userId.lastName;
+      else bookingOut.userName = "N/A";
+      if (bookingById.HotelAndParkingId) {
+        bookingOut.HotelAndParkingId = await HotelandParking.findById(
+          bookingById.HotelAndParkingId
+        );
+        if (bookingOut.HotelAndParkingId)
+          bookingOut.hotelAndParkingName =
+            bookingOut.HotelAndParkingId.hotel_name;
+        else bookingOut.hotelAndParkingName = "N/A";
+      } else if (bookingById.parkingId) {
+        bookingOut.parkingData = await Parking.findById(bookingById.parkingId);
+        if (bookingOut.parkingData)
+          bookingOut.parkingName = bookingOut.parkingData.name;
+        else bookingOut.parkingName = "N/A";
+      } else if (bookingById.hotelId) {
+        bookingOut.hotelData = await Hotel.findById(bookingById.hotelId);
+        if (bookingOut.hotelData)
+          bookingOut.hotelName = bookingOut.hotelData.name;
+        else bookingOut.hotelName = "N/A";
+      }
+    }
+    console.log(bookingOut);
+    res.status(200).json(bookingOut);
   } catch (error) {
+    console.log("Error: ", error);
     res.status(404).json("Booking not found");
     // console.log("Error: ", error);
   }
@@ -298,10 +373,49 @@ export const getBookingById = async (req, res) => {
 
 // Get Specific Booking By Type
 export const getBookingByType = async (req, res) => {
-  const type = req.params.type;
+  const Booking_type = req.params.type;
   try {
-    const bookingByType = await booking.find({ type });
-    res.status(200).json(bookingByType);
+    const bookingByType = await booking.find({ Booking_type });
+    const bookingOut = [];
+    await Promise.all(
+      bookingByType.map(async (booking, i) => {
+        bookingOut[i] = {};
+        bookingOut[i]._id = booking._id;
+        bookingOut[i].total_price = booking.total_price;
+        bookingOut[i].Booking_type = booking.Booking_type;
+        bookingOut[i].bookingData = booking;
+        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
+        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
+        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
+        bookingOut[i].userId = await User.findById(booking.userId);
+        if (bookingOut[i].userId)
+          bookingOut[i].userName =
+            bookingOut[i].userId.firstName +
+            " " +
+            bookingOut[i].userId.lastName;
+        else bookingOut[i].userName = "N/A";
+        if (booking.HotelAndParkingId) {
+          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
+            booking.HotelAndParkingId
+          );
+          if (bookingOut[i].HotelAndParkingId)
+            bookingOut[i].hotelAndParkingName =
+              bookingOut[i].HotelAndParkingId.hotel_name;
+          else bookingOut[i].hotelAndParkingName = "N/A";
+        } else if (booking.parkingId) {
+          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
+          if (bookingOut[i].parkingData)
+            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
+          else bookingOut[i].parkingName = "N/A";
+        } else if (booking.hotelId) {
+          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
+          if (bookingOut[i].hotelData)
+            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
+          else bookingOut[i].hotelName = "N/A";
+        }
+      })
+    );
+    res.status(200).json(bookingOut);
   } catch (error) {
     res.status(404).json("Booking not found");
     // console.log("Error: ", error);
@@ -325,10 +439,49 @@ export const getBookingHotelByOwnerId = async (req, res) => {
     }
     bookings = bookings.filter((booking) => booking !== null);
     const result = bookings.flat();
-    if (bookings.length === 0) {
+    const bookingOut = [];
+    await Promise.all(
+      result.map(async (booking, i) => {
+        bookingOut[i] = {};
+        bookingOut[i]._id = booking._id;
+        bookingOut[i].total_price = booking.total_price;
+        bookingOut[i].Booking_type = booking.Booking_type;
+        bookingOut[i].bookingData = booking;
+        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
+        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
+        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
+        bookingOut[i].userId = await User.findById(booking.userId);
+        if (bookingOut[i].userId)
+          bookingOut[i].userName =
+            bookingOut[i].userId.firstName +
+            " " +
+            bookingOut[i].userId.lastName;
+        else bookingOut[i].userName = "N/A";
+        if (booking.HotelAndParkingId) {
+          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
+            booking.HotelAndParkingId
+          );
+          if (bookingOut[i].HotelAndParkingId)
+            bookingOut[i].hotelAndParkingName =
+              bookingOut[i].HotelAndParkingId.hotel_name;
+          else bookingOut[i].hotelAndParkingName = "N/A";
+        } else if (booking.parkingId) {
+          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
+          if (bookingOut[i].parkingData)
+            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
+          else bookingOut[i].parkingName = "N/A";
+        } else if (booking.hotelId) {
+          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
+          if (bookingOut[i].hotelData)
+            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
+          else bookingOut[i].hotelName = "N/A";
+        }
+      })
+    );
+    if (bookingOut.length === 0) {
       return res.status(404).json("Booking not found");
     }
-    res.status(200).json(result);
+    res.status(200).json(bookingOut);
   } catch (error) {
     res.status(404).json("Bookings not found");
     // console.log("Error: ", error);
@@ -352,10 +505,49 @@ export const getBookingParkingByOwnerId = async (req, res) => {
     }
     bookings = bookings.filter((booking) => booking !== null);
     const result = bookings.flat();
-    if (bookings.length === 0) {
+    const bookingOut = [];
+    await Promise.all(
+      result.map(async (booking, i) => {
+        bookingOut[i] = {};
+        bookingOut[i]._id = booking._id;
+        bookingOut[i].total_price = booking.total_price;
+        bookingOut[i].Booking_type = booking.Booking_type;
+        bookingOut[i].bookingData = booking;
+        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
+        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
+        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
+        bookingOut[i].userId = await User.findById(booking.userId);
+        if (bookingOut[i].userId)
+          bookingOut[i].userName =
+            bookingOut[i].userId.firstName +
+            " " +
+            bookingOut[i].userId.lastName;
+        else bookingOut[i].userName = "N/A";
+        if (booking.HotelAndParkingId) {
+          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
+            booking.HotelAndParkingId
+          );
+          if (bookingOut[i].HotelAndParkingId)
+            bookingOut[i].hotelAndParkingName =
+              bookingOut[i].HotelAndParkingId.hotel_name;
+          else bookingOut[i].hotelAndParkingName = "N/A";
+        } else if (booking.parkingId) {
+          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
+          if (bookingOut[i].parkingData)
+            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
+          else bookingOut[i].parkingName = "N/A";
+        } else if (booking.hotelId) {
+          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
+          if (bookingOut[i].hotelData)
+            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
+          else bookingOut[i].hotelName = "N/A";
+        }
+      })
+    );
+    if (bookingOut.length === 0) {
       return res.status(404).json("Booking not found");
     }
-    res.status(200).json(result);
+    res.status(200).json(bookingOut);
   } catch (error) {
     res.status(404).json("Booking not found");
     // console.log("Error: ", error);
@@ -381,10 +573,49 @@ export const getBookingHotelandParkingByOwnerId = async (req, res) => {
     }
     bookings = bookings.filter((booking) => booking !== null);
     const result = bookings.flat();
+    const bookingOut = [];
+    await Promise.all(
+      result.map(async (booking, i) => {
+        bookingOut[i] = {};
+        bookingOut[i]._id = booking._id;
+        bookingOut[i].total_price = booking.total_price;
+        bookingOut[i].Booking_type = booking.Booking_type;
+        bookingOut[i].bookingData = booking;
+        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
+        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
+        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
+        bookingOut[i].userId = await User.findById(booking.userId);
+        if (bookingOut[i].userId)
+          bookingOut[i].userName =
+            bookingOut[i].userId.firstName +
+            " " +
+            bookingOut[i].userId.lastName;
+        else bookingOut[i].userName = "N/A";
+        if (booking.HotelAndParkingId) {
+          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
+            booking.HotelAndParkingId
+          );
+          if (bookingOut[i].HotelAndParkingId)
+            bookingOut[i].hotelAndParkingName =
+              bookingOut[i].HotelAndParkingId.hotel_name;
+          else bookingOut[i].hotelAndParkingName = "N/A";
+        } else if (booking.parkingId) {
+          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
+          if (bookingOut[i].parkingData)
+            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
+          else bookingOut[i].parkingName = "N/A";
+        } else if (booking.hotelId) {
+          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
+          if (bookingOut[i].hotelData)
+            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
+          else bookingOut[i].hotelName = "N/A";
+        }
+      })
+    );
     if (bookings.length === 0) {
       return res.status(404).json("Booking not found");
     }
-    res.status(200).json(result);
+    res.status(200).json(bookingOut);
   } catch (error) {
     res.status(404).json("Bookings not found");
   }
@@ -413,7 +644,47 @@ export const getPreviousBookingHotelByUserId = async (req, res) => {
       );
     });
 
-    res.status(200).json(filteredResult);
+    const bookingOut = [];
+    await Promise.all(
+      filteredResult.map(async (booking, i) => {
+        bookingOut[i] = {};
+        bookingOut[i]._id = booking._id;
+        bookingOut[i].total_price = booking.total_price;
+        bookingOut[i].Booking_type = booking.Booking_type;
+        bookingOut[i].bookingData = booking;
+        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
+        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
+        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
+        bookingOut[i].userId = await User.findById(booking.userId);
+        if (bookingOut[i].userId)
+          bookingOut[i].userName =
+            bookingOut[i].userId.firstName +
+            " " +
+            bookingOut[i].userId.lastName;
+        else bookingOut[i].userName = "N/A";
+        if (booking.HotelAndParkingId) {
+          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
+            booking.HotelAndParkingId
+          );
+          if (bookingOut[i].HotelAndParkingId)
+            bookingOut[i].hotelAndParkingName =
+              bookingOut[i].HotelAndParkingId.hotel_name;
+          else bookingOut[i].hotelAndParkingName = "N/A";
+        } else if (booking.parkingId) {
+          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
+          if (bookingOut[i].parkingData)
+            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
+          else bookingOut[i].parkingName = "N/A";
+        } else if (booking.hotelId) {
+          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
+          if (bookingOut[i].hotelData)
+            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
+          else bookingOut[i].hotelName = "N/A";
+        }
+      })
+    );
+
+    res.status(200).json(bookingOut);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -441,7 +712,47 @@ export const getPreviousBookingParkingByUserId = async (req, res) => {
       );
     });
 
-    res.status(200).json(filteredResult);
+    const bookingOut = [];
+    await Promise.all(
+      filteredResult.map(async (booking, i) => {
+        bookingOut[i] = {};
+        bookingOut[i]._id = booking._id;
+        bookingOut[i].total_price = booking.total_price;
+        bookingOut[i].Booking_type = booking.Booking_type;
+        bookingOut[i].bookingData = booking;
+        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
+        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
+        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
+        bookingOut[i].userId = await User.findById(booking.userId);
+        if (bookingOut[i].userId)
+          bookingOut[i].userName =
+            bookingOut[i].userId.firstName +
+            " " +
+            bookingOut[i].userId.lastName;
+        else bookingOut[i].userName = "N/A";
+        if (booking.HotelAndParkingId) {
+          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
+            booking.HotelAndParkingId
+          );
+          if (bookingOut[i].HotelAndParkingId)
+            bookingOut[i].hotelAndParkingName =
+              bookingOut[i].HotelAndParkingId.hotel_name;
+          else bookingOut[i].hotelAndParkingName = "N/A";
+        } else if (booking.parkingId) {
+          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
+          if (bookingOut[i].parkingData)
+            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
+          else bookingOut[i].parkingName = "N/A";
+        } else if (booking.hotelId) {
+          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
+          if (bookingOut[i].hotelData)
+            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
+          else bookingOut[i].hotelName = "N/A";
+        }
+      })
+    );
+
+    res.status(200).json(bookingOut);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -468,8 +779,47 @@ export const getPreviousBookingHotelandParkingByUserId = async (req, res) => {
         (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate)
       );
     });
+    const bookingOut = [];
+    await Promise.all(
+      filteredResult.map(async (booking, i) => {
+        bookingOut[i] = {};
+        bookingOut[i]._id = booking._id;
+        bookingOut[i].total_price = booking.total_price;
+        bookingOut[i].Booking_type = booking.Booking_type;
+        bookingOut[i].bookingData = booking;
+        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
+        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
+        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
+        bookingOut[i].userId = await User.findById(booking.userId);
+        if (bookingOut[i].userId)
+          bookingOut[i].userName =
+            bookingOut[i].userId.firstName +
+            " " +
+            bookingOut[i].userId.lastName;
+        else bookingOut[i].userName = "N/A";
+        if (booking.HotelAndParkingId) {
+          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
+            booking.HotelAndParkingId
+          );
+          if (bookingOut[i].HotelAndParkingId)
+            bookingOut[i].hotelAndParkingName =
+              bookingOut[i].HotelAndParkingId.hotel_name;
+          else bookingOut[i].hotelAndParkingName = "N/A";
+        } else if (booking.parkingId) {
+          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
+          if (bookingOut[i].parkingData)
+            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
+          else bookingOut[i].parkingName = "N/A";
+        } else if (booking.hotelId) {
+          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
+          if (bookingOut[i].hotelData)
+            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
+          else bookingOut[i].hotelName = "N/A";
+        }
+      })
+    );
 
-    res.status(200).json(filteredResult);
+    res.status(200).json(bookingOut);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -493,10 +843,49 @@ export const getUpcomingBookingHotelByUserId = async (req, res) => {
       const bookingCheckOut = new Date(booking.checkOut);
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
-    if (filteredResult.length === 0) {
+    const bookingOut = [];
+    await Promise.all(
+      filteredResult.map(async (booking, i) => {
+        bookingOut[i] = {};
+        bookingOut[i]._id = booking._id;
+        bookingOut[i].total_price = booking.total_price;
+        bookingOut[i].Booking_type = booking.Booking_type;
+        bookingOut[i].bookingData = booking;
+        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
+        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
+        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
+        bookingOut[i].userId = await User.findById(booking.userId);
+        if (bookingOut[i].userId)
+          bookingOut[i].userName =
+            bookingOut[i].userId.firstName +
+            " " +
+            bookingOut[i].userId.lastName;
+        else bookingOut[i].userName = "N/A";
+        if (booking.HotelAndParkingId) {
+          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
+            booking.HotelAndParkingId
+          );
+          if (bookingOut[i].HotelAndParkingId)
+            bookingOut[i].hotelAndParkingName =
+              bookingOut[i].HotelAndParkingId.hotel_name;
+          else bookingOut[i].hotelAndParkingName = "N/A";
+        } else if (booking.parkingId) {
+          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
+          if (bookingOut[i].parkingData)
+            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
+          else bookingOut[i].parkingName = "N/A";
+        } else if (booking.hotelId) {
+          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
+          if (bookingOut[i].hotelData)
+            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
+          else bookingOut[i].hotelName = "N/A";
+        }
+      })
+    );
+    if (bookingOut.length === 0) {
       return res.status(404).json("No Booking Found");
     }
-    res.status(200).json(filteredResult);
+    res.status(200).json(bookingOut);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -520,11 +909,50 @@ export const getUpcomingBookingParkingByUserId = async (req, res) => {
       const bookingCheckOut = new Date(booking.checkOut);
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
-    if (filteredResult.length === 0) {
+    const bookingOut = [];
+    await Promise.all(
+      filteredResult.map(async (booking, i) => {
+        bookingOut[i] = {};
+        bookingOut[i]._id = booking._id;
+        bookingOut[i].total_price = booking.total_price;
+        bookingOut[i].Booking_type = booking.Booking_type;
+        bookingOut[i].bookingData = booking;
+        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
+        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
+        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
+        bookingOut[i].userId = await User.findById(booking.userId);
+        if (bookingOut[i].userId)
+          bookingOut[i].userName =
+            bookingOut[i].userId.firstName +
+            " " +
+            bookingOut[i].userId.lastName;
+        else bookingOut[i].userName = "N/A";
+        if (booking.HotelAndParkingId) {
+          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
+            booking.HotelAndParkingId
+          );
+          if (bookingOut[i].HotelAndParkingId)
+            bookingOut[i].hotelAndParkingName =
+              bookingOut[i].HotelAndParkingId.hotel_name;
+          else bookingOut[i].hotelAndParkingName = "N/A";
+        } else if (booking.parkingId) {
+          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
+          if (bookingOut[i].parkingData)
+            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
+          else bookingOut[i].parkingName = "N/A";
+        } else if (booking.hotelId) {
+          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
+          if (bookingOut[i].hotelData)
+            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
+          else bookingOut[i].hotelName = "N/A";
+        }
+      })
+    );
+    if (bookingOut.length === 0) {
       return res.status(404).json("No Booking Found");
     }
 
-    res.status(200).json(filteredResult);
+    res.status(200).json(bookingOut);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -548,18 +976,57 @@ export const getUpcomingBookingHotelandParkingByUserId = async (req, res) => {
       const bookingCheckOut = new Date(booking.checkOut);
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
+    const bookingOut = [];
+    await Promise.all(
+      filteredResult.map(async (booking, i) => {
+        bookingOut[i] = {};
+        bookingOut[i]._id = booking._id;
+        bookingOut[i].total_price = booking.total_price;
+        bookingOut[i].Booking_type = booking.Booking_type;
+        bookingOut[i].bookingData = booking;
+        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
+        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
+        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
+        bookingOut[i].userId = await User.findById(booking.userId);
+        if (bookingOut[i].userId)
+          bookingOut[i].userName =
+            bookingOut[i].userId.firstName +
+            " " +
+            bookingOut[i].userId.lastName;
+        else bookingOut[i].userName = "N/A";
+        if (booking.HotelAndParkingId) {
+          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
+            booking.HotelAndParkingId
+          );
+          if (bookingOut[i].HotelAndParkingId)
+            bookingOut[i].hotelAndParkingName =
+              bookingOut[i].HotelAndParkingId.hotel_name;
+          else bookingOut[i].hotelAndParkingName = "N/A";
+        } else if (booking.parkingId) {
+          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
+          if (bookingOut[i].parkingData)
+            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
+          else bookingOut[i].parkingName = "N/A";
+        } else if (booking.hotelId) {
+          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
+          if (bookingOut[i].hotelData)
+            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
+          else bookingOut[i].hotelName = "N/A";
+        }
+      })
+    );
 
-    if (filteredResult.length === 0) {
+    if (bookingOut.length === 0) {
       return res.status(404).json("No Booking Found");
     }
-    res.status(200).json(filteredResult);
+    res.status(200).json(bookingOut);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
 };
 
 // Add New User Booking Function
-export const UserBooking = async (req, res) => {
+export const UserBookings = async (req, res) => {
   try {
     // Get The Booking Type
     const Booking_type = req.query.Booking_type;
@@ -951,7 +1418,46 @@ export const getBookingByHotelId = async (req, res) => {
     const hotelId = req.params.id;
     const bookings = await booking.find({ hotelId: hotelId });
     if (!bookings) return res.status(400).json({ msg: "No Bookings Found" });
-    res.status(200).json(bookings);
+    const bookingOut = [];
+    await Promise.all(
+      bookings.map(async (booking, i) => {
+        bookingOut[i] = {};
+        bookingOut[i]._id = booking._id;
+        bookingOut[i].total_price = booking.total_price;
+        bookingOut[i].Booking_type = booking.Booking_type;
+        bookingOut[i].bookingData = booking;
+        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
+        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
+        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
+        bookingOut[i].userId = await User.findById(booking.userId);
+        if (bookingOut[i].userId)
+          bookingOut[i].userName =
+            bookingOut[i].userId.firstName +
+            " " +
+            bookingOut[i].userId.lastName;
+        else bookingOut[i].userName = "N/A";
+        if (booking.HotelAndParkingId) {
+          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
+            booking.HotelAndParkingId
+          );
+          if (bookingOut[i].HotelAndParkingId)
+            bookingOut[i].hotelAndParkingName =
+              bookingOut[i].HotelAndParkingId.hotel_name;
+          else bookingOut[i].hotelAndParkingName = "N/A";
+        } else if (booking.parkingId) {
+          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
+          if (bookingOut[i].parkingData)
+            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
+          else bookingOut[i].parkingName = "N/A";
+        } else if (booking.hotelId) {
+          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
+          if (bookingOut[i].hotelData)
+            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
+          else bookingOut[i].hotelName = "N/A";
+        }
+      })
+    );
+    res.status(200).json(bookingOut);
   } catch (error) {
     console.log("Error: ", error);
   }
@@ -963,7 +1469,46 @@ export const getBookingByParkingId = async (req, res) => {
     const parkingId = req.params.id;
     const bookings = await booking.find({ parkingId: parkingId });
     if (!bookings) return res.status(400).json({ msg: "No Bookings Found" });
-    res.status(200).json(bookings);
+    const bookingOut = [];
+    await Promise.all(
+      bookings.map(async (booking, i) => {
+        bookingOut[i] = {};
+        bookingOut[i]._id = booking._id;
+        bookingOut[i].total_price = booking.total_price;
+        bookingOut[i].Booking_type = booking.Booking_type;
+        bookingOut[i].bookingData = booking;
+        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
+        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
+        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
+        bookingOut[i].userId = await User.findById(booking.userId);
+        if (bookingOut[i].userId)
+          bookingOut[i].userName =
+            bookingOut[i].userId.firstName +
+            " " +
+            bookingOut[i].userId.lastName;
+        else bookingOut[i].userName = "N/A";
+        if (booking.HotelAndParkingId) {
+          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
+            booking.HotelAndParkingId
+          );
+          if (bookingOut[i].HotelAndParkingId)
+            bookingOut[i].hotelAndParkingName =
+              bookingOut[i].HotelAndParkingId.hotel_name;
+          else bookingOut[i].hotelAndParkingName = "N/A";
+        } else if (booking.parkingId) {
+          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
+          if (bookingOut[i].parkingData)
+            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
+          else bookingOut[i].parkingName = "N/A";
+        } else if (booking.hotelId) {
+          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
+          if (bookingOut[i].hotelData)
+            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
+          else bookingOut[i].hotelName = "N/A";
+        }
+      })
+    );
+    res.status(200).json(bookingOut);
   } catch (error) {
     console.log("Error: ", error);
   }
@@ -977,7 +1522,46 @@ export const getBookingByHotelAndParkingId = async (req, res) => {
       HotelAndParkingId: hotelAndParkingId,
     });
     if (!bookings) return res.status(400).json({ msg: "No Bookings Found" });
-    res.status(200).json(bookings);
+    const bookingOut = [];
+    await Promise.all(
+      bookings.map(async (booking, i) => {
+        bookingOut[i] = {};
+        bookingOut[i]._id = booking._id;
+        bookingOut[i].total_price = booking.total_price;
+        bookingOut[i].Booking_type = booking.Booking_type;
+        bookingOut[i].bookingData = booking;
+        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
+        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
+        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
+        bookingOut[i].userId = await User.findById(booking.userId);
+        if (bookingOut[i].userId)
+          bookingOut[i].userName =
+            bookingOut[i].userId.firstName +
+            " " +
+            bookingOut[i].userId.lastName;
+        else bookingOut[i].userName = "N/A";
+        if (booking.HotelAndParkingId) {
+          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
+            booking.HotelAndParkingId
+          );
+          if (bookingOut[i].HotelAndParkingId)
+            bookingOut[i].hotelAndParkingName =
+              bookingOut[i].HotelAndParkingId.hotel_name;
+          else bookingOut[i].hotelAndParkingName = "N/A";
+        } else if (booking.parkingId) {
+          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
+          if (bookingOut[i].parkingData)
+            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
+          else bookingOut[i].parkingName = "N/A";
+        } else if (booking.hotelId) {
+          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
+          if (bookingOut[i].hotelData)
+            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
+          else bookingOut[i].hotelName = "N/A";
+        }
+      })
+    );
+    res.status(200).json(bookingOut);
   } catch (error) {
     console.log("Error: ", error);
   }

@@ -6,7 +6,7 @@ import {
   getBookingById,
   updateBooking,
   deleteBooking,
-  UserBooking,
+  UserBookings,
   getBookingHotelByOwnerId,
   getBookingParkingByOwnerId,
   getBookingHotelandParkingByOwnerId,
@@ -94,7 +94,7 @@ router.get("/getBookingByParkingId/:id", getBookingByParkingId);
 //Get Specific Parking Booking By Hotel Id
 router.get("/getBookingByHotelAndParkingId/:id", getBookingByHotelAndParkingId);
 // Add New User Booking
-router.post("/userBooking", UserBooking);
+router.post("/userBooking", UserBookings);
 // Update Booking
 router.put("/updateBooking/:id", updateBooking);
 // Delete Booking
