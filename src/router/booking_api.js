@@ -25,6 +25,12 @@ import {
   getBookingByHotelId,
   getBookingByParkingId,
   getBookingByHotelAndParkingId,
+  getUpcommingBookingsByHotelOwnerId,
+  getUpcommingBookingsByHotelParkingOwnerId,
+  getUpcommingBookingsByParkingOwnerId,
+  getUpcommingBookingsByHotelId,
+  getUpcommingBookingsByHotelParkingId,
+  getUpcommingBookingsByParkingId,
 } from "../controller/booking.js";
 
 // Add Hotel Booking
@@ -83,6 +89,36 @@ router.get(
 router.get(
   "/getUpcomingBookingHotelandParkingByUserId/:id",
   getUpcomingBookingHotelandParkingByUserId
+);
+
+// Get Upcoming Bookings By Hotel Owner Id
+router.get(
+  "/getUpcommingBookingsByHotelOwnerId/:id",
+  getUpcommingBookingsByHotelOwnerId
+);
+
+// Get Upcoming Bookings By Hotel And Parking Owner Id
+router.get('/getUpcommingBookingsByHotelparkingOwnerId/:id', getUpcommingBookingsByHotelParkingOwnerId)
+
+// Get Upcoming Bookings By Parking Owner Id
+router.get(
+  "/getUpcommingBookingsByParkingOwnerId/:id",
+  getUpcommingBookingsByParkingOwnerId
+);
+
+// Get Upcoming Bookings By Hotel Owner Id
+router.get(
+  "/getUpcommingBookingsByHotelId/:id",
+  getUpcommingBookingsByHotelId
+);
+
+// Get Upcoming Bookings By Hotel And Parking Owner Id
+router.get('/getUpcommingBookingsByHotelparkingId/:id', getUpcommingBookingsByHotelParkingId)
+
+// Get Upcoming Bookings By Parking Owner Id
+router.get(
+  "/getUpcommingBookingsByParkingId/:id",
+  getUpcommingBookingsByParkingId
 );
 
 //Get Specific Parking Booking By Hotel Id

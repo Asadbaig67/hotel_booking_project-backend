@@ -1566,3 +1566,114 @@ export const getBookingByHotelAndParkingId = async (req, res) => {
     console.log("Error: ", error);
   }
 };
+
+// Get Upcomming Bookings by HotelOwnerId
+export const getUpcommingBookingsByHotelOwnerId = async (req, res) => {
+  const hotelOwnerId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    const hotelIds = await Hotel.find({ ownerId: hotelOwnerId }).select("_id");
+    const bookings = await booking.find({ hotelId: { $in: hotelIds } });
+    let currentDate = new Date();
+    const filteredResult = bookings.filter((booking) => {
+      const bookingCheckIn = new Date(booking.checkIn);
+      return bookingCheckIn > currentDate;
+    });
+    res.status(200).json(filteredResult);
+  } catch (error) {
+    res.status(404).json("No Booking Found");
+  }
+};
+
+// Get Upcomming Bookings by HotelAndParkingOwnerId
+export const getUpcommingBookingsByHotelParkingOwnerId = async (req, res) => {
+  const hotelParkingOwnerId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    const hotelIds = await HotelandParking.find({ ownerId: hotelParkingOwnerId }).select("_id");
+    const bookings = await booking.find({ hotelId: { $in: hotelIds } });
+    let currentDate = new Date();
+    const filteredResult = bookings.filter((booking) => {
+      const bookingCheckIn = new Date(booking.checkIn);
+      return bookingCheckIn > currentDate;
+    });
+    res.status(200).json(filteredResult);
+  } catch (error) {
+    res.status(404).json("No Booking Found");
+  }
+};
+
+// Get Upcomming Bookings by ParkingOwnerId
+export const getUpcommingBookingsByParkingOwnerId = async (req, res) => {
+  const ParkingOwnerId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    const parkingIds = await Parking.find({ ownerId: ParkingOwnerId }).select("_id");
+    const bookings = await booking.find({ hotelId: { $in: parkingIds } });
+    let currentDate = new Date();
+    const filteredResult = bookings.filter((booking) => {
+      const bookingCheckIn = new Date(booking.checkIn);
+      return bookingCheckIn > currentDate;
+    });
+    res.status(200).json(filteredResult);
+  } catch (error) {
+    res.status(404).json("No Booking Found");
+  }
+};
+
+// Get Upcomming Bookings by HotelOwnerId
+export const getUpcommingBookingsByHotelId = async (req, res) => {
+  const hotelId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    const bookings = await booking.find({ Booking_type: "hotel" });
+    const filteredBookings = bookings.filter((booking) => {
+      return booking.bookingData._id === hotelId
+    });
+
+    let currentDate = new Date();
+    const filteredResult = filteredBookings.filter((booking) => {
+      const bookingCheckIn = new Date(booking.checkIn);
+      return bookingCheckIn > currentDate;
+    });
+    res.status(200).json(filteredResult);
+  } catch (error) {
+    res.status(404).json("No Booking Found");
+  };
+}
+
+// Get Upcomming Bookings by HotelAndParkingOwnerId
+export const getUpcommingBookingsByHotelParkingId = async (req, res) => {
+  const hotelParkingId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    const bookings = await booking.find({ Booking_type: "hotelandparking" });
+    const filteredBookings = bookings.filter((booking) => {
+      return booking.bookingData._id === hotelParkingId
+    });
+
+    let currentDate = new Date();
+    const filteredResult = filteredBookings.filter((booking) => {
+      const bookingCheckIn = new Date(booking.checkIn);
+      return bookingCheckIn > currentDate;
+    });
+    res.status(200).json(filteredResult);
+  } catch (error) {
+    res.status(404).json("No Booking Found");
+  }
+};
+
+// Get Upcomming Bookings by HotelId
+export const getUpcommingBookingsByParkingId = async (req, res) => {
+  const ParkingId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    const bookings = await booking.find({ Booking_type: "parking" });
+    const filteredBookings = bookings.filter((booking) => {
+      return booking.bookingData._id === ParkingId
+    });
+
+    let currentDate = new Date();
+    const filteredResult = filteredBookings.filter((booking) => {
+      const bookingCheckIn = new Date(booking.checkIn);
+      return bookingCheckIn > currentDate;
+    });
+    res.status(200).json(filteredResult);
+  } catch (error) {
+    res.status(404).json("No Booking Found");
+  };
+}
