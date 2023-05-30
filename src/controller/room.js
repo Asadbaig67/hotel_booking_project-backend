@@ -99,7 +99,12 @@ export const addRoom = async (req, res) => {
     const { hotelId, type, price, description, room_no } = req.body;
 
     if (!hotelId || !type || !price || !description || !room_no) {
-      return res.status(422).json({ error: "All fields are required! " });
+      return res.status(422).json({
+        error: "All fields are required! ", data: {
+          hotelId, type, price, description, room_no
+
+        }
+      });
     }
 
     const hotel = await Hotel.findById(hotelId);
@@ -116,11 +121,23 @@ export const addRoom = async (req, res) => {
     if (existingRoom) {
       existingRoom.price = price;
       existingRoom.description = description;
-      room_no.forEach((roomNo) => {
+      // Check if any of the new room numbers already exist in the existing room object
+      const newRoomNumbers = room_no.filter(roomNo => {
+        return !existingRoom.room_no.some(room => room.number === roomNo);
+      });
+
+      if (newRoomNumbers.length === 0) return res.status(201).json({ error: "Room already exists" });
+
+      // Add only the new room numbers that don't already exist
+      newRoomNumbers.forEach(roomNo => {
+        // room_no.forEach((roomNo) => {
         existingRoom.room_no.push({ number: roomNo, unavailableDates: [] });
       });
+      // room_no.forEach(roomNo => {
+      //   existingRoom.room_no.push({ number: roomNo, unavailableDates: [] });
+      // });
       await existingRoom.save();
-      return res.status(201).json({ message: "Rooms Added Successfully" });
+      return res.status(200).json({ message: "Rooms Added Successfully" });
     }
 
     const roomObjects = room_no.map((roomNo) => ({
@@ -225,6 +242,66 @@ export const updateRoomById = async (req, res) => {
     console.log(error);
   }
 };
+
+// Update Room Function
+export const updateRoom = async (req, res) => {
+  try {
+    const room = await Room.findById(req.params.id);
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+
+    const { price, description, roomNo } = req.body; // Destructuring Request Body
+
+    const existingRooms = room.room_no.map((room) => room.number);
+
+    const filteredRooms = roomNo.filter((roomNo) => !existingRooms.includes(roomNo));
+
+    // RoomNo is comma separated list of rooms
+    let newRoomsArray = filteredRooms.map((number) => ({ number: number, unavailableDates: [] }));
+
+
+    const updateRoom = await Room.findByIdAndUpdate(req.params.id, {
+      price,
+      description,
+      $push: { room_no: { $each: newRoomsArray } },
+    });
+    if (!updateRoom) {
+      return res.status(500).json({ message: "Room Cannot be Updated" });
+    }
+
+    return res.status(200).json({ message: "Room Updated Successfully" });
+
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Delete Room Numbers
+export const deleteRoomNumbers = async (req, res) => {
+  try {
+    const room = await Room.findById(req.params.id);
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+
+    const { roomNo } = req.body;
+
+    const filteredRooms = room.room_no.filter(({ number }) => number !== roomNo);
+
+    const updateRoom = await Room.findByIdAndUpdate(req.params.id, { room_no: filteredRooms });
+
+    if (!updateRoom) {
+      throw new Error("Room Cannot be Updated");
+    }
+
+    return res.status(200).json({ message: "Room Deleted Successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 
 // Update Unavailable Dates
 export const updateUnavailableDates = async (req, res) => {

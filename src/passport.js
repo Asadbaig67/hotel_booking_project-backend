@@ -23,53 +23,54 @@ export const passportGoogleSetup = (clientID, clientSecret) => {
         // You can perform additional actions here, like storing the user in a database
 
         //Not Stores User In DataBase
-        done(null, profile);
+        // done(null, profile);
 
 
         // To Store User In DataBase
-        // const user = await User.findOne({ googleId: profile.id });
-        // if (user) {
-        //     return done(null, user);
-        // }
-        // else {
-        //     const newUser = new User({
-        //         firstName: profile.displayName,
-        //         email: profile.emails[0].value,
-        //         googleId: profile.id
-        //     });
-        //     await newUser.save();
-        //     return done(null, newUser);
-        // }
+        const user = await User.findOne({ googleId: profile.id });
+        if (user) {
+            return done(null, user);
+        }
+        else {
+            const newUser = new User({
+                firstName: profile.displayName,
+                email: profile.emails[0].value,
+                googleId: profile.id
+            });
+            await newUser.save();
+            return done(null, newUser);
+        }
     }));
 
 
     // In Case To Store In DataBase
-    // passport.serializeUser((profile, done) => {
-    //     // This function will be called when the user is authenticated
-    //     // You can perform additional actions here, like storing the user in a database
-    //     done(null, profile.id);
-    // });
-    // passport.deserializeUser(async (id, done) => {
-    //     // This function will be called when the user is authenticated
-    //     // You can perform additional actions here, like storing the user in a database
-
-    //     const user = await User.findOne({ googleId: id });
-    //     done(null, user);
-    // });
-
-    // Not Store In Database
-    passport.serializeUser((user, done) => {
+    passport.serializeUser((profile, done) => {
         // This function will be called when the user is authenticated
         // You can perform additional actions here, like storing the user in a database
+        done(null, profile.id);
+    });
+    passport.deserializeUser(async (id, done) => {
+        // This function will be called when the user is authenticated
+        // You can perform additional actions here, like storing the user in a database
+
+        const user = await User.findOne({ googleId: id });
+        console.log(user);
         done(null, user);
     });
-    passport.deserializeUser(async (userObj, done) => {
-        // Stores User In The Session
-        // This function will be called when the user is authenticated
-        // You can perform additional actions here, like storing the user in a database
 
-        done(null, userObj);
-    });
+    // Not Store In Database
+    // passport.serializeUser((user, done) => {
+    //     // This function will be called when the user is authenticated
+    //     // You can perform additional actions here, like storing the user in a database
+    //     done(null, user);
+    // });
+    // passport.deserializeUser(async (userObj, done) => {
+    //     // Stores User In The Session
+    //     // This function will be called when the user is authenticated
+    //     // You can perform additional actions here, like storing the user in a database
+
+    //     done(null, userObj);
+    // });
 }
 
 export const passportLocalSetup = () => {
