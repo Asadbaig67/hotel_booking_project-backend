@@ -883,7 +883,7 @@ export const getUpcomingBookingHotelByUserId = async (req, res) => {
       })
     );
     if (bookingOut.length === 0) {
-      return res.status(404).json("No Booking Found");
+      return res.status(404).json([]);
     }
     res.status(200).json(bookingOut);
   } catch (error) {
@@ -949,7 +949,7 @@ export const getUpcomingBookingParkingByUserId = async (req, res) => {
       })
     );
     if (bookingOut.length === 0) {
-      return res.status(404).json("No Booking Found");
+      return res.status(404).json([]);
     }
 
     res.status(200).json(bookingOut);
@@ -1017,7 +1017,7 @@ export const getUpcomingBookingHotelandParkingByUserId = async (req, res) => {
     );
 
     if (bookingOut.length === 0) {
-      return res.status(404).json("No Booking Found");
+      return res.status(404).json([]);
     }
     res.status(200).json(bookingOut);
   } catch (error) {
