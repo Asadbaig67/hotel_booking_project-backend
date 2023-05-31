@@ -332,3 +332,47 @@ export const sendotp = async (req, res) => {
         });
     }
 };
+
+// NewsLetter Email
+export const newsletterEmail = async (email) => {
+
+    try {
+        let config = {
+            service: "gmail",
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASSWORD,
+            },
+        };
+        const transporter = nodemailer.createTransport(config);
+        let Mailgenerator = new Mailgen({
+            theme: 'salted',
+            product: {
+                name: 'Desalis Hotels',
+                link: 'http://localhost:3000',
+            }
+        });
+        const newemail = {
+            body: {
+                name: 'Subscriber',
+                intro: 'Welcome to Desalis! Thank You For Subscribing. You will get all the latest deal on you email!',
+                outro: 'Need help, or have questions? Just contact us info@desalishotels.com we are always here to help you '
+            }
+        };
+
+        let mail = Mailgenerator.generate(newemail);
+
+        let newmessage = {
+            from: "Desalis Hotels " + process.env.EMAIL,
+            to: email,
+            subject: 'NewsLetter Subscription',
+            html: mail
+        }
+        await transporter.sendMail(newmessage);
+
+        return { status: true, message: "Email Sent Successfully" };
+    } catch (error) {
+        return { status: false, message: "Internalllllllllll Server Error", error };
+    }
+
+}

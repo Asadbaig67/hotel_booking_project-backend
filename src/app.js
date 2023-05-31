@@ -125,7 +125,7 @@ app.use("/otp", resetPassword);
 app.use("/email", verifyEmail);
 app.use("/OperatingProperty", OperatingCities);
 app.use("/notification", Notification);
-app.use("/newsletteremail", Newsletteremail);
+app.use("/newsletter", Newsletteremail);
 
 // To listen to port
 app.listen(port, () => {
