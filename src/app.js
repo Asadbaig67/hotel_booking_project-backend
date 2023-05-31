@@ -18,6 +18,7 @@ import expressSession from "express-session";
 import path from "path";
 import fileUpload from "express-fileupload";
 import Newsletteremail from "./router/newsletterEmail.js";
+import Contact from './router/Contact.js'
 import passport from "passport";
 import { passportGoogleSetup, passportLocalSetup } from "./passport.js";
 
@@ -126,6 +127,7 @@ app.use("/email", verifyEmail);
 app.use("/OperatingProperty", OperatingCities);
 app.use("/notification", Notification);
 app.use("/newsletter", Newsletteremail);
+app.use("/contact", Contact);
 
 // To listen to port
 app.listen(port, () => {
