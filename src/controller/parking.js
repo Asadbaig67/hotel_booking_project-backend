@@ -3,7 +3,7 @@ import User from "../models/user.js";
 import { fileURLToPath } from "url";
 import path from "path";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
-import fs from 'fs';
+import fs from "fs";
 // Add Parking Function
 export const addParking = async (req, res) => {
   try {
@@ -89,7 +89,7 @@ export const addParking = async (req, res) => {
       country,
       address,
       photos,
-      Facilities: facilities
+      Facilities: facilities,
     });
 
     const result = await new_parking.save();
@@ -109,7 +109,7 @@ export const addParking = async (req, res) => {
           Date.now(),
           user._id
         );
-      })
+      });
       res.status(201).json({ message: "Parking Added Successfully" });
     } else {
       res.status(500).json({ message: "Parking Cannot be Added" });
@@ -154,7 +154,7 @@ export const getParkingByCity = async (req, res) => {
     if (!response)
       return res.status(404).json({ message: "Parking Not Found" });
     res.send(response);
-  } catch (error) { }
+  } catch (error) {}
 };
 
 // Get Parking By Id Function
@@ -265,7 +265,7 @@ export const updateParking = async (req, res) => {
           Date.now(),
           user._id
         );
-      })
+      });
       res.status(200).json({ message: "Parking Updated Successfully" });
     } else {
       res.status(404).json({ message: "Parking Not Found" });
@@ -277,13 +277,10 @@ export const updateParking = async (req, res) => {
 
 // Update Parking New
 export const UpdateParkingNew = async (req, res) => {
-
   try {
-
     let photos = [];
 
     if (req.files && Object.keys(req.files).length !== 0) {
-
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = path.dirname(__filename);
       const hotelsLocation = path.join(
@@ -310,7 +307,6 @@ export const UpdateParkingNew = async (req, res) => {
         (fileName) => `${baseUrl}/uploads/ParkingImages/${fileName}`
       );
     }
-
 
     const {
       name,
@@ -362,24 +358,27 @@ export const UpdateParkingNew = async (req, res) => {
       country,
       address,
       photos,
-      Facilities: facilities
+      Facilities: facilities,
     });
 
-    const Updated_parking = await Parking.findByIdAndUpdate(req.params.id, {
-      name,
-      title,
-      total_slots,
-      booked_slots,
-      description,
-      price,
-      city,
-      country,
-      address,
-      ...(photos.length > 0 && { $push: { photos: { $each: photos } } }),
-      $addToSet: { Facilities: { $each: facilities } },
-      // Facilities: facilities
-
-    }, { new: true });
+    const Updated_parking = await Parking.findByIdAndUpdate(
+      req.params.id,
+      {
+        name,
+        title,
+        total_slots,
+        booked_slots,
+        description,
+        price,
+        city,
+        country,
+        address,
+        ...(photos.length > 0 && { $push: { photos: { $each: photos } } }),
+        $addToSet: { Facilities: { $each: facilities } },
+        // Facilities: facilities
+      },
+      { new: true }
+    );
 
     // const result = await Updated_parking.save();
     if (Updated_parking) {
@@ -406,8 +405,7 @@ export const UpdateParkingNew = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-
-}
+};
 
 // Update Parking Booked Slots Function
 export const updateParkingBookedSlots = async (req, res) => {
@@ -440,7 +438,7 @@ export const updateParkingBookedSlots = async (req, res) => {
           Date.now(),
           user._id
         );
-      })
+      });
       res.status(200).json({ message: "Parking Updated Successfully" });
     } else {
       res.status(404).json({ message: "Parking Not Found" });
@@ -496,7 +494,63 @@ export const approveParking = async (req, res) => {
           Date.now(),
           user._id
         );
-      })
+      });
+      res.status(200).json({ message: "Parking Updated Successfully" });
+    } else {
+      res.status(404).json({ message: "Parking Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Update Parking Unapproved Function and update rating
+export const approveParkingAndUpdateRating = async (req, res) => {
+  const data = await Parking.findById(req.params.id);
+  try {
+    if (!data) return res.status(404).json({ message: "Parking Not Found" });
+    if (data.approved)
+      return res.status(422).json({ message: "Parking Already Approved" });
+
+    const result = await Parking.findOneAndUpdate(
+      { _id: req.params.id },
+      { approved: true, rating: req.body.rating },
+      { new: true }
+    );
+
+    if (result) {
+      const { ownerId } = data;
+      if (!ownerId) {
+        await Parking.findByIdAndUpdate(
+          req.params.id,
+          { approved: false },
+          { new: true }
+        );
+        return res.status(404).json({ message: "Owner Not Found" });
+      }
+      const user = await User.findById(ownerId);
+      if (!user) return res.status(404).json({ message: "User Not Found" });
+      user.partner_type = "Parking";
+      user.account_type = "partner";
+      await user.save();
+    }
+    if (result) {
+      createNotificationProperty(
+        "Parking",
+        "Parking approved",
+        "Your parking approved",
+        Date.now(),
+        data.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "Parking",
+          "parking approved",
+          `A parking has been approved`,
+          Date.now(),
+          user._id
+        );
+      });
       res.status(200).json({ message: "Parking Updated Successfully" });
     } else {
       res.status(404).json({ message: "Parking Not Found" });
@@ -526,7 +580,7 @@ export const deleteParking = async (req, res) => {
           Date.now(),
           user._id
         );
-      })
+      });
       res.status(200).json({ message: "Parking Deleted Successfully" });
     } else {
       res.status(404).json({ message: "Parking Not Found" });
@@ -538,36 +592,34 @@ export const deleteParking = async (req, res) => {
 
 // Delete  Parking  Images
 export const deleteParkingImages = async (req, res) => {
-
   const { link } = req.body;
   const parking = await Parking.findById(req.params.id);
 
   // Remove Image from database
-  const newPhotos = parking.photos.filter(imglink => imglink !== link);
+  const newPhotos = parking.photos.filter((imglink) => imglink !== link);
   parking.photos = newPhotos;
   await parking.save();
 
   // Remove Image from Disk Storage
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
-  const linkarray = link.split('/');
+  const linkarray = link.split("/");
   // Delete Image from location
   const filename = linkarray[linkarray.length - 1];
-  const filePath = path.join(__dirname, '../uploads/HotelImages', filename);
+  const filePath = path.join(__dirname, "../uploads/HotelImages", filename);
   // Check if the file exists
   if (fs.existsSync(filePath)) {
     // Delete the file
     fs.unlink(filePath, (err) => {
       if (err) {
         console.error(err);
-        return res.status(500).json({ error: 'Failed to delete file.' });
+        return res.status(500).json({ error: "Failed to delete file." });
       }
 
       // File deletion successful
-      return res.status(200).json({ message: 'File deleted successfully.' });
+      return res.status(200).json({ message: "File deleted successfully." });
     });
   } else {
-    return res.status(404).json({ error: 'File not found.' });
+    return res.status(404).json({ error: "File not found." });
   }
-
 };
