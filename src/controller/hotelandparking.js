@@ -7,7 +7,7 @@ import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty
 import { checkRoomAndParkingAvailability } from "../Functions/HotelParking/checkRoomAndParkingAvailabilty.js";
 import { getRoomByPrices } from "../Functions/Hotel/getRoomsPrices.js";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
-import fs from 'fs';
+import fs from "fs";
 
 // Add Hotel And Parking Function
 export const addhotelandparking = async (req, res) => {
@@ -151,7 +151,7 @@ export const addhotelandparking = async (req, res) => {
       hotel_photos: hotelPhotos,
       parking_photos: parkingPhotos,
       parking_price: price,
-      Facilities: facilities
+      Facilities: facilities,
     });
 
     // Save Hotel and Parking
@@ -410,7 +410,7 @@ export const updateHotelAndParking = async (req, res) => {
           Date.now(),
           user._id
         );
-      })
+      });
       res
         .status(200)
         .json({ message: "Hotel And Parking Updated Successfully" });
@@ -425,12 +425,16 @@ export const updateHotelAndParking = async (req, res) => {
 // Update Hotel And Parking New
 export const updateHotelAndParkingNew = async (req, res) => {
   try {
-
     let hotel_photos = [];
     let parking_photos = [];
-    // If User Adds new Images 
+    // If User Adds new Images
     const { hotelPhotos, parkingPhotos } = req.files || {};
-    if (hotelPhotos && parkingPhotos && Object.keys(hotelPhotos).length !== 0 && Object.keys(parkingPhotos).length !== 0) {
+    if (
+      hotelPhotos &&
+      parkingPhotos &&
+      Object.keys(hotelPhotos).length !== 0 &&
+      Object.keys(parkingPhotos).length !== 0
+    ) {
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = path.dirname(__filename);
       const hotelsLocation = path.join(
@@ -445,7 +449,7 @@ export const updateHotelAndParkingNew = async (req, res) => {
       const filesParking = Object.values(req.files.parkingPhotos).flat();
       const fileNamesParking = [];
 
-      if (typeof req.files.parkingPhotos.length === 'undefined') {
+      if (typeof req.files.parkingPhotos.length === "undefined") {
         let pakringArray = [req.files.parkingPhotos];
         for (let i = 0; i < pakringArray.length; i++) {
           const file = pakringArray[i];
@@ -469,7 +473,7 @@ export const updateHotelAndParkingNew = async (req, res) => {
         }
       }
 
-      if (typeof req.files.hotelPhotos.length === 'undefined') {
+      if (typeof req.files.hotelPhotos.length === "undefined") {
         let hotelArray = [req.files.hotelPhotos];
         for (let i = 0; i < hotelArray.length; i++) {
           const file = hotelArray[i];
@@ -493,8 +497,6 @@ export const updateHotelAndParkingNew = async (req, res) => {
           await file.mv(filePath);
         }
       }
-
-
 
       // console.log("filesHotel =", filesHotel, filesHotel.length);
       // console.log("filesParking =", filesParking, filesParking.length);
@@ -526,7 +528,8 @@ export const updateHotelAndParkingNew = async (req, res) => {
       );
       const baseUrlParking = "http://localhost:5000";
       parking_photos = fileNamesHotel.map(
-        (fileName) => `${baseUrlParking}/uploads/Hotel_Parking_Images/${fileName}`
+        (fileName) =>
+          `${baseUrlParking}/uploads/Hotel_Parking_Images/${fileName}`
       );
     }
 
@@ -568,29 +571,34 @@ export const updateHotelAndParkingNew = async (req, res) => {
       return res.status(422).json({ error: "All fields are required! " });
     }
 
-
-
-    const updated_hotelParking = await Hotel.findByIdAndUpdate(req.params.id, {
-
-      hotel_name,
-      hotel_title,
-      hotel_rating,
-      hotel_address,
-      city,
-      country,
-      total_slots,
-      booked_slots,
-      hotel_description,
-      parking_name,
-      parking_title,
-      address,
-      price,
-      parking_description,
-      facilities,
-      ...(hotel_photos.length > 0 && { $push: { hotel_photos: { $each: hotel_photos } } }),
-      ...(parking_photos.length > 0 && { $push: { parking_photos: { $each: parking_photos } } }),
-      $addToSet: { Facilities: { $each: facilities } }, // will not duplicate entries
-    }, { new: true });
+    const updated_hotelParking = await Hotel.findByIdAndUpdate(
+      req.params.id,
+      {
+        hotel_name,
+        hotel_title,
+        hotel_rating,
+        hotel_address,
+        city,
+        country,
+        total_slots,
+        booked_slots,
+        hotel_description,
+        parking_name,
+        parking_title,
+        address,
+        price,
+        parking_description,
+        facilities,
+        ...(hotel_photos.length > 0 && {
+          $push: { hotel_photos: { $each: hotel_photos } },
+        }),
+        ...(parking_photos.length > 0 && {
+          $push: { parking_photos: { $each: parking_photos } },
+        }),
+        $addToSet: { Facilities: { $each: facilities } }, // will not duplicate entries
+      },
+      { new: true }
+    );
 
     // const result = await updated_hotel.save();
     // const updated_hotelParking = true;
@@ -613,7 +621,7 @@ export const updateHotelAndParkingNew = async (req, res) => {
       // });
       // console.log("photos Array =", photos);
       return res.status(201).json({
-        message: "Hotel And Parking Updated Successfully"
+        message: "Hotel And Parking Updated Successfully",
         // , data: {
         //   hotel_name,
         //   hotel_title,
@@ -676,7 +684,7 @@ export const incrementSlotsCount = async (req, res) => {
           Date.now(),
           user._id
         );
-      })
+      });
       res.status(200).json({
         message: "Hotel And Parking Booked Slots Updated Successfully",
       });
@@ -737,7 +745,66 @@ export const approveHotelAndParking = async (req, res) => {
           Date.now(),
           user._id
         );
-      })
+      });
+      res.status(200).json({ message: "Hotel And Parking Approved" });
+    } else {
+      res.status(404).json({ message: "Hotel And Parking Not Found" });
+    }
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+//Approve Hotel And Parking And Update Rating
+export const approveHotelAndParkingAndRating = async (req, res) => {
+  const data = await HotelandParking.findById(req.params.id);
+  try {
+    if (!data) {
+      return res.status(404).json({ message: "Hotel And Parking Not Found" });
+    } else if (data.approved === true) {
+      return res
+        .status(404)
+        .json({ message: "Hotel And Parking Already Approved" });
+    }
+
+    const result = await HotelandParking.findByIdAndUpdate(
+      req.params.id,
+      { approved: true, hotel_rating: req.body.hotel_rating },
+      { new: true }
+    );
+    if (result) {
+      const { ownerId } = data;
+      if (!ownerId) {
+        await HotelandParking.findByIdAndUpdate(
+          req.params.id,
+          { approved: false },
+          { new: true }
+        );
+        return res.status(404).json({ message: "User Not Found" });
+      }
+      const user = await User.findById(ownerId);
+      if (!user) return res.status(404).json({ message: "User Not Found" });
+      user.partner_type = "HotelAndParking";
+      user.account_type = "partner";
+      await user.save();
+    }
+    if (result) {
+      createNotificationProperty(
+        "hotel and parking",
+        "approve success",
+        `Your hotel and parking approve`,
+        Date.now(),
+        result.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel and parking",
+          "approve success",
+          `A hotel and parking has been approved`,
+          Date.now(),
+          user._id
+        );
+      });
       res.status(200).json({ message: "Hotel And Parking Approved" });
     } else {
       res.status(404).json({ message: "Hotel And Parking Not Found" });
@@ -767,7 +834,7 @@ export const deleteHotelAndParking = async (req, res) => {
           Date.now(),
           user._id
         );
-      })
+      });
       return res
         .status(200)
         .json({ message: "Hotel And Parking Deleted Successfully" });
@@ -808,72 +875,70 @@ export const getTopHotelAndParking = async (req, res) => {
 
 // Delete  Hotel  Images
 export const deleteHotelImages = async (req, res) => {
-
   const { link } = req.body;
   const hotel = await HotelandParking.findById(req.params.id);
 
   // Remove Image from database
-  const newPhotos = hotel.hotel_photos.filter(imglink => imglink !== link);
+  const newPhotos = hotel.hotel_photos.filter((imglink) => imglink !== link);
   hotel.hotel_photos = newPhotos;
   await hotel.save();
 
   // Remove Image from Disk Storage
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
-  const linkarray = link.split('/');
+  const linkarray = link.split("/");
   // Delete Image from location
   const filename = linkarray[linkarray.length - 1];
-  const filePath = path.join(__dirname, '../uploads/HotelImages', filename);
+  const filePath = path.join(__dirname, "../uploads/HotelImages", filename);
   // Check if the file exists
   if (fs.existsSync(filePath)) {
     // Delete the file
     fs.unlink(filePath, (err) => {
       if (err) {
         console.error(err);
-        return res.status(500).json({ error: 'Failed to delete file.' });
+        return res.status(500).json({ error: "Failed to delete file." });
       }
 
       // File deletion successful
-      return res.status(200).json({ message: 'File deleted successfully.' });
+      return res.status(200).json({ message: "File deleted successfully." });
     });
   } else {
-    return res.status(404).json({ error: 'File not found.' });
+    return res.status(404).json({ error: "File not found." });
   }
-
 };
 
 // Delete  Parking  Images
 export const deleteParkingImages = async (req, res) => {
-
   const { link } = req.body;
   const parking = await HotelandParking.findById(req.params.id);
 
   // Remove Image from database
-  const newPhotos = parking.parking_photos.filter(imglink => imglink !== link);
+  const newPhotos = parking.parking_photos.filter(
+    (imglink) => imglink !== link
+  );
   parking.parking_photos = newPhotos;
   await parking.save();
 
   // Remove Image from Disk Storage
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
-  const linkarray = link.split('/');
+  const linkarray = link.split("/");
   // Delete Image from location
   const filename = linkarray[linkarray.length - 1];
-  const filePath = path.join(__dirname, '../uploads/HotelImages', filename);
+  const filePath = path.join(__dirname, "../uploads/HotelImages", filename);
   // Check if the file exists
   if (fs.existsSync(filePath)) {
     // Delete the file
     fs.unlink(filePath, (err) => {
       if (err) {
         console.error(err);
-        return res.status(500).json({ error: 'Failed to delete file.' });
+        return res.status(500).json({ error: "Failed to delete file." });
       }
 
       // File deletion successful
-      return res.status(200).json({ message: 'File deleted successfully.' });
+      return res.status(200).json({ message: "File deleted successfully." });
     });
   } else {
-    return res.status(404).json({ error: 'File not found.' });
+    return res.status(404).json({ error: "File not found." });
   }
-
 };
