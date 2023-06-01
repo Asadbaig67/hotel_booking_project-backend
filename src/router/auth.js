@@ -13,6 +13,7 @@ import {
   logout,
   getuserbyid,
   updateAccountPassword,
+  getUserIdAndname,
 } from "../controller/auth.js";
 import { authorization } from "../middleware/authentication.js";
 import {
@@ -29,6 +30,9 @@ Router.post("/registeration", registration);
 
 // Get All Users
 Router.get("/getall", getAll);
+
+// Get User Ids and Name
+Router.get("/getuseridandname", getUserIdAndname);
 
 //Get user by id
 Router.get("/getuserbyid/:id", getuserbyid);

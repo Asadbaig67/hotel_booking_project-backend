@@ -28,6 +28,10 @@ const parkingschema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  rating: {
+    type: Number,
+    default: 0,
+  },
   price: {
     type: Number,
     required: true,

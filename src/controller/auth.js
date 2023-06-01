@@ -319,3 +319,33 @@ export const logout = (req, res) => {
   // res.redirect(process.env.CLIENT_URL);
   res.status(200).json({ message: "Logout Success" });
 };
+
+// Get User Id And Name Function
+export const getUserIdAndname = async (req, res) => {
+
+  const formType = req.query.form_type;
+
+  if (formType === 'hotel') {
+
+    let accounts = (await User.find({ $or: [{ account_type: 'user' }, { partner_type: 'Hotel' }] }).select("_id firstName lastName")).map((account) => account.toObject());
+    accounts.forEach((account) => {
+      account.name = account.firstName + " " + account.lastName;
+    });
+    return res.status(200).json({ accounts });
+
+  } else if (formType === 'parking') {
+    let accounts = (await User.find({ $or: [{ account_type: 'user' }, { partner_type: "Parking" }] }).select("_id firstName lastName")).map((account) => account.toObject());
+    accounts.forEach((account) => {
+      account.name = account.firstName + " " + account.lastName;
+    });
+    return res.status(200).json({ accounts });
+  } else {
+    let accounts = (await User.find({ $or: [{ account_type: 'user' }, { partner_type: 'HotelAndParking' }] }).select("_id firstName lastName")).map((account) => account.toObject());
+    accounts.forEach((account) => {
+      account.name = account.firstName + " " + account.lastName;
+    });
+    return res.status(200).json({ accounts });
+
+  }
+
+};
