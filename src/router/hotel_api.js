@@ -17,6 +17,7 @@ import {
   getHotelByRatingFilter,
   deleteHotelImages,
   UpdateHotel,
+  approveHotelAndUpdateRating
 } from "../controller/hotel.js";
 
 // Initialize multer with the storage configuration
@@ -51,6 +52,8 @@ Router.patch("/updatehoteldata/:id", UpdateHotel);
 Router.patch("/updatehotel/:id", updateHotel);
 //Approve Hotel
 Router.put("/approvehotel/:id", approveHotel);
+//Approve Hotel and update rating
+Router.put("/approvehotelAndUpdateRating/:id", approveHotelAndUpdateRating);
 // Delete Hotel
 Router.delete("/deletehotel/:id", deleteHotel);
 //Filter data

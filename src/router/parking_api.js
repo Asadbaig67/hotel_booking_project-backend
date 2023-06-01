@@ -14,7 +14,8 @@ import {
   getApprovedParkingByOwnerId,
   getUnapprovedParkingByOwnerId,
   UpdateParkingNew,
-  deleteParkingImages
+  deleteParkingImages,
+  approveParkingAndUpdateRating,
 } from "../controller/parking.js";
 
 const Router = express.Router();
@@ -45,6 +46,8 @@ Router.patch("/updateparkingdata/:id", UpdateParkingNew);
 Router.put("/increasebookedslots/:id", updateParkingBookedSlots);
 //Approve Parking Route
 Router.put("/approveParking/:id", approveParking);
+//Approve Parking Route and update rating
+Router.put("/approveParkingAndUpdateRating/:id", approveParkingAndUpdateRating);
 // Delete Parking Route
 Router.delete("/deleteparking/:id", deleteParking);
 // Delete Parking Images

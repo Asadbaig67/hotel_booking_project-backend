@@ -7,7 +7,7 @@ import { getRoomByPrices } from "../Functions/Hotel/getRoomsPrices.js";
 import { fileURLToPath } from "url";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import path from "path";
-import fs from 'fs';
+import fs from "fs";
 
 // Add Hotel Function
 export const addHotel = async (req, res) => {
@@ -189,7 +189,6 @@ export const getHotelByRatingFilter = async (req, res) => {
   rating = JSON.parse(rating);
   console.log(rating);
   try {
-    
   } catch (error) {
     res.json(error);
   }
@@ -324,9 +323,8 @@ export const updateHotel = async (req, res) => {
 // Update Hotel Function
 export const UpdateHotel = async (req, res) => {
   try {
-
     let photos = [];
-    // If User Adds new Images 
+    // If User Adds new Images
     if (req.files && Object.keys(req.files).length !== 0) {
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = path.dirname(__filename);
@@ -375,27 +373,29 @@ export const UpdateHotel = async (req, res) => {
       !description ||
       !city ||
       !country ||
-      !address
-      || !facilities
+      !address ||
+      !facilities
     ) {
       return res.status(422).json({ error: "All fields are required! " });
     }
 
-
-
-    const updated_hotel = await Hotel.findByIdAndUpdate(req.params.id, {
-      // ownerId,
-      name,
-      title,
-      rating,
-      description,
-      city,
-      country,
-      address,
-      ...(photos.length > 0 && { $push: { photos: { $each: photos } } }),
-      // $push: { photos: { $each: photos } }, // will appends new and keeps the existing images
-      $addToSet: { Facilities: { $each: facilities } }, // will not duplicate entries
-    }, { new: true });
+    const updated_hotel = await Hotel.findByIdAndUpdate(
+      req.params.id,
+      {
+        // ownerId,
+        name,
+        title,
+        rating,
+        description,
+        city,
+        country,
+        address,
+        ...(photos.length > 0 && { $push: { photos: { $each: photos } } }),
+        // $push: { photos: { $each: photos } }, // will appends new and keeps the existing images
+        $addToSet: { Facilities: { $each: facilities } }, // will not duplicate entries
+      },
+      { new: true }
+    );
 
     // const result = await updated_hotel.save();
     // const updated_hotel = true;
@@ -418,7 +418,7 @@ export const UpdateHotel = async (req, res) => {
       // });
       // console.log("photos Array =", photos);
       return res.status(201).json({
-        message: "Hotel Updated Successfully"
+        message: "Hotel Updated Successfully",
         // , data: {
         //   name,
         //   title,
@@ -437,7 +437,7 @@ export const UpdateHotel = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-}
+};
 
 // Approve Hotel Function
 export const approveHotel = async (req, res) => {
@@ -496,6 +496,60 @@ export const approveHotel = async (req, res) => {
   }
 };
 
+//Approve Hotel And Update Rating Function
+export const approveHotelAndUpdateRating = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const hotel = await Hotel.findById(id);
+    if (!hotel) return res.status(404).json({ message: "Hotel Not Found" });
+    if (hotel.approved === true) {
+      return res.status(200).json({ message: "Hotel Already Approved" });
+    }
+    const result = await Hotel.findByIdAndUpdate(
+      req.params.id,
+      { approved: true, rating: req.body.rating },
+      { new: true }
+    );
+    if (result) {
+      const { ownerId } = hotel;
+      console.log(ownerId);
+      if (!ownerId) {
+        await Hotel.findByIdAndUpdate(
+          req.params.id,
+          { approved: false },
+          { new: true }
+        );
+        return res.status(404).json({ message: "User Not Found" });
+      }
+      const user = await User.findById(ownerId);
+      user.partner_type = "Hotel";
+      user.account_type = "partner";
+      await user.save();
+    }
+
+    // if (result !== null) {
+    //   createNotificationProperty(
+    //     "Hotel",
+    //     "Approve Hotel",
+    //     "Your hotel is approved",
+    //     Date.now(),
+    //     data.ownerId
+    //   );
+    //   (await User.find({ account_type: "admin" })).forEach((user) => {
+    //     createNotificationProperty(
+    //       "hotel",
+    //       "add approve",
+    //       `hotel approved`,
+    //       Date.now(),
+    //       user._id
+    //     );
+    //   });
+    // }
+    return res.status(200).json({ message: "Hotel Approved Successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
 // Delete Parking Function
 export const deleteHotel = async (req, res) => {
   try {
@@ -555,38 +609,35 @@ export const getTopHotels = async (req, res) => {
   }
 };
 
-
 export const deleteHotelImages = async (req, res) => {
-
   const { link } = req.body;
   const hotel = await Hotel.findById(req.params.id);
 
   // Remove Image from database
-  const newPhotos = hotel.photos.filter(imglink => imglink !== link);
+  const newPhotos = hotel.photos.filter((imglink) => imglink !== link);
   hotel.photos = newPhotos;
   await hotel.save();
 
   // Remove Image from Disk Storage
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
-  const linkarray = link.split('/');
+  const linkarray = link.split("/");
   // Delete Image from location
   const filename = linkarray[linkarray.length - 1];
-  const filePath = path.join(__dirname, '../uploads/HotelImages', filename);
+  const filePath = path.join(__dirname, "../uploads/HotelImages", filename);
   // Check if the file exists
   if (fs.existsSync(filePath)) {
     // Delete the file
     fs.unlink(filePath, (err) => {
       if (err) {
         console.error(err);
-        return res.status(500).json({ error: 'Failed to delete file.' });
+        return res.status(500).json({ error: "Failed to delete file." });
       }
 
       // File deletion successful
-      return res.status(200).json({ message: 'File deleted successfully.' });
+      return res.status(200).json({ message: "File deleted successfully." });
     });
   } else {
-    return res.status(404).json({ error: 'File not found.' });
+    return res.status(404).json({ error: "File not found." });
   }
-
 };

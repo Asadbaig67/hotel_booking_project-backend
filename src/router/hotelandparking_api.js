@@ -19,7 +19,8 @@ import {
   updateHotelAndParkingNew,
   deleteHotelImages,
   deleteParkingImages,
-  getHotelById
+  getHotelById,
+  approveHotelAndParkingAndRating,
 } from "../controller/hotelandparking.js";
 
 const Router = express.Router();
@@ -62,6 +63,11 @@ Router.patch("/updatehotelandparkingdata/:id", updateHotelAndParkingNew);
 Router.put("/Incrementbookedslots/:id", incrementSlotsCount);
 // Update Hotel And Parking Approved Status
 Router.put("/approveHotelAndParking/:id", approveHotelAndParking);
+// Update Hotel And Parking Approved Status And rating
+Router.put(
+  "/approveHotelAndParkingAndUpdateRating/:id",
+  approveHotelAndParkingAndRating
+);
 // Update Hotel And Parking
 Router.patch("/updatehotelandparking/:id", updateHotelAndParking);
 // Delete Hotel And Parking
