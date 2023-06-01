@@ -49,6 +49,7 @@ export const addParking = async (req, res) => {
       address,
       price,
       facilities,
+      rating,
     } = req.body;
 
     if (
@@ -62,7 +63,8 @@ export const addParking = async (req, res) => {
       !country ||
       !address ||
       !price ||
-      !facilities
+      !facilities ||
+      !rating
     ) {
       return res
         .status(422)
@@ -87,6 +89,7 @@ export const addParking = async (req, res) => {
       price,
       city,
       country,
+      rating,
       address,
       photos,
       Facilities: facilities
@@ -322,6 +325,7 @@ export const UpdateParkingNew = async (req, res) => {
       country,
       address,
       price,
+      rating,
       facilities,
     } = req.body;
 
@@ -333,6 +337,7 @@ export const UpdateParkingNew = async (req, res) => {
       !booked_slots ||
       !city ||
       !country ||
+      !rating ||
       !address ||
       !price ||
       !facilities
@@ -350,20 +355,20 @@ export const UpdateParkingNew = async (req, res) => {
     //   return res.status(422).json({ error: "Parking already exists" });
     // }
 
-    const new_parking = new Parking({
-      ownerId,
-      name,
-      title,
-      total_slots,
-      booked_slots,
-      description,
-      price,
-      city,
-      country,
-      address,
-      photos,
-      Facilities: facilities
-    });
+    // const new_parking = new Parking({
+    //   ownerId,
+    //   name,
+    //   title,
+    //   total_slots,
+    //   booked_slots,
+    //   description,
+    //   price,
+    //   city,
+    //   country,
+    //   address,
+    //   photos,
+    //   Facilities: facilities
+    // });
 
     const Updated_parking = await Parking.findByIdAndUpdate(req.params.id, {
       name,
@@ -372,6 +377,7 @@ export const UpdateParkingNew = async (req, res) => {
       booked_slots,
       description,
       price,
+      rating,
       city,
       country,
       address,
