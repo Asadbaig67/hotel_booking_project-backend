@@ -1412,6 +1412,33 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
   }
 };
 
+//Get All Cancelled Bookings
+export const getAllCancelledBookings = async (req, res) => {};
+
+//Get Cancelled Bookings By User Id
+export const getCancelledBookingsByUserId = async (req, res) => {};
+
+//Get Cancelled Bookings By Hotel Id
+export const getCancelledBookingsByHotelId = async (req, res) => {};
+
+//Get Cancelled Bookings By Parking Id
+export const getCancelledBookingsByParkingId = async (req, res) => {};
+
+//Get Cancelled Bookings By Hotel And Parking Id
+export const getCancelledBookingsByHotelAndParkingId = async (req, res) => {};
+
+//Get Cancelled Bookings By Hotel OwnerId
+export const getCancelledBookingsByHotelOwnerId = async (req, res) => {};
+
+//Get Cancelled Bookings By Parking OwnerId
+export const getCancelledBookingsByParkingOwnerId = async (req, res) => {};
+
+//Get Cancelled Bookings By Hotel And Parking OwnerId
+export const getCancelledBookingsByHotelAndParkingOwnerId = async (
+  req,
+  res
+) => {};
+
 // Get All Bookings by Hotel Id
 export const getBookingByHotelId = async (req, res) => {
   try {
@@ -1631,7 +1658,9 @@ export const getUpcommingBookingsByHotelOwnerId = async (req, res) => {
 export const getUpcommingBookingsByHotelParkingOwnerId = async (req, res) => {
   const hotelParkingOwnerId = mongoose.Types.ObjectId(req.params.id);
   try {
-    const hotelIds = await HotelandParking.find({ ownerId: hotelParkingOwnerId }).select("_id");
+    const hotelIds = await HotelandParking.find({
+      ownerId: hotelParkingOwnerId,
+    }).select("_id");
     const bookings = await booking.find({ hotelId: { $in: hotelIds } });
     let currentDate = new Date();
     const filteredResult = bookings.filter((booking) => {
@@ -1691,7 +1720,9 @@ export const getUpcommingBookingsByHotelParkingOwnerId = async (req, res) => {
 export const getUpcommingBookingsByParkingOwnerId = async (req, res) => {
   const ParkingOwnerId = mongoose.Types.ObjectId(req.params.id);
   try {
-    const parkingIds = await Parking.find({ ownerId: ParkingOwnerId }).select("_id");
+    const parkingIds = await Parking.find({ ownerId: ParkingOwnerId }).select(
+      "_id"
+    );
     const bookings = await booking.find({ hotelId: { $in: parkingIds } });
     let currentDate = new Date();
     const filteredResult = bookings.filter((booking) => {
@@ -1753,7 +1784,7 @@ export const getUpcommingBookingsByHotelId = async (req, res) => {
   try {
     const bookings = await booking.find({ Booking_type: "hotel" });
     const filteredBookings = bookings.filter((booking) => {
-      return booking.bookingData._id === hotelId
+      return booking.bookingData._id === hotelId;
     });
 
     let currentDate = new Date();
@@ -1807,8 +1838,8 @@ export const getUpcommingBookingsByHotelId = async (req, res) => {
     res.status(200).json(bookingOut);
   } catch (error) {
     res.status(404).json("No Booking Found");
-  };
-}
+  }
+};
 
 // Get Upcomming Bookings by HotelAndParkingOwnerId
 export const getUpcommingBookingsByHotelParkingId = async (req, res) => {
@@ -1816,7 +1847,7 @@ export const getUpcommingBookingsByHotelParkingId = async (req, res) => {
   try {
     const bookings = await booking.find({ Booking_type: "hotelandparking" });
     const filteredBookings = bookings.filter((booking) => {
-      return booking.bookingData._id === hotelParkingId
+      return booking.bookingData._id === hotelParkingId;
     });
 
     let currentDate = new Date();
@@ -1879,7 +1910,7 @@ export const getUpcommingBookingsByParkingId = async (req, res) => {
   try {
     const bookings = await booking.find({ Booking_type: "parking" });
     const filteredBookings = bookings.filter((booking) => {
-      return booking.bookingData._id === ParkingId
+      return booking.bookingData._id === ParkingId;
     });
 
     let currentDate = new Date();
@@ -1933,5 +1964,5 @@ export const getUpcommingBookingsByParkingId = async (req, res) => {
     res.status(200).json(bookingOut);
   } catch (error) {
     res.status(404).json("No Booking Found");
-  };
-}
+  }
+};
