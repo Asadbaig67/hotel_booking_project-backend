@@ -275,6 +275,7 @@ export const addBookingParking = async (req, res) => {
   }
 };
 
+
 // Get All Bookings Function
 export const getBooking = async (req, res) => {
   try {
@@ -1238,42 +1239,16 @@ export const deleteBooking = async (req, res) => {
 // Cancel Hotel Reservation
 export const cancelHotelReservation = async (req, res) => {
   try {
-    // console.log("User Id =  ", req.user);
-    // const user = req.user;
-    // console.log("User Id =  ", user._id);
 
     const bookingId = req.params.id;
-    // const UserId = user._id;
 
-    // Get Booking By Id
     const bookingById = await booking.findById(bookingId);
     if (!bookingById) {
       return res.status(400).json({ msg: "Booking Not Found" });
     }
 
-    // console.log("Booking By Id = ", bookingById.userId);
-    // console.log("User Id in Request Object = ", UserId);
-
-    // Check If User Cancelling reservation is the same user who made the reservation
-    // if (bookingById.userId.toString() !== UserId) {
-    //   return res
-    //     .status(400)
-    //     .json({ msg: "You are not authorized to cancel this reservation" });
-    // }
-
-    // Get Booked Rooms From Booking By Id
     const { room, checkIn, checkOut } = bookingById;
 
-    // const Canceled = await Promise.all(room.map(async (room) => {
-    //   const result = await updateRoomDates(room, checkIn, checkOut);
-    //   if (!result) {
-    //     throw new Error('Failed to update room: ' + room.RoomId);
-    //   }
-    // }));
-
-    // if (!Canceled.some((result) => result)) {
-    //   return res.status(400).json({ msg: "Failed to cancel reservation" });
-    // }
     const PendingRooms = [];
     const promises = room.map(async (room) => {
       const result = await updateRoomDates(room, checkIn, checkOut);
@@ -1285,6 +1260,8 @@ export const cancelHotelReservation = async (req, res) => {
     });
     try {
       await Promise.all(promises);
+      bookingById.canceled = true;
+      await bookingById.save();
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
@@ -1297,28 +1274,6 @@ export const cancelHotelReservation = async (req, res) => {
     //   userId
     // );
     return res.status(200).json({ msg: "Reservation canceled successfully" });
-
-    // return res.status(200).json({ msg: "Reservation cancelled successfully" });
-
-    // const Obj = req.query.dataObj;
-    // let userObj;
-    // try {
-    //   userObj = JSON.parse(Obj);
-    // } catch (error) {
-    //   console.error('Error parsing JSON:', error);
-    //   res.status(400).json({ error: 'Invalid dataObj parameter' });
-    //   return;
-    // }
-    // res.status(200).json(userObj);
-
-    // const bookingById = await booking.findById(req.params.id);
-    // const { room, checkIn, checkOut } = bookingById;
-    // const result = await updateunavailabledates(room, checkIn, checkOut);
-    // if (!result.some((result) => result)) {
-    //   return res.status(400).json({ msg: "Booking ==> Failed" });
-    // }
-    // const bookingByIdDelete = await booking.findByIdAndDelete(req.params.id);
-    // res.status(200).json(bookingByIdDelete);
   } catch (error) {
     console.log("Error: ", error);
   }
@@ -1347,15 +1302,22 @@ export const cancelParkingReservation = async (req, res) => {
       { new: true }
     );
 
-    if (!updatedParking)
+    if (!updatedParking) {
       return res.status(400).json({ message: "Can Not Update Parking" });
+    }
 
-    const deleteBooking = await booking.findByIdAndDelete(req.params.id);
-    if (!deleteBooking)
-      return res.status(200).json({
-        message:
-          "Reservation is cancelled . Booking will be deleted after sometime",
-      });
+    bookingById.canceled = true;
+    const updatedBooking = await bookingById.save();
+    if (!updatedBooking) {
+      return res.status(500).json({ error: "Booking Not canceled" });
+    }
+
+    // const deleteBooking = await booking.findByIdAndDelete(req.params.id);
+    // if (!deleteBooking)
+    //   return res.status(200).json({
+    //     message:
+    //       "Reservation is cancelled . Booking will be deleted after sometime",
+    //   });
     return res
       .status(200)
       .json({ message: "Parking Reservation Cancelled Successfully" });
@@ -1368,8 +1330,6 @@ export const cancelParkingReservation = async (req, res) => {
 export const cancelHotelAndParkingReservation = async (req, res) => {
   try {
     const bookingId = req.params.id;
-    // const user = req.user;
-    // const UserId = user._id;
 
     // Get Booking By Id
     const bookingById = await booking.findById(bookingId);
@@ -1377,15 +1337,23 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
       return res.status(400).json({ msg: "Booking Not Found" });
     }
 
-    // Check If User Cancelling reservation is the same user who made the reservation
-    // if (bookingById.userId.toString() !== UserId) {
-    //   return res
-    //     .status(400)
-    //     .json({ msg: "You are not authorized to cancel this reservation" });
-    // }
+    const hotelparkingId = bookingById.HotelAndParkingId.toString();
+    const booked_slots = bookingById.parking.Total_slots;
 
-    // Get Booked Rooms From Booking By Id
+    console.log("hotelparkingId = ", hotelparkingId);
+
+    const updatedHotelParking = await HotelandParking.findByIdAndUpdate(
+      hotelparkingId,
+      { $inc: { parking_booked_slots: -booked_slots } },
+      { new: true }
+    );
+
+    if (!updatedHotelParking) {
+      return res.status(400).json({ message: "Can Not Update Parking", updatedHotelParking });
+    }
+
     const { room, checkIn, checkOut } = bookingById;
+
     const promises = room.map(async (room) => {
       const result = await updateRoomDates(room, checkIn, checkOut);
       if (!result) {
@@ -1395,6 +1363,11 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
     });
     try {
       await Promise.all(promises);
+      bookingById.canceled = true;
+      const updatedBooking = await bookingById.save();
+      if (!updatedBooking) {
+        return res.status(500).json({ error: "Booking Not canceled" });
+      }
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }

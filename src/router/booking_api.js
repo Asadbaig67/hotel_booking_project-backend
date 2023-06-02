@@ -140,6 +140,6 @@ router.delete("/cancelHotelReservation/:id", cancelHotelReservation);
 // Cancel Parking Reservation
 router.delete("/cancelParkingReservation/:id", cancelParkingReservation);
 // Cancel Hotel And Parking Reservation
-router.delete("/cancelHotelAndParkingReservation/:id", cancelHotelReservation);
+router.delete("/cancelHotelAndParkingReservation/:id", cancelHotelAndParkingReservation);
 
 export default router;

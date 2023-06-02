@@ -39,6 +39,10 @@ const BookingSchema = new Schema({
       },
     },
   ],
+  canceled: {
+    type: Boolean,
+    default: false,
+  },
   parking: {
     Total_slots: {
       type: Number,
