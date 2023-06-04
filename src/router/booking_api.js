@@ -31,6 +31,9 @@ import {
   getUpcommingBookingsByHotelId,
   getUpcommingBookingsByHotelParkingId,
   getUpcommingBookingsByParkingId,
+  freeBookedParkingSlotsByBookingId,
+  freeBookedHotelAndParkingByBookingId,
+  freeBookedHotelRoomsByBookingId,
 } from "../controller/booking.js";
 
 // Add Hotel Booking
@@ -141,5 +144,11 @@ router.delete("/cancelHotelReservation/:id", cancelHotelReservation);
 router.delete("/cancelParkingReservation/:id", cancelParkingReservation);
 // Cancel Hotel And Parking Reservation
 router.delete("/cancelHotelAndParkingReservation/:id", cancelHotelAndParkingReservation);
+// Free Hotel Rooms
+router.delete("/freeHotelRooms/:id", freeBookedHotelRoomsByBookingId);
+// Free Parking Slots
+router.delete("/freeParkingSlots/:id", freeBookedParkingSlotsByBookingId);
+// Free Hotel Rooms And Parking Slots
+router.delete("/freeHotelRoomsAndParkingSlots/:id", freeBookedHotelAndParkingByBookingId);
 
 export default router;
