@@ -7,7 +7,8 @@ import HotelandParking from "../models/Hotel_Parking.js";
 import { validateBooking } from "../Functions/Booking/ValidateData.js";
 import { updateunavailabledates } from "../Functions/Booking/UpdateUnavailableDates.js";
 import { updateRoomDates } from "../Functions/Booking/UpdateRoomDates.js";
-import { createNotification } from "../Functions/Notification/createNotification.js";
+import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
+import { convertIntoRequiredFormat } from "../Functions/Booking/ConvertIntoRequiredFormat.js";
 
 // import { updateRoomDatesFun } from "../Functions/Booking/UpdateRoomDates.js";
 // import { updateDates } from "../Functions/Booking/UpdateDates.js";
@@ -84,14 +85,30 @@ export const addBooking = async (req, res) => {
       return res.status(400).json({ msg: "Booking Failed" });
     }
 
-    createNotification(
-      "booking",
-      "Booking success",
-      `Booking abc`,
-      Date.now(),
-      hotelId,
-      userId
-    );
+    // createNotificationProperty(
+    //   "booking",
+    //   "Hotel Booked",
+    //   `Your booking for ${hotel.name} has been confirmed in dates ${checkIn} to ${checkOut}.`,
+    //   Date.now(),
+    //   userId
+    // );
+    // const ownerId = hotel.ownerId;
+    // createNotificationProperty(
+    //   "booking",
+    //   "Hotel Booked",
+    //   `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel ${hotel.name}.`,
+    //   Date.now(),
+    //   ownerId
+    // );
+    // await User.find({ account_type: "admin" }).forEach((admin) => {
+    //   createNotificationProperty(
+    //     "booking",
+    //     "Hotel Booked",
+    //     `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel ${hotel.name}.`,
+    //     Date.now(),
+    //     admin._id
+    //   );
+    // });
     // If Booking Successfull, Send Success Message
     res
       .status(200)
@@ -196,14 +213,33 @@ export const addBookingHotelAndParking = async (req, res) => {
       return res.status(400).json({ msg: "Booking Failed" });
     }
 
-    createNotification(
-      "booking",
-      "Booking success",
-      `Booking abc`,
-      Date.now(),
-      hotelId,
-      userId
-    );
+    const hotel = await HotelandParking.findById(HotelAndParkingId);
+
+    // createNotificationProperty(
+    //   "booking",
+    //   "Hotel And Parking Booked",
+    //   `Your booking for ${hotel.hotel_name} has been confirmed in dates ${checkIn} to ${checkOut}.`,
+    //   Date.now(),
+    //   userId
+    // );
+
+    // const ownerId = hotel.ownerId;
+    // createNotificationProperty(
+    //   "booking",
+    //   "Hotel Booked",
+    //   `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel and Parking ${hotel.hotel_name}.`,
+    //   Date.now(),
+    //   ownerId
+    // );
+    // await User.find({ account_type: "admin" }).forEach((admin) => {
+    //   createNotificationProperty(
+    //     "booking",
+    //     "Hotel Booked",
+    //     `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel and parking ${hotel.hotel_name}.`,
+    //     Date.now(),
+    //     admin._id
+    //   );
+    // });
     // If Booking Successfull, Send Success Message
     return res
       .status(200)
@@ -269,57 +305,46 @@ export const addBookingParking = async (req, res) => {
       return res.status(409).json({ message: "Error Occured Booking Denied!" });
     }
 
+    const parking = await Parking.findById(parkingId);
+
+    // createNotificationProperty(
+    //   "booking",
+    //   "Parking Booked",
+    //   `Your booking for ${parking.name} has been confirmed in dates ${checkIn} to ${checkOut}.`,
+    //   Date.now(),
+    //   userId
+    // );
+    // const ownerId = parking.ownerId;
+    // createNotificationProperty(
+    //   "booking",
+    //   "Hotel Booked",
+    //   `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel and Parking ${parking.name}.`,
+    //   Date.now(),
+    //   ownerId
+    // );
+    // await User.find({ account_type: "admin" }).forEach((admin) => {
+    //   createNotificationProperty(
+    //     "booking",
+    //     "Hotel Booked",
+    //     `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel and parking ${parking.name}.`,
+    //     Date.now(),
+    //     admin._id
+    //   );
+    // });
+
     return res.status(200).json(booking);
   } catch (error) {
     console.log("Error: ", error);
   }
 };
 
-
 // Get All Bookings Function
 export const getBooking = async (req, res) => {
   try {
     const bookings = await booking.find();
-    const bookingOut = [];
-    await Promise.all(
-      bookings.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-    res.status(200).json(bookingOut);
+    const data = bookings.filter((booking) => booking.canceled === false);
+    const result = await convertIntoRequiredFormat(data);
+    res.status(result.status).json(result.data);
   } catch (error) {
     console.log("Error: ", error);
   }
@@ -339,6 +364,7 @@ export const getBookingById = async (req, res) => {
       bookingOut.checkIn = new Date(bookingById.checkIn).toLocaleString();
       bookingOut.checkOut = new Date(bookingById.checkOut).toLocaleString();
       bookingOut.userId = await User.findById(bookingById.userId);
+      bookingOut.canceled = bookingById.canceled;
       if (bookingOut.userId)
         bookingOut.userName =
           bookingOut.userId.firstName + " " + bookingOut.userId.lastName;
@@ -363,7 +389,9 @@ export const getBookingById = async (req, res) => {
         else bookingOut.hotelName = "N/A";
       }
     }
-    console.log(bookingOut);
+    if (bookingOut.canceled === true) {
+      return res.status(404).json("Booking not found");
+    }
     res.status(200).json(bookingOut);
   } catch (error) {
     console.log("Error: ", error);
@@ -377,46 +405,9 @@ export const getBookingByType = async (req, res) => {
   const Booking_type = req.params.type;
   try {
     const bookingByType = await booking.find({ Booking_type });
-    const bookingOut = [];
-    await Promise.all(
-      bookingByType.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-    res.status(200).json(bookingOut);
+    const data = bookingByType.filter((booking) => booking.canceled === false);
+    const result = await convertIntoRequiredFormat(data);
+    res.status(result.status).json(result.data);
   } catch (error) {
     res.status(404).json("Booking not found");
     // console.log("Error: ", error);
@@ -440,49 +431,10 @@ export const getBookingHotelByOwnerId = async (req, res) => {
     }
     bookings = bookings.filter((booking) => booking !== null);
     const result = bookings.flat();
-    const bookingOut = [];
-    await Promise.all(
-      result.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-    if (bookingOut.length === 0) {
-      return res.status(404).json("Booking not found");
-    }
-    res.status(200).json(bookingOut);
+    const data = result.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("Bookings not found");
     // console.log("Error: ", error);
@@ -506,49 +458,9 @@ export const getBookingParkingByOwnerId = async (req, res) => {
     }
     bookings = bookings.filter((booking) => booking !== null);
     const result = bookings.flat();
-    const bookingOut = [];
-    await Promise.all(
-      result.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-    if (bookingOut.length === 0) {
-      return res.status(404).json("Booking not found");
-    }
-    res.status(200).json(bookingOut);
+    const data = result.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("Booking not found");
     // console.log("Error: ", error);
@@ -574,49 +486,9 @@ export const getBookingHotelandParkingByOwnerId = async (req, res) => {
     }
     bookings = bookings.filter((booking) => booking !== null);
     const result = bookings.flat();
-    const bookingOut = [];
-    await Promise.all(
-      result.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-    if (bookings.length === 0) {
-      return res.status(404).json("Booking not found");
-    }
-    res.status(200).json(bookingOut);
+    const data = result.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("Bookings not found");
   }
@@ -644,48 +516,9 @@ export const getPreviousBookingHotelByUserId = async (req, res) => {
         (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate)
       );
     });
-
-    const bookingOut = [];
-    await Promise.all(
-      filteredResult.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-
-    res.status(200).json(bookingOut);
+    const data = filteredResult.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -712,48 +545,9 @@ export const getPreviousBookingParkingByUserId = async (req, res) => {
         (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate)
       );
     });
-
-    const bookingOut = [];
-    await Promise.all(
-      filteredResult.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-
-    res.status(200).json(bookingOut);
+    const data = filteredResult.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -780,47 +574,9 @@ export const getPreviousBookingHotelandParkingByUserId = async (req, res) => {
         (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate)
       );
     });
-    const bookingOut = [];
-    await Promise.all(
-      filteredResult.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-
-    res.status(200).json(bookingOut);
+    const data = filteredResult.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -844,49 +600,9 @@ export const getUpcomingBookingHotelByUserId = async (req, res) => {
       const bookingCheckOut = new Date(booking.checkOut);
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
-    const bookingOut = [];
-    await Promise.all(
-      filteredResult.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-    if (bookingOut.length === 0) {
-      return res.status(404).json([]);
-    }
-    res.status(200).json(bookingOut);
+    const data = filteredResult.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -910,50 +626,9 @@ export const getUpcomingBookingParkingByUserId = async (req, res) => {
       const bookingCheckOut = new Date(booking.checkOut);
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
-    const bookingOut = [];
-    await Promise.all(
-      filteredResult.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-    if (bookingOut.length === 0) {
-      return res.status(404).json([]);
-    }
-
-    res.status(200).json(bookingOut);
+    const data = filteredResult.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -977,50 +652,9 @@ export const getUpcomingBookingHotelandParkingByUserId = async (req, res) => {
       const bookingCheckOut = new Date(booking.checkOut);
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
-    const bookingOut = [];
-    await Promise.all(
-      filteredResult.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-
-    if (bookingOut.length === 0) {
-      return res.status(404).json([]);
-    }
-    res.status(200).json(bookingOut);
+    const data = filteredResult.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -1204,14 +838,14 @@ export const updateBooking = async (req, res) => {
       price,
     };
     const bookingById = await booking.findByIdAndUpdate(req.params.id, update);
-    createNotification(
-      "booking",
-      "Booking success",
-      `Booking abc`,
-      Date.now(),
-      hotelId,
-      userId
-    );
+    // createNotification(
+    //   "booking",
+    //   "Booking success",
+    //   `Booking abc`,
+    //   Date.now(),
+    //   hotelId,
+    //   userId
+    // );
     res.status(200).json(bookingById);
   } catch (error) {
     console.log("Error: ", error);
@@ -1222,14 +856,14 @@ export const updateBooking = async (req, res) => {
 export const deleteBooking = async (req, res) => {
   try {
     const bookingById = await booking.findByIdAndDelete(req.params.id);
-    createNotification(
-      "booking",
-      "Booking success",
-      `Booking abc`,
-      Date.now(),
-      hotelId,
-      userId
-    );
+    // createNotification(
+    //   "booking",
+    //   "Booking success",
+    //   `Booking abc`,
+    //   Date.now(),
+    //   hotelId,
+    //   userId
+    // );
     res.status(200).json(bookingById);
   } catch (error) {
     console.log("Error: ", error);
@@ -1239,7 +873,6 @@ export const deleteBooking = async (req, res) => {
 // Cancel Hotel Reservation
 export const cancelHotelReservation = async (req, res) => {
   try {
-
     const bookingId = req.params.id;
 
     const bookingById = await booking.findById(bookingId);
@@ -1349,7 +982,9 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
     );
 
     if (!updatedHotelParking) {
-      return res.status(400).json({ message: "Can Not Update Parking", updatedHotelParking });
+      return res
+        .status(400)
+        .json({ message: "Can Not Update Parking", updatedHotelParking });
     }
 
     const { room, checkIn, checkOut } = bookingById;
@@ -1386,31 +1021,189 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
 };
 
 //Get All Cancelled Bookings
-export const getAllCancelledBookings = async (req, res) => {};
+export const getAllCancelledBookings = async (req, res) => {
+  try {
+    const allCancelledBookings = await booking.find({ canceled: true });
+    if (!allCancelledBookings) {
+      return res.status(400).json({ msg: "No Cancelled Bookings Found" });
+    }
+    const result = await convertIntoRequiredFormat(allCancelledBookings);
+
+    return res.status(result.status).json(result.data);
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+};
 
 //Get Cancelled Bookings By User Id
-export const getCancelledBookingsByUserId = async (req, res) => {};
+export const getCancelledBookingsByUserId = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const cancelledBookingsByUserId = await booking.find({
+      userId,
+      canceled: true,
+    });
+    if (!cancelledBookingsByUserId) {
+      return res
+        .status(400)
+        .json({ msg: "No Cancelled Bookings Found For This User" });
+    }
+    const result = await convertIntoRequiredFormat(cancelledBookingsByUserId);
+
+    return res.status(result.status).json(result.data);
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+};
 
 //Get Cancelled Bookings By Hotel Id
-export const getCancelledBookingsByHotelId = async (req, res) => {};
+export const getCancelledBookingsByHotelId = async (req, res) => {
+  try {
+    const hotelId = req.params.id;
+    const cancelledBookingsByHotelId = await booking.find({
+      hotelId,
+      canceled: true,
+    });
+    if (!cancelledBookingsByHotelId) {
+      return res
+        .status(400)
+        .json({ msg: "No Cancelled Bookings Found For This Hotel" });
+    }
+    const result = await convertIntoRequiredFormat(cancelledBookingsByHotelId);
+
+    return res.status(result.status).json(result.data);
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+};
 
 //Get Cancelled Bookings By Parking Id
-export const getCancelledBookingsByParkingId = async (req, res) => {};
+export const getCancelledBookingsByParkingId = async (req, res) => {
+  try {
+    const parkingId = req.params.id;
+    const cancelledBookingsByParkingId = await booking.find({
+      parkingId,
+      canceled: true,
+    });
+    if (!cancelledBookingsByParkingId) {
+      return res
+        .status(400)
+        .json({ msg: "No Cancelled Bookings Found For This Parking" });
+    }
+    const result = await convertIntoRequiredFormat(
+      cancelledBookingsByParkingId
+    );
+
+    return res.status(result.status).json(result.data);
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+};
 
 //Get Cancelled Bookings By Hotel And Parking Id
-export const getCancelledBookingsByHotelAndParkingId = async (req, res) => {};
+export const getCancelledBookingsByHotelAndParkingId = async (req, res) => {
+  try {
+    const HotelAndParkingId = req.params.id;
+    const cancelledBookingsByHotelAndParkingId = await booking.find({
+      HotelAndParkingId,
+      canceled: true,
+    });
+    if (!cancelledBookingsByHotelAndParkingId) {
+      return res.status(400).json({
+        msg: "No Cancelled Bookings Found For This Hotel And Parking",
+      });
+    }
+    const result = await convertIntoRequiredFormat(
+      cancelledBookingsByHotelAndParkingId
+    );
+
+    res.status(result.status).json(result.data);
+  } catch (error) {
+    console.log("Error", error);
+  }
+};
 
 //Get Cancelled Bookings By Hotel OwnerId
-export const getCancelledBookingsByHotelOwnerId = async (req, res) => {};
+export const getCancelledBookingsByHotelOwnerId = async (req, res) => {
+  try {
+    const hotelOwnerId = req.params.id;
+    const hotels = await Hotel.find({ ownerId: hotelOwnerId });
+    const hotelIds = hotels.map((hotel) => hotel._id);
+    const cancelledBookingsByHotelOwnerId = await booking.find({
+      hotelId: { $in: hotelIds },
+      canceled: true,
+    });
+    if (!cancelledBookingsByHotelOwnerId) {
+      return res.status(400).json({
+        msg: "No Cancelled Bookings Found For This Hotel Owner",
+      });
+    }
+    const result = await convertIntoRequiredFormat(
+      cancelledBookingsByHotelOwnerId
+    );
+
+    res.status(result.status).json(result.data);
+  } catch (error) {
+    console.log("Error", error);
+  }
+};
 
 //Get Cancelled Bookings By Parking OwnerId
-export const getCancelledBookingsByParkingOwnerId = async (req, res) => {};
+export const getCancelledBookingsByParkingOwnerId = async (req, res) => {
+  try {
+    const parkingOwnerId = req.params.id;
+    const parkings = await Parking.find({ ownerId: parkingOwnerId });
+    const parkingIds = parkings.map((parking) => parking._id);
+    const cancelledBookingsByParkingOwnerId = await booking.find({
+      parkingId: { $in: parkingIds },
+      canceled: true,
+    });
+    if (!cancelledBookingsByParkingOwnerId) {
+      return res.status(400).json({
+        msg: "No Cancelled Bookings Found For This Parking Owner",
+      });
+    }
+    const result = await convertIntoRequiredFormat(
+      cancelledBookingsByParkingOwnerId
+    );
+
+    res.status(result.status).json(result.data);
+  } catch (error) {
+    console.log("Error", error);
+  }
+};
 
 //Get Cancelled Bookings By Hotel And Parking OwnerId
 export const getCancelledBookingsByHotelAndParkingOwnerId = async (
   req,
   res
-) => {};
+) => {
+  try {
+    const hotelAndParkingOwnerId = req.params.id;
+    const hotelAndParkings = await HotelandParking.find({
+      ownerId: hotelAndParkingOwnerId,
+    });
+    const hotelIds = hotelAndParkings.map(
+      (hotelAndParking) => hotelAndParking._id
+    );
+    const cancelledBookingsByHotelAndParkingOwnerId = await booking.find({
+      HotelAndParkingId: { $in: hotelIds },
+      canceled: true,
+    });
+    if (!cancelledBookingsByHotelAndParkingOwnerId) {
+      return res.status(400).json({
+        msg: "No Cancelled Bookings Found For This Hotel And Parking Owner",
+      });
+    }
+    const result = await convertIntoRequiredFormat(
+      cancelledBookingsByHotelAndParkingOwnerId
+    );
+
+    res.status(result.status).json(result.data);
+  } catch (error) {
+    console.log("Error", error);
+  }
+};
 
 // Get All Bookings by Hotel Id
 export const getBookingByHotelId = async (req, res) => {
@@ -1418,46 +1211,9 @@ export const getBookingByHotelId = async (req, res) => {
     const hotelId = req.params.id;
     const bookings = await booking.find({ hotelId: hotelId });
     if (!bookings) return res.status(400).json({ msg: "No Bookings Found" });
-    const bookingOut = [];
-    await Promise.all(
-      bookings.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-    res.status(200).json(bookingOut);
+    const data = bookings.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     console.log("Error: ", error);
   }
@@ -1469,46 +1225,9 @@ export const getBookingByParkingId = async (req, res) => {
     const parkingId = req.params.id;
     const bookings = await booking.find({ parkingId: parkingId });
     if (!bookings) return res.status(400).json({ msg: "No Bookings Found" });
-    const bookingOut = [];
-    await Promise.all(
-      bookings.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-    res.status(200).json(bookingOut);
+    const data = bookings.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     console.log("Error: ", error);
   }
@@ -1522,46 +1241,9 @@ export const getBookingByHotelAndParkingId = async (req, res) => {
       HotelAndParkingId: hotelAndParkingId,
     });
     if (!bookings) return res.status(400).json({ msg: "No Bookings Found" });
-    const bookingOut = [];
-    await Promise.all(
-      bookings.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-    res.status(200).json(bookingOut);
+    const data = bookings.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     console.log("Error: ", error);
   }
@@ -1578,50 +1260,9 @@ export const getUpcommingBookingsByHotelOwnerId = async (req, res) => {
       const bookingCheckIn = new Date(booking.checkIn);
       return bookingCheckIn > currentDate;
     });
-    const bookingOut = [];
-    await Promise.all(
-      filteredResult.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-
-    if (bookingOut.length === 0) {
-      return res.status(404).json([]);
-    }
-    res.status(200).json(bookingOut);
+    const data = filteredResult.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
   }
@@ -1640,50 +1281,9 @@ export const getUpcommingBookingsByHotelParkingOwnerId = async (req, res) => {
       const bookingCheckIn = new Date(booking.checkIn);
       return bookingCheckIn > currentDate;
     });
-    const bookingOut = [];
-    await Promise.all(
-      filteredResult.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-
-    if (bookingOut.length === 0) {
-      return res.status(404).json([]);
-    }
-    res.status(200).json(bookingOut);
+    const data = filteredResult.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
   }
@@ -1702,50 +1302,9 @@ export const getUpcommingBookingsByParkingOwnerId = async (req, res) => {
       const bookingCheckIn = new Date(booking.checkIn);
       return bookingCheckIn > currentDate;
     });
-    const bookingOut = [];
-    await Promise.all(
-      filteredResult.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-
-    if (bookingOut.length === 0) {
-      return res.status(404).json([]);
-    }
-    res.status(200).json(bookingOut);
+    const data = filteredResult.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
   }
@@ -1765,50 +1324,9 @@ export const getUpcommingBookingsByHotelId = async (req, res) => {
       const bookingCheckIn = new Date(booking.checkIn);
       return bookingCheckIn > currentDate;
     });
-    const bookingOut = [];
-    await Promise.all(
-      filteredResult.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-
-    if (bookingOut.length === 0) {
-      return res.status(404).json([]);
-    }
-    res.status(200).json(bookingOut);
+    const data = filteredResult.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
   }
@@ -1828,50 +1346,9 @@ export const getUpcommingBookingsByHotelParkingId = async (req, res) => {
       const bookingCheckIn = new Date(booking.checkIn);
       return bookingCheckIn > currentDate;
     });
-    const bookingOut = [];
-    await Promise.all(
-      filteredResult.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-
-    if (bookingOut.length === 0) {
-      return res.status(404).json([]);
-    }
-    res.status(200).json(bookingOut);
+    const data = filteredResult.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
   }
@@ -1891,50 +1368,9 @@ export const getUpcommingBookingsByParkingId = async (req, res) => {
       const bookingCheckIn = new Date(booking.checkIn);
       return bookingCheckIn > currentDate;
     });
-    const bookingOut = [];
-    await Promise.all(
-      filteredResult.map(async (booking, i) => {
-        bookingOut[i] = {};
-        bookingOut[i]._id = booking._id;
-        bookingOut[i].total_price = booking.total_price;
-        bookingOut[i].Booking_type = booking.Booking_type;
-        bookingOut[i].bookingData = booking;
-        bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
-        bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
-        bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-        bookingOut[i].userId = await User.findById(booking.userId);
-        if (bookingOut[i].userId)
-          bookingOut[i].userName =
-            bookingOut[i].userId.firstName +
-            " " +
-            bookingOut[i].userId.lastName;
-        else bookingOut[i].userName = "N/A";
-        if (booking.HotelAndParkingId) {
-          bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
-            booking.HotelAndParkingId
-          );
-          if (bookingOut[i].HotelAndParkingId)
-            bookingOut[i].hotelAndParkingName =
-              bookingOut[i].HotelAndParkingId.hotel_name;
-          else bookingOut[i].hotelAndParkingName = "N/A";
-        } else if (booking.parkingId) {
-          bookingOut[i].parkingData = await Parking.findById(booking.parkingId);
-          if (bookingOut[i].parkingData)
-            bookingOut[i].parkingName = bookingOut[i].parkingData.name;
-          else bookingOut[i].parkingName = "N/A";
-        } else if (booking.hotelId) {
-          bookingOut[i].hotelData = await Hotel.findById(booking.hotelId);
-          if (bookingOut[i].hotelData)
-            bookingOut[i].hotelName = bookingOut[i].hotelData.name;
-          else bookingOut[i].hotelName = "N/A";
-        }
-      })
-    );
-
-    if (bookingOut.length === 0) {
-      return res.status(404).json([]);
-    }
-    res.status(200).json(bookingOut);
+    const data = filteredResult.filter((booking) => booking.canceled === false);
+    const booking = await convertIntoRequiredFormat(data);
+    res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
   }

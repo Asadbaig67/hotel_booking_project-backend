@@ -161,16 +161,16 @@ export const addhotelandparking = async (req, res) => {
     if (result) {
       createNotificationProperty(
         "hotel and parking",
-        "added success",
-        `Your hotel and parking added`,
+        "Hotel and Parking Added",
+        `Your hotel and parking ${result.hotel_name} is added successfully`,
         Date.now(),
         result.ownerId
       );
       (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "hotel and parking",
-          "pending",
-          `New hotel and parking added`,
+          "Hotel and Parking Added",
+          `New Your hotel and parking ${result.hotel_name} is added successfully by ${result.ownerId}`,
           Date.now(),
           user._id
         );
@@ -397,16 +397,16 @@ export const updateHotelAndParking = async (req, res) => {
     if (result) {
       createNotificationProperty(
         "hotel and parking",
-        "update success",
-        `Your hotel and parking update`,
+        "Hotel and Parking updated",
+        `Your hotel and parking ${result.hotel_name} is updated`,
         Date.now(),
         result.ownerId
       );
       (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "hotel and parking",
-          "update success",
-          `A hotel and parking has been updated`,
+          "Hotel and Parking updated",
+          `A hotel and parking ${result.hotel_name} is updated by ${result.ownerId}`,
           Date.now(),
           user._id
         );
@@ -498,30 +498,6 @@ export const updateHotelAndParkingNew = async (req, res) => {
         }
       }
 
-      // console.log("filesHotel =", filesHotel, filesHotel.length);
-      // console.log("filesParking =", filesParking, filesParking.length);
-
-      // for (let i = 0; i < filesHotel.length; i++) {
-      //   const file = filesHotel[i];
-      //   // const fileName = file.name.replace(/\s+/g, "");
-      //   const fileName = file.name;
-      //   console.log(fileName);
-      //   fileNamesHotel.push(fileName);
-      //   const filePath = path.join(hotelsLocation, fileName);
-      //   // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
-      //   await file.mv(filePath);
-      // }
-      // for (let i = 0; i < filesParking.length; i++) {
-      //   const file = filesParking[i];
-      //   const fileName = file.name;
-      //   console.log(fileName);
-      //   // const fileName = file.name.replace(/\s+/g, "");
-      //   fileNamesParking.push(fileName);
-      //   const filePath = path.join(hotelsLocation, fileName);
-      //   // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
-      //   await file.mv(filePath);
-      // }
-
       const baseUrlHotel = "http://localhost:5000";
       hotel_photos = fileNamesParking.map(
         (fileName) => `${baseUrlHotel}/uploads/Hotel_Parking_Images/${fileName}`
@@ -552,7 +528,6 @@ export const updateHotelAndParkingNew = async (req, res) => {
     } = req.body;
 
     if (
-      // !ownerId ||
       !hotel_name ||
       !hotel_title ||
       !hotel_rating ||
@@ -603,45 +578,25 @@ export const updateHotelAndParkingNew = async (req, res) => {
     // const result = await updated_hotel.save();
     // const updated_hotelParking = true;
     if (updated_hotelParking) {
-      // createNotificationProperty(
-      //   "hotel",
-      //   "add success",
-      //   `hotel abc`,
-      //   Date.now(),
-      //   ownerId
-      // );
-      // (await User.find({ account_type: "admin" })).forEach((user) => {
-      //   createNotificationProperty(
-      //     "hotel",
-      //     "add success",
-      //     `hotel abc`,
-      //     Date.now(),
-      //     user._id
-      //   );
-      // });
+      createNotificationProperty(
+        "hotel and parking",
+        "Hotel and Parking updated",
+        `Your hotel and parking ${updated_hotelParking.hotel_name} is updated`,
+        Date.now(),
+        updated_hotelParking.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel and parking",
+          "Hotel and Parking updated",
+          `A hotel and parking ${updated_hotelParking.hotel_name} is updated by ${updated_hotelParking.ownerId}`,
+          Date.now(),
+          user._id
+        );
+      });
       // console.log("photos Array =", photos);
       return res.status(201).json({
         message: "Hotel And Parking Updated Successfully",
-        // , data: {
-        //   hotel_name,
-        //   hotel_title,
-        //   hotel_rating,
-        //   hotel_address,
-        //   city,
-        //   country,
-        //   total_slots,
-        //   booked_slots,
-        //   hotel_description,
-        //   parking_name,
-        //   parking_title,
-        //   address,
-        //   price,
-        //   parking_description,
-        //   facilities,
-        //   ...(hotel_photos.length > 0 && hotel_photos),
-        //   ...(parking_photos.length > 0 && parking_photos),
-        //   $addToSet: { Facilities: { $each: facilities } }, // will not duplicate entries
-        // }
       });
     } else {
       return res.status(500).json({ message: "Hotel Cannot be Updated" });
@@ -671,16 +626,16 @@ export const incrementSlotsCount = async (req, res) => {
     if (result) {
       createNotificationProperty(
         "hotel and parking",
-        "slots increment success",
-        `Your hotel and parking update`,
+        "Parking slots incremented",
+        `Slots of ${result.hotel_name}'s parking is incremented to ${result.parking_booked_slots}`,
         Date.now(),
         result.ownerId
       );
       (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "hotel and parking",
-          "Slots increment",
-          `A hotel and parking slots has been incremented`,
+          "Parking slots incrementD",
+          `Slots of ${result.hotel_name}'s parking is incremented to ${result.parking_booked_slots} by ${result.ownerId}`,
           Date.now(),
           user._id
         );
@@ -732,16 +687,16 @@ export const approveHotelAndParking = async (req, res) => {
     if (result) {
       createNotificationProperty(
         "hotel and parking",
-        "approve success",
-        `Your hotel and parking approve`,
+        "Hotel and Parking approved",
+        `Your hotel and parking ${result.hotel_name} is approved`,
         Date.now(),
         result.ownerId
       );
       (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "hotel and parking",
-          "approve success",
-          `A hotel and parking has been approved`,
+          "Hotel and Parking approved",
+          `A hotel and parking ${result.hotel_name} is approved`,
           Date.now(),
           user._id
         );
@@ -791,16 +746,16 @@ export const approveHotelAndParkingAndRating = async (req, res) => {
     if (result) {
       createNotificationProperty(
         "hotel and parking",
-        "approve success",
-        `Your hotel and parking approve`,
+        "Hotel And Parking approved",
+        `Your hotel and parking ${result.hotel_name} is approve with rating ${result.hotel_rating}`,
         Date.now(),
         result.ownerId
       );
       (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "hotel and parking",
-          "approve success",
-          `A hotel and parking has been approved`,
+          "Hotel And Parking approved",
+          `A hotel and parking ${result.hotel_name} is approve with rating ${result.hotel_rating}`,
           Date.now(),
           user._id
         );
@@ -821,8 +776,8 @@ export const deleteHotelAndParking = async (req, res) => {
     if (result) {
       createNotificationProperty(
         "hotel and parking",
-        "delete success",
-        `Your hotel and parking delete`,
+        "Hotel and Parking deleted",
+        `Your hotel and parking ${result.hotel_name} is deleted`,
         Date.now(),
         result.ownerId
       );
@@ -830,7 +785,7 @@ export const deleteHotelAndParking = async (req, res) => {
         createNotificationProperty(
           "hotel and parking",
           "delete success",
-          `A hotel and parking has been deleted`,
+          `A hotel and parking ${result.hotel_name} is deleted.`,
           Date.now(),
           user._id
         );

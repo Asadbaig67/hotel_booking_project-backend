@@ -89,16 +89,16 @@ export const addHotel = async (req, res) => {
     if (result) {
       createNotificationProperty(
         "hotel",
-        "add success",
-        `hotel abc`,
+        "Hotel Added",
+        `hotel ${name} added successfully`,
         Date.now(),
         ownerId
       );
       (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "hotel",
-          "add success",
-          `hotel abc`,
+          "New Hotel",
+          `Hotel ${name} added by ${user.name}`,
           Date.now(),
           user._id
         );
@@ -298,15 +298,15 @@ export const updateHotel = async (req, res) => {
       createNotificationProperty(
         "hotel",
         "Update Hotel",
-        "Your hotel updated",
+        `Your hotel ${result.name} is updated`,
         Date.now(),
         result.ownerId
       );
       (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "hotel",
-          "add update",
-          `hotel updated`,
+          "Hotel Updated",
+          `Hotel ${result.name} is updated by ${result.ownerId}`,
           Date.now(),
           user._id
         );
@@ -366,7 +366,6 @@ export const UpdateHotel = async (req, res) => {
     } = req.body;
 
     if (
-      // !ownerId ||
       !name ||
       !title ||
       !rating ||
@@ -400,36 +399,25 @@ export const UpdateHotel = async (req, res) => {
     // const result = await updated_hotel.save();
     // const updated_hotel = true;
     if (updated_hotel) {
-      // createNotificationProperty(
-      //   "hotel",
-      //   "add success",
-      //   `hotel abc`,
-      //   Date.now(),
-      //   ownerId
-      // );
-      // (await User.find({ account_type: "admin" })).forEach((user) => {
-      //   createNotificationProperty(
-      //     "hotel",
-      //     "add success",
-      //     `hotel abc`,
-      //     Date.now(),
-      //     user._id
-      //   );
-      // });
-      // console.log("photos Array =", photos);
+      createNotificationProperty(
+        "hotel",
+        "Hotel Updated",
+        `Your hotel ${name} is updated`,
+        Date.now(),
+        updated_hotel.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel",
+          "Hotel Updated",
+          `Hotel ${name} is updated by ${ownerId}`,
+          Date.now(),
+          user._id
+        );
+      });
+      console.log("photos Array =", photos);
       return res.status(201).json({
         message: "Hotel Updated Successfully",
-        // , data: {
-        //   name,
-        //   title,
-        //   rating,
-        //   description,
-        //   city,
-        //   country,
-        //   address,
-        //   ...(photos.length > 0 && photos),
-        //   facilities,
-        // }
       });
     } else {
       return res.status(500).json({ message: "Hotel Cannot be Updated" });
@@ -472,17 +460,17 @@ export const approveHotel = async (req, res) => {
 
     if (result !== null) {
       createNotificationProperty(
-        "Hotel",
-        "Approve Hotel",
-        "Your hotel is approved",
+        "hotel",
+        "Hotel Approved",
+        `Your hotel ${data.name} is approved`,
         Date.now(),
         data.ownerId
       );
       (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "hotel",
-          "add approve",
-          `hotel approved`,
+          "Hotel approved",
+          `Hotel ${data.name} is approved and live for users.`,
           Date.now(),
           user._id
         );
@@ -527,24 +515,24 @@ export const approveHotelAndUpdateRating = async (req, res) => {
       await user.save();
     }
 
-    // if (result !== null) {
-    //   createNotificationProperty(
-    //     "Hotel",
-    //     "Approve Hotel",
-    //     "Your hotel is approved",
-    //     Date.now(),
-    //     data.ownerId
-    //   );
-    //   (await User.find({ account_type: "admin" })).forEach((user) => {
-    //     createNotificationProperty(
-    //       "hotel",
-    //       "add approve",
-    //       `hotel approved`,
-    //       Date.now(),
-    //       user._id
-    //     );
-    //   });
-    // }
+    if (result !== null) {
+      createNotificationProperty(
+        "hotel",
+        "Hotel Approved",
+        `Your hotel ${result.name} is approved with updated rating of ${result.rating}`,
+        Date.now(),
+        data.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel",
+          "Hotel Approved",
+          `Hotel ${result.name} is approved with updated rating of ${result.rating} and live for users.`,
+          Date.now(),
+          user._id
+        );
+      });
+    }
     return res.status(200).json({ message: "Hotel Approved Successfully" });
   } catch (error) {
     res.status(500).json({ message: "Something went wrong" });
@@ -558,15 +546,15 @@ export const deleteHotel = async (req, res) => {
       createNotificationProperty(
         "Hotel",
         "Hotel Deleted",
-        "Your hotel is deleted",
+        `Your hotel ${result.name} is deleted`,
         Date.now(),
         result.ownerId
       );
       (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "hotel",
-          "add delete",
-          `hotel deleted`,
+          "Hotel Deleted",
+          `Hotel ${result.name} is deleted`,
           Date.now(),
           user._id
         );
