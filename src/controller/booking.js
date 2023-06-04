@@ -1373,5 +1373,134 @@ export const getUpcommingBookingsByParkingId = async (req, res) => {
     res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
+  };
+}
+
+// Free Booked Hotel Rooms By Booking Id
+export const freeBookedHotelRoomsByBookingId = async (req, res) => {
+
+  try {
+
+    const bookingId = req.params.id;
+    const bookingById = await booking.findById(bookingId);
+    if (!bookingById) {
+      return res.status(400).json({ msg: "Booking Not Found" });
+    }
+
+    const { room, checkIn, checkOut } = bookingById;
+
+    const promises = room.map(async (room) => {
+      const result = await updateRoomDates(room, checkIn, checkOut);
+      if (!result) {
+        throw new Error("Failed to update room: " + room.RoomId);
+      }
+      return true;
+    });
+
+    try {
+      await Promise.all(promises);
+      const updatedBooking = await bookingById.save();
+      if (!updatedBooking) {
+        return res.status(500).json({ error: "Booking Not canceled" });
+      }
+    } catch (error) {
+      return res.status(400).json({ msg: "Failed to cancel reservation" });
+    }
+    return res.status(200).json({ msg: "Reservation canceled successfully" });
+  } catch (error) {
+    console.log("Error: ", error);
   }
+};
+
+// Free Booked Parking Slots By Booking Id
+export const freeBookedParkingSlotsByBookingId = async (req, res) => {
+  try {
+
+    const bookingById = await booking.findById(req.params.id);
+
+    if (!bookingById) {
+      return res.status(400).json({ message: "Booking Not Found" });
+    }
+
+    const parkingId = bookingById.parkingId;
+    const booked_slots = bookingById.parking.Total_slots;
+
+    const updatedParking = await Parking.findByIdAndUpdate(
+      parkingId,
+      { $inc: { booked_slots: -booked_slots } },
+      { new: true }
+    );
+
+    if (!updatedParking) {
+      return res.status(400).json({ message: "Can Not Update Parking" });
+    }
+
+    const updatedBooking = await bookingById.save();
+    if (!updatedBooking) {
+      return res.status(500).json({ error: "Booking Not canceled" });
+    }
+
+    // const deleteBooking = await booking.findByIdAndDelete(req.params.id);
+    // if (!deleteBooking)
+    //   return res.status(200).json({
+    //     message:
+    //       "Reservation is cancelled . Booking will be deleted after sometime",
+    //   });
+    return res
+      .status(200)
+      .json({ message: "Parking Reservation Cancelled Successfully" });
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+
+}
+
+// Free Booked Hotel and Parking Slots By Booking Id
+export const freeBookedHotelAndParkingByBookingId = async (req, res) => {
+  try {
+
+    const bookingId = req.params.id;
+    const bookingById = await booking.findById(bookingId);
+    if (!bookingById) {
+      return res.status(400).json({ msg: "Booking Not Found" });
+    }
+
+    const hotelparkingId = bookingById.HotelAndParkingId.toString();
+    const booked_slots = bookingById.parking.Total_slots;
+
+
+    const updatedHotelParking = await HotelandParking.findByIdAndUpdate(
+      hotelparkingId,
+      { $inc: { parking_booked_slots: -booked_slots } },
+      { new: true }
+    );
+
+    if (!updatedHotelParking) {
+      return res.status(400).json({ message: "Can Not Update Parking", updatedHotelParking });
+    }
+
+    const { room, checkIn, checkOut } = bookingById;
+
+    const promises = room.map(async (room) => {
+      const result = await updateRoomDates(room, checkIn, checkOut);
+      if (!result) {
+        throw new Error("Failed to update room: " + room.RoomId);
+      }
+      return true;
+    });
+    try {
+      await Promise.all(promises);
+
+      const updatedBooking = await bookingById.save();
+      if (!updatedBooking) {
+        return res.status(500).json({ error: "Booking Not canceled" });
+      }
+    } catch (error) {
+      return res.status(400).json({ msg: "Failed to cancel reservation" });
+    }
+    return res.status(200).json({ msg: "Reservation canceled successfully" });
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+
 };
