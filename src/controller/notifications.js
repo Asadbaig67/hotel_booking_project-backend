@@ -1,23 +1,18 @@
 import Notification from "../models/notifications.js";
+import User from "../models/user.js";
 
 export const getNotifications = async (req, res) => {
+  const id = req.params.id;
   try {
-    const stream = await Notification.find().stream();
-
-    stream.on("data", (notification) => {
-      // Process each streamed notification
-      res.write(JSON.stringify(notification));
-    });
-
-    stream.on("error", (error) => {
-      // Handle any errors that occur during streaming
-      res.status(500).json({ message: error.message });
-    });
-
-    stream.on("end", () => {
-      // Streaming has finished
-      res.end();
-    });
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    const notification = user.notifications;
+    let result = [];
+    for (const id of notification) {
+      const notification = await Notification.findById(id);
+      if (notification) result.push(notification);
+    }
+    res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
