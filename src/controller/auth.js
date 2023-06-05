@@ -81,7 +81,7 @@ export const registration = async (req, res) => {
       firstName,
       lastName,
       password,
-      account_type,
+      account_type
     );
 
     if (!sent) {
@@ -206,13 +206,13 @@ export const updateAccount = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    // createNotificationProperty(
-    //   "User",
-    //   "User updated",
-    //   "Your account updated",
-    //   Date.now(),
-    //   user._id
-    // );
+    createNotificationProperty(
+      "User",
+      "Account updated",
+      "Your account is updated successfully",
+      Date.now(),
+      user._id
+    );
     res.status(200).json({ message: "User updated successfully", user });
   } catch (error) {
     console.log(error);
@@ -249,8 +249,8 @@ export const updateAccountPassword = async (req, res) => {
     const savedChanges = await user.save();
     createNotificationProperty(
       "User",
-      "User password updated",
-      "Your Password updated",
+      "Password changed",
+      "Your Password is changed",
       Date.now(),
       user._id
     );
@@ -311,8 +311,6 @@ export const loginSuccess = (req, res) => {
   }
 };
 
-
-
 // Logout Function
 export const logout = (req, res) => {
   req.logout();
@@ -322,30 +320,37 @@ export const logout = (req, res) => {
 
 // Get User Id And Name Function
 export const getUserIdAndname = async (req, res) => {
-
   const formType = req.query.form_type;
 
-  if (formType === 'hotel') {
-
-    let accounts = (await User.find({ $or: [{ account_type: 'user' }, { partner_type: 'Hotel' }] }).select("_id firstName lastName")).map((account) => account.toObject());
+  if (formType === "hotel") {
+    let accounts = (
+      await User.find({
+        $or: [{ account_type: "user" }, { partner_type: "Hotel" }],
+      }).select("_id firstName lastName")
+    ).map((account) => account.toObject());
     accounts.forEach((account) => {
       account.name = account.firstName + " " + account.lastName;
     });
     return res.status(200).json({ accounts });
-
-  } else if (formType === 'parking') {
-    let accounts = (await User.find({ $or: [{ account_type: 'user' }, { partner_type: "Parking" }] }).select("_id firstName lastName")).map((account) => account.toObject());
+  } else if (formType === "parking") {
+    let accounts = (
+      await User.find({
+        $or: [{ account_type: "user" }, { partner_type: "Parking" }],
+      }).select("_id firstName lastName")
+    ).map((account) => account.toObject());
     accounts.forEach((account) => {
       account.name = account.firstName + " " + account.lastName;
     });
     return res.status(200).json({ accounts });
   } else {
-    let accounts = (await User.find({ $or: [{ account_type: 'user' }, { partner_type: 'HotelAndParking' }] }).select("_id firstName lastName")).map((account) => account.toObject());
+    let accounts = (
+      await User.find({
+        $or: [{ account_type: "user" }, { partner_type: "HotelAndParking" }],
+      }).select("_id firstName lastName")
+    ).map((account) => account.toObject());
     accounts.forEach((account) => {
       account.name = account.firstName + " " + account.lastName;
     });
     return res.status(200).json({ accounts });
-
   }
-
 };

@@ -7,7 +7,7 @@ import {
 
 const Router = express.Router();
 
-Router.get("/getNotification", getNotifications);
+Router.get("/getNotification/:id", getNotifications);
 Router.post("/createNotification", createNotification);
 Router.delete("/deleteNotification/:id", deleteNotification);
 

@@ -31,6 +31,14 @@ import {
   getUpcommingBookingsByHotelId,
   getUpcommingBookingsByHotelParkingId,
   getUpcommingBookingsByParkingId,
+  getAllCancelledBookings,
+  getCancelledBookingsByUserId,
+  getCancelledBookingsByHotelId,
+  getCancelledBookingsByParkingId,
+  getCancelledBookingsByHotelAndParkingId,
+  getCancelledBookingsByHotelOwnerId,
+  getCancelledBookingsByParkingOwnerId,
+  getCancelledBookingsByHotelAndParkingOwnerId,
   freeBookedParkingSlotsByBookingId,
   freeBookedHotelAndParkingByBookingId,
   freeBookedHotelRoomsByBookingId,
@@ -101,7 +109,10 @@ router.get(
 );
 
 // Get Upcoming Bookings By Hotel And Parking Owner Id
-router.get('/getUpcommingBookingsByHotelparkingOwnerId/:id', getUpcommingBookingsByHotelParkingOwnerId)
+router.get(
+  "/getUpcommingBookingsByHotelparkingOwnerId/:id",
+  getUpcommingBookingsByHotelParkingOwnerId
+);
 
 // Get Upcoming Bookings By Parking Owner Id
 router.get(
@@ -110,13 +121,13 @@ router.get(
 );
 
 // Get Upcoming Bookings By Hotel Owner Id
-router.get(
-  "/getUpcommingBookingsByHotelId/:id",
-  getUpcommingBookingsByHotelId
-);
+router.get("/getUpcommingBookingsByHotelId/:id", getUpcommingBookingsByHotelId);
 
 // Get Upcoming Bookings By Hotel And Parking Owner Id
-router.get('/getUpcommingBookingsByHotelparkingId/:id', getUpcommingBookingsByHotelParkingId)
+router.get(
+  "/getUpcommingBookingsByHotelparkingId/:id",
+  getUpcommingBookingsByHotelParkingId
+);
 
 // Get Upcoming Bookings By Parking Owner Id
 router.get(
@@ -132,6 +143,34 @@ router.get("/getBookingByParkingId/:id", getBookingByParkingId);
 
 //Get Specific Parking Booking By Hotel Id
 router.get("/getBookingByHotelAndParkingId/:id", getBookingByHotelAndParkingId);
+
+//Get All Cancelled Bookings
+router.get("/getCancelledBookings", getAllCancelledBookings);
+
+//Get Cancelled Bookings By User Id
+router.get("/getCancelledBookingsByUserId/:id", getCancelledBookingsByUserId);
+
+//Get Cancelled Bookings By Hotel Id
+router.get("/getCancelledBookingsByHotelId/:id", getCancelledBookingsByHotelId);
+
+//Get Cancelled Bookings By Parking Id
+router.get("/getCancelledBookingsByParkingId/:id", getCancelledBookingsByParkingId);
+
+//Get Cancelled Bookings By Hotel And Parking Id
+router.get("/getCancelledBookingsByHotelAndParkingId/:id", getCancelledBookingsByHotelAndParkingId);
+
+//Get Cancelled Bookings By Hotel OwnerId
+router.get("/getCancelledBookingsByHotelOwnerId/:id", getCancelledBookingsByHotelOwnerId);
+
+//Get Cancelled Bookings By Parking OwnerId
+router.get("/getCancelledBookingsByParkingOwnerId/:id", getCancelledBookingsByParkingOwnerId);
+
+//Get Cancelled Bookings By Hotel And Parking OwnerId
+router.get(
+  "/getCancelledBookingsByHotelAndParkingOwnerId/:id",
+  getCancelledBookingsByHotelAndParkingOwnerId
+);
+
 // Add New User Booking
 router.post("/userBooking", UserBookings);
 // Update Booking
