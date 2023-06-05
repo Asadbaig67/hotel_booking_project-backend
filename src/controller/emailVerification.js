@@ -2,6 +2,7 @@ import Emailverification from "../models/emailVerification.js";
 import User from "../models/user.js";
 import fetch from "node-fetch";
 import QueryString from "qs";
+import { SendEmail } from '../Functions/Emails/SendEmail.js'
 
 // Send Verification Email To Users Email
 export const SendVerificationEmail = async (req, res) => {
@@ -83,12 +84,15 @@ export const Emailverify = async (req, res) => {
   // saving new user
   const result = await new_user.save();
 
-  // // checking if user is saved
-  // if (result) {
-  //     res.status(201).json({ message: "User Created successfully" });
-  // } else {
-  //     res.status(500).json({ message: "User Registration Failed" });
-  // }
+  // Send Email For Successfull Registration
+  let data = {
+    email: email,
+    name: firstName + " " + lastName,
+    subject: "Registration Successfull",
+    message: "Welcome to Desalis! Thank You For Creating Account.\n Your Email Verification is Successfull"
+  };
+
+  await SendEmail(data);
 
   createNotificationProperty(
     "Email",

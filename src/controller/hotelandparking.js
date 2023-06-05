@@ -175,6 +175,17 @@ export const addhotelandparking = async (req, res) => {
           user._id
         );
       });
+
+      const Owner = await User.findById(ownerId);
+
+      // Send Email
+      await SendEmail({
+        name: Owner.firstName + " " + Owner.lastName,
+        email: Owner.email,
+        subject: "Hotel And Parking Added",
+        message: "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
+      });
+
       res.status(201).json({ message: "Hotel and Parking Added Successfully" });
     } else {
       res.status(500).json({ message: "Hotel and Parking Cannot be Added" });
@@ -728,6 +739,12 @@ export const approveHotelAndParking = async (req, res) => {
       user.partner_type = "HotelAndParking";
       user.account_type = "partner";
       await user.save();
+      await SendEmail({
+        name: user.firstName + " " + user.lastName,
+        email: user.email,
+        subject: "Hotel Approved",
+        message: "Your hotel has been approved successfully. Thank you for choosing Desalis Hotels.",
+      });
     }
     if (result) {
       createNotificationProperty(

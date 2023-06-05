@@ -6,6 +6,7 @@ import { getRoomByHotel } from "../Functions/Hotel/getRoomByHotel.js";
 import { getRoomByPrices } from "../Functions/Hotel/getRoomsPrices.js";
 import { fileURLToPath } from "url";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
+import { SendEmail } from "../Functions/Emails/SendEmail.js";
 import path from "path";
 import fs from "fs";
 
@@ -103,6 +104,19 @@ export const addHotel = async (req, res) => {
           user._id
         );
       });
+
+
+      const Owner = await User.findById(ownerId);
+
+      // Send Email
+      await SendEmail({
+        name: Owner.firstName + " " + Owner.lastName,
+        email: Owner.email,
+        subject: "Hotel Added",
+        message: "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
+      });
+
+
       return res.status(201).json({ message: "Hotel Added Successfully" });
     } else {
       return res.status(500).json({ message: "Hotel Cannot be Added" });
@@ -417,6 +431,7 @@ export const UpdateHotel = async (req, res) => {
       //   );
       // });
       // console.log("photos Array =", photos);
+
       return res.status(201).json({
         message: "Hotel Updated Successfully",
         // , data: {
@@ -468,6 +483,13 @@ export const approveHotel = async (req, res) => {
       user.partner_type = "Hotel";
       user.account_type = "partner";
       await user.save();
+
+      await SendEmail({
+        name: user.firstName + " " + user.lastName,
+        email: user.email,
+        subject: "Hotel Approved",
+        message: "Your hotel has been approved successfully. Thank you for choosing Desalis Hotels.",
+      });
     }
 
     if (result !== null) {

@@ -3,6 +3,7 @@ import User from "../models/user.js";
 import Emailverification from "../models/emailVerification.js";
 import { Emailverify, SendVerificationEmail } from "./emailVerification.js";
 import { sendVerificationmail } from "./mailer.js";
+import { SendEmail } from '../Functions/Emails/SendEmail.js'
 import axios from "axios";
 
 // User Registration Function
@@ -200,6 +201,8 @@ export const updateAccount = async (req, res) => {
     //   return res.status(422).json({ error: "Passwords do not match" });
     // }
 
+    const newuser = await User.findById(userId);
+
     // Finding user by ID and updating their information
     const user = await User.findByIdAndUpdate(userId, req.body, { new: true });
 
@@ -213,7 +216,18 @@ export const updateAccount = async (req, res) => {
     //   Date.now(),
     //   user._id
     // );
+
+    await SendEmail({
+      name: newuser.firstName + " " + user.lastName,
+      email: newuser.email,
+      subject: "Account Updated",
+      message: "Your account updated",
+    });
+
     res.status(200).json({ message: "User updated successfully", user });
+
+
+
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Server Error" });
@@ -254,6 +268,14 @@ export const updateAccountPassword = async (req, res) => {
       Date.now(),
       user._id
     );
+
+    await SendEmail({
+      name: user.firstName + " " + user.lastName,
+      email: user.email,
+      subject: "Password Updated",
+      message: "Your password updated",
+    });
+
     res.json({ message: "Password Updated Successfully" });
   } catch (error) {
     res.status(502).json({ message: "error" });
@@ -278,6 +300,15 @@ export const deleteAccount = async (req, res) => {
       Date.now(),
       user._id
     );
+
+
+    await SendEmail({
+      name: user.firstName + " " + user.lastName,
+      email: user.email,
+      subject: "Account Deleted",
+      message: "Your account deleted",
+    });
+
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     console.log(error);

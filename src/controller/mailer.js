@@ -99,7 +99,7 @@ export const sendVerificationmail = async (email, otp, firstName, lastName, pass
 
         const newemail = {
             body: {
-                name: 'Hassaan Ahmed',
+                name: firstName + " " + lastName,
                 intro: 'Welcome to Desalis! Thank You For Creating Account.',
                 action: {
                     instructions: 'To Verify Your Email, please click here:',
@@ -109,7 +109,7 @@ export const sendVerificationmail = async (email, otp, firstName, lastName, pass
                         link: link
                     }
                 },
-                outro: 'Need help, or have questions? Just contact Asad(Backend Developer).'
+                outro: 'Need help, or have questions? Just contact infoatdesalis@Desalis.com.'
             }
         };
 
