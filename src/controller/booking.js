@@ -85,30 +85,30 @@ export const addBooking = async (req, res) => {
       return res.status(400).json({ msg: "Booking Failed" });
     }
 
-    // createNotificationProperty(
-    //   "booking",
-    //   "Hotel Booked",
-    //   `Your booking for ${hotel.name} has been confirmed in dates ${checkIn} to ${checkOut}.`,
-    //   Date.now(),
-    //   userId
-    // );
-    // const ownerId = hotel.ownerId;
-    // createNotificationProperty(
-    //   "booking",
-    //   "Hotel Booked",
-    //   `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel ${hotel.name}.`,
-    //   Date.now(),
-    //   ownerId
-    // );
-    // await User.find({ account_type: "admin" }).forEach((admin) => {
-    //   createNotificationProperty(
-    //     "booking",
-    //     "Hotel Booked",
-    //     `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel ${hotel.name}.`,
-    //     Date.now(),
-    //     admin._id
-    //   );
-    // });
+    createNotificationProperty(
+      "booking",
+      "Hotel Booked",
+      `Your booking for ${hotel.name} has been confirmed in dates ${checkIn} to ${checkOut}.`,
+      Date.now(),
+      userId
+    );
+    const ownerId = hotel.ownerId;
+    createNotificationProperty(
+      "booking",
+      "Hotel Booked",
+      `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel ${hotel.name}.`,
+      Date.now(),
+      ownerId
+    );
+    await User.find({ account_type: "admin" }).forEach((admin) => {
+      createNotificationProperty(
+        "booking",
+        "Hotel Booked",
+        `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel ${hotel.name}.`,
+        Date.now(),
+        admin._id
+      );
+    });
     // If Booking Successfull, Send Success Message
     res
       .status(200)
@@ -215,31 +215,31 @@ export const addBookingHotelAndParking = async (req, res) => {
 
     const hotel = await HotelandParking.findById(HotelAndParkingId);
 
-    // createNotificationProperty(
-    //   "booking",
-    //   "Hotel And Parking Booked",
-    //   `Your booking for ${hotel.hotel_name} has been confirmed in dates ${checkIn} to ${checkOut}.`,
-    //   Date.now(),
-    //   userId
-    // );
+    createNotificationProperty(
+      "booking",
+      "Hotel And Parking Booked",
+      `Your booking for ${hotel.hotel_name} has been confirmed in dates ${checkIn} to ${checkOut}.`,
+      Date.now(),
+      userId
+    );
 
-    // const ownerId = hotel.ownerId;
-    // createNotificationProperty(
-    //   "booking",
-    //   "Hotel Booked",
-    //   `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel and Parking ${hotel.hotel_name}.`,
-    //   Date.now(),
-    //   ownerId
-    // );
-    // await User.find({ account_type: "admin" }).forEach((admin) => {
-    //   createNotificationProperty(
-    //     "booking",
-    //     "Hotel Booked",
-    //     `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel and parking ${hotel.hotel_name}.`,
-    //     Date.now(),
-    //     admin._id
-    //   );
-    // });
+    const ownerId = hotel.ownerId;
+    createNotificationProperty(
+      "booking",
+      "Hotel Booked",
+      `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel and Parking ${hotel.hotel_name}.`,
+      Date.now(),
+      ownerId
+    );
+    await User.find({ account_type: "admin" }).forEach((admin) => {
+      createNotificationProperty(
+        "booking",
+        "Hotel Booked",
+        `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel and parking ${hotel.hotel_name}.`,
+        Date.now(),
+        admin._id
+      );
+    });
     // If Booking Successfull, Send Success Message
     return res
       .status(200)
@@ -307,30 +307,30 @@ export const addBookingParking = async (req, res) => {
 
     const parking = await Parking.findById(parkingId);
 
-    // createNotificationProperty(
-    //   "booking",
-    //   "Parking Booked",
-    //   `Your booking for ${parking.name} has been confirmed in dates ${checkIn} to ${checkOut}.`,
-    //   Date.now(),
-    //   userId
-    // );
-    // const ownerId = parking.ownerId;
-    // createNotificationProperty(
-    //   "booking",
-    //   "Hotel Booked",
-    //   `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel and Parking ${parking.name}.`,
-    //   Date.now(),
-    //   ownerId
-    // );
-    // await User.find({ account_type: "admin" }).forEach((admin) => {
-    //   createNotificationProperty(
-    //     "booking",
-    //     "Hotel Booked",
-    //     `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel and parking ${parking.name}.`,
-    //     Date.now(),
-    //     admin._id
-    //   );
-    // });
+    createNotificationProperty(
+      "booking",
+      "Parking Booked",
+      `Your booking for ${parking.name} has been confirmed in dates ${checkIn} to ${checkOut}.`,
+      Date.now(),
+      userId
+    );
+    const ownerId = parking.ownerId;
+    createNotificationProperty(
+      "booking",
+      "Hotel Booked",
+      `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel and Parking ${parking.name}.`,
+      Date.now(),
+      ownerId
+    );
+    await User.find({ account_type: "admin" }).forEach((admin) => {
+      createNotificationProperty(
+        "booking",
+        "Hotel Booked",
+        `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel and parking ${parking.name}.`,
+        Date.now(),
+        admin._id
+      );
+    });
 
     return res.status(200).json(booking);
   } catch (error) {
@@ -838,14 +838,31 @@ export const updateBooking = async (req, res) => {
       price,
     };
     const bookingById = await booking.findByIdAndUpdate(req.params.id, update);
-    // createNotification(
-    //   "booking",
-    //   "Booking success",
-    //   `Booking abc`,
-    //   Date.now(),
-    //   hotelId,
-    //   userId
-    // );
+    createNotificationProperty(
+      "booking",
+      "Booking Updated",
+      `Your booking has been updated successfully`,
+      Date.now(),
+      userId
+    );
+    const hotel = await Hotel.findById(hotelId);
+    createNotificationProperty(
+      "booking",
+      "Booking Updated",
+      `Your booking has been updated successfully`,
+      Date.now(),
+      hotel.ownerId
+    );
+    await User.find({ account_type: "admin" }).forEach((admin) => {
+      createNotificationProperty(
+        "booking",
+        "Booking Updated",
+        `Your booking has been updated successfully.`,
+        Date.now(),
+        admin._id
+      );
+    });
+
     res.status(200).json(bookingById);
   } catch (error) {
     console.log("Error: ", error);
@@ -856,14 +873,23 @@ export const updateBooking = async (req, res) => {
 export const deleteBooking = async (req, res) => {
   try {
     const bookingById = await booking.findByIdAndDelete(req.params.id);
-    // createNotification(
+    // createNotificationProperty(
     //   "booking",
-    //   "Booking success",
-    //   `Booking abc`,
+    //   "Booking deleted",
+    //   `Your booking has been deleted successfully`,
     //   Date.now(),
-    //   hotelId,
-    //   userId
+    //   bookingById.userId
     // );
+    // await User.find({ account_type: "admin" }).forEach((admin) => {
+    //   createNotificationProperty(
+    //     "booking",
+    //     "Hotel Booked",
+    //     `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel ${hotel.name}.`,
+    //     Date.now(),
+    //     admin._id
+    //   );
+    // });
+
     res.status(200).json(bookingById);
   } catch (error) {
     console.log("Error: ", error);
@@ -898,14 +924,30 @@ export const cancelHotelReservation = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
-    // createNotification(
-    //   "booking",
-    //   "Booking success",
-    //   `Booking abc`,
-    //   Date.now(),
-    //   hotelId,
-    //   userId
-    // );
+    createNotificationProperty(
+      "booking",
+      "Booking Canceled",
+      `Your booking has been canceled successfully`,
+      Date.now(),
+      bookingById.userId
+    );
+    const hotel = await Hotel.findById(bookingById.hotelId);
+    createNotificationProperty(
+      "booking",
+      "Booking Canceled",
+      `A booking is canceled at hotel ${hotel.name}.`,
+      Date.now(),
+      hotel.ownerId
+    );
+    await User.find({ account_type: "admin" }).forEach((admin) => {
+      createNotificationProperty(
+        "booking",
+        "Booking Canceled",
+        `A booking is canceled.`,
+        Date.now(),
+        admin._id
+      );
+    });
     return res.status(200).json({ msg: "Reservation canceled successfully" });
   } catch (error) {
     console.log("Error: ", error);
@@ -951,6 +993,30 @@ export const cancelParkingReservation = async (req, res) => {
     //     message:
     //       "Reservation is cancelled . Booking will be deleted after sometime",
     //   });
+    createNotificationProperty(
+      "booking",
+      "Booking Canceled",
+      `Your booking has been canceled successfully`,
+      Date.now(),
+      bookingById.userId
+    );
+    const hotel = await Parking.findById(bookingById.hotelId);
+    createNotificationProperty(
+      "booking",
+      "Booking Canceled",
+      `A booking is canceled at hotel ${hotel.name}.`,
+      Date.now(),
+      hotel.ownerId
+    );
+    await User.find({ account_type: "admin" }).forEach((admin) => {
+      createNotificationProperty(
+        "booking",
+        "Booking Canceled",
+        `A booking is canceled.`,
+        Date.now(),
+        admin._id
+      );
+    });
     return res
       .status(200)
       .json({ message: "Parking Reservation Cancelled Successfully" });
@@ -1006,14 +1072,30 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
-    // createNotification(
-    //   "booking",
-    //   "Booking success",
-    //   `Booking abc`,
-    //   Date.now(),
-    //   hotelId,
-    //   userId
-    // );
+    createNotificationProperty(
+      "booking",
+      "Booking Canceled",
+      `Your booking has been canceled successfully`,
+      Date.now(),
+      bookingById.userId
+    );
+    const hotel = await HotelandParking.findById(bookingById.hotelId);
+    createNotificationProperty(
+      "booking",
+      "Booking Canceled",
+      `A booking is canceled at hotel ${hotel.hotel_name}.`,
+      Date.now(),
+      hotel.ownerId
+    );
+    await User.find({ account_type: "admin" }).forEach((admin) => {
+      createNotificationProperty(
+        "booking",
+        "Booking Canceled",
+        `A booking is canceled.`,
+        Date.now(),
+        admin._id
+      );
+    });
     return res.status(200).json({ msg: "Reservation canceled successfully" });
   } catch (error) {
     console.log("Error: ", error);
@@ -1373,14 +1455,12 @@ export const getUpcommingBookingsByParkingId = async (req, res) => {
     res.status(booking.status).json(booking.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
-  };
-}
+  }
+};
 
 // Free Booked Hotel Rooms By Booking Id
 export const freeBookedHotelRoomsByBookingId = async (req, res) => {
-
   try {
-
     const bookingId = req.params.id;
     const bookingById = await booking.findById(bookingId);
     if (!bookingById) {
@@ -1406,6 +1486,30 @@ export const freeBookedHotelRoomsByBookingId = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
+    createNotificationProperty(
+      "booking",
+      "Booking checkOut",
+      `Check out by hotel ${bookingById.hotelId}.`,
+      Date.now(),
+      bookingById.userId
+    );
+    const hotel = await Hotel.findById(bookingById.hotelId);
+    createNotificationProperty(
+      "booking",
+      "Booking checkOut",
+      `Chehck out by hotel ${bookingById.hotelId}.`,
+      Date.now(),
+      hotel.ownerId
+    );
+    await User.find({ account_type: "admin" }).forEach((admin) => {
+      createNotificationProperty(
+        "booking",
+        "Booking checkOut",
+        `Chehck out by hotel ${bookingById.hotelId}.`,
+        Date.now(),
+        admin._id
+      );
+    });
     return res.status(200).json({ msg: "Reservation canceled successfully" });
   } catch (error) {
     console.log("Error: ", error);
@@ -1415,7 +1519,6 @@ export const freeBookedHotelRoomsByBookingId = async (req, res) => {
 // Free Booked Parking Slots By Booking Id
 export const freeBookedParkingSlotsByBookingId = async (req, res) => {
   try {
-
     const bookingById = await booking.findById(req.params.id);
 
     if (!bookingById) {
@@ -1446,19 +1549,42 @@ export const freeBookedParkingSlotsByBookingId = async (req, res) => {
     //     message:
     //       "Reservation is cancelled . Booking will be deleted after sometime",
     //   });
+
+    createNotificationProperty(
+      "booking",
+      "Booking checkOut",
+      `Check out by hotel ${bookingById.parkingId}.`,
+      Date.now(),
+      bookingById.userId
+    );
+    const hotel = await Parking.findById(bookingById.hotelId);
+    createNotificationProperty(
+      "booking",
+      "Booking checkOut",
+      `Chehck out by hotel ${bookingById.parkingId}.`,
+      Date.now(),
+      hotel.ownerId
+    );
+    await User.find({ account_type: "admin" }).forEach((admin) => {
+      createNotificationProperty(
+        "booking",
+        "Booking checkOut",
+        `Chehck out by hotel ${bookingById.parkingId}.`,
+        Date.now(),
+        admin._id
+      );
+    });
     return res
       .status(200)
       .json({ message: "Parking Reservation Cancelled Successfully" });
   } catch (error) {
     console.log("Error: ", error);
   }
-
-}
+};
 
 // Free Booked Hotel and Parking Slots By Booking Id
 export const freeBookedHotelAndParkingByBookingId = async (req, res) => {
   try {
-
     const bookingId = req.params.id;
     const bookingById = await booking.findById(bookingId);
     if (!bookingById) {
@@ -1468,7 +1594,6 @@ export const freeBookedHotelAndParkingByBookingId = async (req, res) => {
     const hotelparkingId = bookingById.HotelAndParkingId.toString();
     const booked_slots = bookingById.parking.Total_slots;
 
-
     const updatedHotelParking = await HotelandParking.findByIdAndUpdate(
       hotelparkingId,
       { $inc: { parking_booked_slots: -booked_slots } },
@@ -1476,7 +1601,9 @@ export const freeBookedHotelAndParkingByBookingId = async (req, res) => {
     );
 
     if (!updatedHotelParking) {
-      return res.status(400).json({ message: "Can Not Update Parking", updatedHotelParking });
+      return res
+        .status(400)
+        .json({ message: "Can Not Update Parking", updatedHotelParking });
     }
 
     const { room, checkIn, checkOut } = bookingById;
@@ -1498,9 +1625,32 @@ export const freeBookedHotelAndParkingByBookingId = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
+    createNotificationProperty(
+      "booking",
+      "Booking checkOut",
+      `Check out by hotel ${bookingById.HotelAndParkingId}.`,
+      Date.now(),
+      bookingById.userId
+    );
+    const hotel = await Hotel.findById(bookingById.HotelAndParkingId);
+    createNotificationProperty(
+      "booking",
+      "Booking checkOut",
+      `Chehck out by hotel ${bookingById.HotelAndParkingId}.`,
+      Date.now(),
+      hotel.ownerId
+    );
+    await User.find({ account_type: "admin" }).forEach((admin) => {
+      createNotificationProperty(
+        "booking",
+        "Booking checkOut",
+        `Chehck out by hotel ${bookingById.HotelAndParkingId}.`,
+        Date.now(),
+        admin._id
+      );
+    });
     return res.status(200).json({ msg: "Reservation canceled successfully" });
   } catch (error) {
     console.log("Error: ", error);
   }
-
 };
