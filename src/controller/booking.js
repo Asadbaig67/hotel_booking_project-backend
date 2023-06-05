@@ -7,6 +7,7 @@ import HotelandParking from "../models/Hotel_Parking.js";
 import { validateBooking } from "../Functions/Booking/ValidateData.js";
 import { updateunavailabledates } from "../Functions/Booking/UpdateUnavailableDates.js";
 import { updateRoomDates } from "../Functions/Booking/UpdateRoomDates.js";
+import { SendEmail } from "../Functions/Emails/SendEmail.js";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import { convertIntoRequiredFormat } from "../Functions/Booking/ConvertIntoRequiredFormat.js";
 
@@ -33,6 +34,7 @@ export const addBooking = async (req, res) => {
 
   const hotel = await Hotel.findById(hotelId).exec();
 
+  const theuser = await User.findById(userId);
   // res.send({ message: "ok", data: { userId, hotelId, room, checkIn, checkOut, createdAt } });
 
   // Check If Booking Already Exists Or Not
@@ -110,6 +112,23 @@ export const addBooking = async (req, res) => {
       );
     });
     // If Booking Successfull, Send Success Message
+
+    await SendEmail({
+      name: theuser.firstName + " " + theuser.lastName,
+      email: theuser.email,
+      subject: "Booking Confirmation",
+      message: `Your booking has been confirmed. Your booking details are as follows: </br>
+      Hotel Name: ${hotel.name} \n
+      Check In: ${checkIn} \n
+      Check Out: ${checkOut} \n
+      Room(s): ${room.map((r) => r.Room_no)} \n
+      Total Price: ${total_price} \n
+      `,
+    });
+
+
+
+
     res
       .status(200)
       .json({ msg: "Booking ==> Success", details: booking_success });
@@ -169,6 +188,8 @@ export const addBookingHotelAndParking = async (req, res) => {
   // if (exists) {
   //   return res.status(400).json({ msg: "Booking already exists" });
   // }
+
+  const theUser = await User.findById(userId);
 
   // On Successfull Booking Make API Request To Update The Rooms That Has Been Reserved In This Booking
   const result = await updateunavailabledates(room, checkIn, checkOut);
@@ -241,6 +262,20 @@ export const addBookingHotelAndParking = async (req, res) => {
       );
     });
     // If Booking Successfull, Send Success Message
+
+    await SendEmail({
+      name: theUser.firstName + " " + theUser.lastName,
+      email: theUser.email,
+      subject: "Booking Confirmation",
+      message: `Your booking has been confirmed. Your booking details are as follows:
+      Hotel Name: ${Existing.name} \n
+      Check In: ${checkIn} \n
+      Check Out: ${checkOut} \n
+      Room(s): ${room.map((r) => r.Room_no)} \n
+      Total Price: ${total_price} \n
+      `,
+    });
+
     return res
       .status(200)
       .json({ msg: "Booking ==> Success", details: booking_success });
@@ -305,6 +340,21 @@ export const addBookingParking = async (req, res) => {
       return res.status(409).json({ message: "Error Occured Booking Denied!" });
     }
 
+    const theUser = await User.findById(userId);
+
+    await SendEmail({
+      name: theUser.firstName + " " + theUser.lastName,
+      email: theUser.email,
+      subject: "Booking Confirmation",
+      message: `Your booking has been confirmed. Your booking details are as follows:
+      Parking Name: ${Existing_parking.name} \n
+      Check In: ${checkIn} \n
+      Check Out: ${checkOut} \n
+      Total Slots: ${parking.Total_slots} \n
+      Total Price: ${total_price} \n
+      `,
+    });
+    
     const parking = await Parking.findById(parkingId);
 
     createNotificationProperty(
@@ -906,7 +956,7 @@ export const cancelHotelReservation = async (req, res) => {
       return res.status(400).json({ msg: "Booking Not Found" });
     }
 
-    const { room, checkIn, checkOut } = bookingById;
+    const { hotelId, userId, room, checkIn, checkOut } = bookingById;
 
     const PendingRooms = [];
     const promises = room.map(async (room) => {
@@ -924,6 +974,31 @@ export const cancelHotelReservation = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
+    // createNotification(
+    //   "booking",
+    //   "Booking success",
+    //   `Booking abc`,
+    //   Date.now(),
+    //   hotelId,
+    //   userId
+    // );
+
+
+    const theUser = await User.findById(userId);
+
+    const theHotel = await Hotel.findById(hotelId);
+
+    await SendEmail({
+      name: theUser.firstName + " " + theUser.lastName,
+      email: theUser.email,
+      subject: "Hotel Reservation Canceled",
+      message: `Your reservation at ${theHotel.name} has been canceled.
+      Details:
+      Check In: ${bookingById.checkIn}
+      Check Out: ${bookingById.checkOut}
+      Total Price: ${bookingById.total_price}`,
+    });
+
     createNotificationProperty(
       "booking",
       "Booking Canceled",
@@ -993,6 +1068,23 @@ export const cancelParkingReservation = async (req, res) => {
     //     message:
     //       "Reservation is cancelled . Booking will be deleted after sometime",
     //   });
+
+
+    const theUser = await User.findById(bookingById.userId);
+
+    const theParking = await Parking.findById(bookingById.parkingId);
+
+    await SendEmail({
+      name: theUser.firstName + " " + theUser.lastName,
+      email: theUser.email,
+      subject: "Hotel Reservation Canceled",
+      message: `Your reservation at ${theParking.name} has been canceled.
+      Details:
+      Check In: ${bookingById.checkIn}
+      Check Out: ${bookingById.checkOut}
+      Total Price: ${bookingById.total_price}`,
+    });
+
     createNotificationProperty(
       "booking",
       "Booking Canceled",
@@ -1053,7 +1145,7 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
         .json({ message: "Can Not Update Parking", updatedHotelParking });
     }
 
-    const { room, checkIn, checkOut } = bookingById;
+    const { HotelAndParkingId, userId, room, checkIn, checkOut } = bookingById;
 
     const promises = room.map(async (room) => {
       const result = await updateRoomDates(room, checkIn, checkOut);
@@ -1072,6 +1164,29 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
+    // createNotification(
+    //   "booking",
+    //   "Booking success",
+    //   `Booking abc`,
+    //   Date.now(),
+    //   hotelId,
+    //   userId
+    // );
+
+    const theUser = await User.findById(userId);
+    const hotelandparking = await HotelandParking.findById(HotelAndParkingId);
+
+    await SendEmail({
+      name: theUser.firstName + " " + theUser.lastName,
+      email: theUser.email,
+      subject: "Hotel Reservation Canceled",
+      message: `Your reservation at ${hotelandparking.name} has been canceled.
+      Details:
+      Check In: ${bookingById.checkIn}
+      Check Out: ${bookingById.checkOut}
+      Total Price: ${bookingById.total_price}`,
+    });
+
     createNotificationProperty(
       "booking",
       "Booking Canceled",
@@ -1467,7 +1582,7 @@ export const freeBookedHotelRoomsByBookingId = async (req, res) => {
       return res.status(400).json({ msg: "Booking Not Found" });
     }
 
-    const { room, checkIn, checkOut } = bookingById;
+    const { hotelId, userId, room, checkIn, checkOut } = bookingById;
 
     const promises = room.map(async (room) => {
       const result = await updateRoomDates(room, checkIn, checkOut);
@@ -1486,6 +1601,22 @@ export const freeBookedHotelRoomsByBookingId = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
+
+    const theUser = await User.findById(userId);
+
+    const theHotel = await Hotel.findById(hotelId);
+
+    await SendEmail({
+      name: theUser.firstName + " " + theUser.lastName,
+      email: theUser.email,
+      subject: "Hotel Checked Out",
+      message: `Your are checked out from ${theHotel.name} by the hotel management.
+      Details:
+      Check In: ${bookingById.checkIn}
+      Check Out: ${bookingById.checkOut}
+      Total Price: ${bookingById.total_price}`,
+    });
+
     createNotificationProperty(
       "booking",
       "Booking checkOut",
@@ -1550,6 +1681,21 @@ export const freeBookedParkingSlotsByBookingId = async (req, res) => {
     //       "Reservation is cancelled . Booking will be deleted after sometime",
     //   });
 
+    const theUser = await User.findById(bookingById.userId);
+
+    const theHotel = await Hotel.findById(bookingById.parkingId);
+
+    await SendEmail({
+      name: theUser.firstName + " " + theUser.lastName,
+      email: theUser.email,
+      subject: "Hotel Checked Out",
+      message: `Your are checked out from ${theHotel.name} by the hotel management.
+      Details:
+      Check In: ${bookingById.checkIn}
+      Check Out: ${bookingById.checkOut}
+      Total Price: ${bookingById.total_price}`,
+    });
+
     createNotificationProperty(
       "booking",
       "Booking checkOut",
@@ -1606,7 +1752,7 @@ export const freeBookedHotelAndParkingByBookingId = async (req, res) => {
         .json({ message: "Can Not Update Parking", updatedHotelParking });
     }
 
-    const { room, checkIn, checkOut } = bookingById;
+    const { HotelAndParkingId, userId, room, checkIn, checkOut } = bookingById;
 
     const promises = room.map(async (room) => {
       const result = await updateRoomDates(room, checkIn, checkOut);
@@ -1625,6 +1771,22 @@ export const freeBookedHotelAndParkingByBookingId = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
+
+    const theUser = await User.findById(userId);
+
+    const theHotel = await Hotel.findById(HotelAndParkingId);
+
+    await SendEmail({
+      name: theUser.firstName + " " + theUser.lastName,
+      email: theUser.email,
+      subject: "Hotel Checked Out",
+      message: `Your are checked out from ${theHotel.name} by the hotel management.
+      Details:
+      Check In: ${bookingById.checkIn}
+      Check Out: ${bookingById.checkOut}
+      Total Price: ${bookingById.total_price}`,
+    });
+
     createNotificationProperty(
       "booking",
       "Booking checkOut",

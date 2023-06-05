@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import path from "path";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import fs from "fs";
+import { SendEmail } from "../Functions/Emails/SendEmail.js";
 // Add Parking Function
 export const addParking = async (req, res) => {
   try {
@@ -113,6 +114,17 @@ export const addParking = async (req, res) => {
           user._id
         );
       });
+
+      const Owner = await User.findById(ownerId);
+
+      // Send Email
+      await SendEmail({
+        name: Owner.firstName + " " + Owner.lastName,
+        email: Owner.email,
+        subject: "Parking Added",
+        message: "Your Added has been added successfully. Thank you for choosing Desalis Hotels. We will review your Parking and get back to you as soon as possible. ",
+      });
+
       res.status(201).json({ message: "Parking Added Successfully" });
     } else {
       res.status(500).json({ message: "Parking Cannot be Added" });
@@ -157,7 +169,7 @@ export const getParkingByCity = async (req, res) => {
     if (!response)
       return res.status(404).json({ message: "Parking Not Found" });
     res.send(response);
-  } catch (error) {}
+  } catch (error) { }
 };
 
 // Get Parking By Id Function
