@@ -36,13 +36,13 @@ export const SendResetOtp = async (req, res) => {
   if (!emailSent) {
     return res.status(500).json({ error: "Internal Server Error" });
   }
-  createNotificationProperty(
-    "OTP",
-    "OTP",
-    "OTP sent to to your email",
-    Date.now(),
-    user._id
-  );
+  // createNotificationProperty(
+  //   "OTP",
+  //   "OTP",
+  //   "OTP sent to to your email",
+  //   Date.now(),
+  //   user._id
+  // );
   return res
     .status(200)
     .json({ message: "OTP sent to your email", user: user });
@@ -100,9 +100,9 @@ export const ResetPassword = async (req, res) => {
   createNotificationProperty(
     "Password",
     "Password reset",
-    "Your Password is reset",
+    "Your Password is changed",
     Date.now(),
-    ownerId
+    user._id
   );
   return res.status(200).json({ message: "Password Changed Successfully" });
 };

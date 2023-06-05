@@ -3,6 +3,7 @@ import User from "../models/user.js";
 import fetch from "node-fetch";
 import QueryString from "qs";
 import { SendEmail } from '../Functions/Emails/SendEmail.js'
+import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 
 // Send Verification Email To Users Email
 export const SendVerificationEmail = async (req, res) => {
@@ -97,7 +98,7 @@ export const Emailverify = async (req, res) => {
   createNotificationProperty(
     "Email",
     "Email Verified",
-    "Your email verified",
+    "Your email is verified",
     Date.now(),
     result._id
   );

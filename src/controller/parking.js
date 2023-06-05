@@ -101,7 +101,7 @@ export const addParking = async (req, res) => {
       createNotificationProperty(
         "Parking",
         "Parking added",
-        "Your new parking added",
+        `Your new parking ${result.name} is added`,
         Date.now(),
         ownerId
       );
@@ -109,7 +109,7 @@ export const addParking = async (req, res) => {
         createNotificationProperty(
           "Parking",
           "parking added",
-          `A parking has been added`,
+          `new parking ${result.name} is added and waiting for approval`,
           Date.now(),
           user._id
         );
@@ -268,7 +268,7 @@ export const updateParking = async (req, res) => {
       createNotificationProperty(
         "Parking",
         "Parking updated",
-        "Your parking updated",
+        `Your parking ${result.name} updated successfully`,
         Date.now(),
         result.ownerId
       );
@@ -276,7 +276,7 @@ export const updateParking = async (req, res) => {
         createNotificationProperty(
           "Parking",
           "parking updated",
-          `A parking has been updated`,
+          `A parking ${result.name} is updated`,
           Date.now(),
           user._id
         );
@@ -378,41 +378,44 @@ export const UpdateParkingNew = async (req, res) => {
     //   Facilities: facilities
     // });
 
-    const Updated_parking = await Parking.findByIdAndUpdate(req.params.id, {
-      name,
-      title,
-      total_slots,
-      booked_slots,
-      description,
-      price,
-      rating,
-      city,
-      country,
-      address,
-      ...(photos.length > 0 && { $push: { photos: { $each: photos } } }),
-      $addToSet: { Facilities: { $each: facilities } },
-      // Facilities: facilities
-
-    }, { new: true });
+    const Updated_parking = await Parking.findByIdAndUpdate(
+      req.params.id,
+      {
+        name,
+        title,
+        total_slots,
+        booked_slots,
+        description,
+        price,
+        rating,
+        city,
+        country,
+        address,
+        ...(photos.length > 0 && { $push: { photos: { $each: photos } } }),
+        $addToSet: { Facilities: { $each: facilities } },
+        // Facilities: facilities
+      },
+      { new: true }
+    );
 
     // const result = await Updated_parking.save();
     if (Updated_parking) {
-      // createNotificationProperty(
-      //   "Parking",
-      //   "Parking added",
-      //   "Your new parking added",
-      //   Date.now(),
-      //   ownerId
-      // );
-      // (await User.find({ account_type: "admin" })).forEach((user) => {
-      //   createNotificationProperty(
-      //     "Parking",
-      //     "parking added",
-      //     `A parking has been added`,
-      //     Date.now(),
-      //     user._id
-      //   );
-      // })
+      createNotificationProperty(
+        "Parking",
+        "Parking updated",
+        `Your parking ${Updated_parking.name} updated successfully`,
+        Date.now(),
+        result.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "Parking",
+          "parking updated",
+          `A parking ${Updated_parking.name} is updated`,
+          Date.now(),
+          user._id
+        );
+      });
       res.status(201).json({ message: "Parking Added Successfully" });
     } else {
       res.status(500).json({ message: "Parking Cannot be Added" });
@@ -440,16 +443,16 @@ export const updateParkingBookedSlots = async (req, res) => {
     if (result) {
       createNotificationProperty(
         "Parking",
-        "Parking slots updated",
-        "Your parking slots updated",
+        "Parking slots incremented",
+        `Slots of your parking ${result.name} is incremented to ${result.booked_slots}`,
         Date.now(),
         result.ownerId
       );
       (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "Parking",
-          "parking slots added",
-          `A parking slots has been updated`,
+          "Parking slots incremented",
+          `Slots of parking ${result.name} is incremented to ${result.booked_slots}`,
           Date.now(),
           user._id
         );
@@ -497,15 +500,15 @@ export const approveParking = async (req, res) => {
       createNotificationProperty(
         "Parking",
         "Parking approved",
-        "Your parking approved",
+        `Your parking ${result.name} is approved`,
         Date.now(),
         data.ownerId
       );
       (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "Parking",
-          "parking approved",
-          `A parking has been approved`,
+          "Parking approved",
+          `Parking ${result.name} is approved`,
           Date.now(),
           user._id
         );
@@ -553,15 +556,15 @@ export const approveParkingAndUpdateRating = async (req, res) => {
       createNotificationProperty(
         "Parking",
         "Parking approved",
-        "Your parking approved",
+        `Your parking ${result.name} is approved and rating is ${result.rating}`,
         Date.now(),
         data.ownerId
       );
       (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "Parking",
-          "parking approved",
-          `A parking has been approved`,
+          "Parking approved",
+          `Parking ${result.name} is approved and rating is ${result.rating}`,
           Date.now(),
           user._id
         );
@@ -583,7 +586,7 @@ export const deleteParking = async (req, res) => {
       createNotificationProperty(
         "Parking",
         "Parking deleted",
-        "Your new parking deleted",
+        `Your parking ${result.name} deleted`,
         Date.now(),
         result.ownerId
       );
@@ -591,7 +594,7 @@ export const deleteParking = async (req, res) => {
         createNotificationProperty(
           "Parking",
           "parking added",
-          `A parking has been deleted`,
+          `A Your parking ${result.name} deleted`,
           Date.now(),
           user._id
         );
