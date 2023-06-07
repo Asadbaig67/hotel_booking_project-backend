@@ -126,9 +126,6 @@ export const addBooking = async (req, res) => {
       `,
     });
 
-
-
-
     res
       .status(200)
       .json({ msg: "Booking ==> Success", details: booking_success });
@@ -354,7 +351,7 @@ export const addBookingParking = async (req, res) => {
       Total Price: ${total_price} \n
       `,
     });
-    
+
     const parking = await Parking.findById(parkingId);
 
     createNotificationProperty(
@@ -415,6 +412,7 @@ export const getBookingById = async (req, res) => {
       bookingOut.checkOut = new Date(bookingById.checkOut).toLocaleString();
       bookingOut.userId = await User.findById(bookingById.userId);
       bookingOut.canceled = bookingById.canceled;
+      bookingOut.room = bookingById.room;
       if (bookingOut.userId)
         bookingOut.userName =
           bookingOut.userId.firstName + " " + bookingOut.userId.lastName;
@@ -482,9 +480,8 @@ export const getBookingHotelByOwnerId = async (req, res) => {
     bookings = bookings.filter((booking) => booking !== null);
     const result = bookings.flat();
     const data = result.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("Bookings not found");
     // console.log("Error: ", error);
@@ -509,8 +506,8 @@ export const getBookingParkingByOwnerId = async (req, res) => {
     bookings = bookings.filter((booking) => booking !== null);
     const result = bookings.flat();
     const data = result.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("Booking not found");
     // console.log("Error: ", error);
@@ -537,8 +534,8 @@ export const getBookingHotelandParkingByOwnerId = async (req, res) => {
     bookings = bookings.filter((booking) => booking !== null);
     const result = bookings.flat();
     const data = result.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("Bookings not found");
   }
@@ -567,8 +564,8 @@ export const getPreviousBookingHotelByUserId = async (req, res) => {
       );
     });
     const data = filteredResult.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -596,8 +593,8 @@ export const getPreviousBookingParkingByUserId = async (req, res) => {
       );
     });
     const data = filteredResult.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -625,8 +622,8 @@ export const getPreviousBookingHotelandParkingByUserId = async (req, res) => {
       );
     });
     const data = filteredResult.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -651,8 +648,8 @@ export const getUpcomingBookingHotelByUserId = async (req, res) => {
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
     const data = filteredResult.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -677,8 +674,8 @@ export const getUpcomingBookingParkingByUserId = async (req, res) => {
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
     const data = filteredResult.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -703,8 +700,8 @@ export const getUpcomingBookingHotelandParkingByUserId = async (req, res) => {
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
     const data = filteredResult.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -983,7 +980,6 @@ export const cancelHotelReservation = async (req, res) => {
     //   userId
     // );
 
-
     const theUser = await User.findById(userId);
 
     const theHotel = await Hotel.findById(hotelId);
@@ -1068,7 +1064,6 @@ export const cancelParkingReservation = async (req, res) => {
     //     message:
     //       "Reservation is cancelled . Booking will be deleted after sometime",
     //   });
-
 
     const theUser = await User.findById(bookingById.userId);
 
@@ -1409,8 +1404,8 @@ export const getBookingByHotelId = async (req, res) => {
     const bookings = await booking.find({ hotelId: hotelId });
     if (!bookings) return res.status(400).json({ msg: "No Bookings Found" });
     const data = bookings.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     console.log("Error: ", error);
   }
@@ -1423,8 +1418,8 @@ export const getBookingByParkingId = async (req, res) => {
     const bookings = await booking.find({ parkingId: parkingId });
     if (!bookings) return res.status(400).json({ msg: "No Bookings Found" });
     const data = bookings.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     console.log("Error: ", error);
   }
@@ -1439,8 +1434,8 @@ export const getBookingByHotelAndParkingId = async (req, res) => {
     });
     if (!bookings) return res.status(400).json({ msg: "No Bookings Found" });
     const data = bookings.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     console.log("Error: ", error);
   }
@@ -1458,8 +1453,8 @@ export const getUpcommingBookingsByHotelOwnerId = async (req, res) => {
       return bookingCheckIn > currentDate;
     });
     const data = filteredResult.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
   }
@@ -1479,8 +1474,8 @@ export const getUpcommingBookingsByHotelParkingOwnerId = async (req, res) => {
       return bookingCheckIn > currentDate;
     });
     const data = filteredResult.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
   }
@@ -1500,8 +1495,8 @@ export const getUpcommingBookingsByParkingOwnerId = async (req, res) => {
       return bookingCheckIn > currentDate;
     });
     const data = filteredResult.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
   }
@@ -1522,8 +1517,8 @@ export const getUpcommingBookingsByHotelId = async (req, res) => {
       return bookingCheckIn > currentDate;
     });
     const data = filteredResult.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
   }
@@ -1544,8 +1539,8 @@ export const getUpcommingBookingsByHotelParkingId = async (req, res) => {
       return bookingCheckIn > currentDate;
     });
     const data = filteredResult.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
   }
@@ -1566,8 +1561,8 @@ export const getUpcommingBookingsByParkingId = async (req, res) => {
       return bookingCheckIn > currentDate;
     });
     const data = filteredResult.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingOut = await convertIntoRequiredFormat(data);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
   }
