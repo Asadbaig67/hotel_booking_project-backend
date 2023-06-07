@@ -688,8 +688,12 @@ export const getAllPreviousBookingByUserId = async (req, res) => {
 export const getPreviousBookingByHotelOwnerId = async (req, res) => {
   const hotelOwnerId = mongoose.Types.ObjectId(req.params.id);
   try {
-    const hotelIds = await Hotel.find({ ownerId: hotelOwnerId }).select("_id");
+    const hotelIds = (await Hotel.find({ ownerId: hotelOwnerId }).select("_id"));
+    // const ids = hotelIds.map((id) => id._id.toString());
+    // console.log("ids: ", ids);
+    // console.log("hotelIds: ", hotelIds);
     const bookings = await booking.find({ hotelId: { $in: hotelIds } });
+    console.log("bookings: ", bookings);
     let currentDate = new Date();
     const filteredResult = bookings.filter((booking) => {
       const bookingCheckIn = new Date(booking.checkIn);
@@ -700,10 +704,10 @@ export const getPreviousBookingByHotelOwnerId = async (req, res) => {
       );
     });
     const data = filteredResult.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingNew = await convertIntoRequiredFormat(data);
+    res.status(bookingNew.status).json(bookingNew.data);
   } catch (error) {
-    res.status(404).json("No Booking Found");
+    res.status(404).json({ message: "No Booking Found", error });
   }
 
 };
@@ -726,8 +730,8 @@ export const getPreviousBookingByParkingOwnerId = async (req, res) => {
       );
     });
     const data = filteredResult.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingNew = await convertIntoRequiredFormat(data);
+    res.status(bookingNew.status).json(bookingNew.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
   }
@@ -753,8 +757,8 @@ export const getPreviousBookingByHotelAndParkingOwnerId = async (req, res) => {
       );
     });
     const data = filteredResult.filter((booking) => booking.canceled === false);
-    const booking = await convertIntoRequiredFormat(data);
-    res.status(booking.status).json(booking.data);
+    const bookingNew = await convertIntoRequiredFormat(data);
+    res.status(bookingNew.status).json(bookingNew.data);
   } catch (error) {
     res.status(404).json("No Booking Found");
   }
