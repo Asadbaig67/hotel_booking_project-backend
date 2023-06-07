@@ -467,6 +467,46 @@ export const getBookingByType = async (req, res) => {
   }
 };
 
+// Get Chart Data For Hotel Function
+export const getBookingChartDataForHotel = async (req, res) => {
+  try {
+    const result = await booking.find({ $and: [{ canceled: false }, { Booking_type: "hotel" }] });
+    if (!result) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    const data = getData(result);
+    res.send(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+// Get Chart Data For Hotel Function
+export const getBookingChartDataForHotelandParking = async (req, res) => {
+  try {
+    const result = await booking.find({ $and: [{ canceled: false }, { Booking_type: "hotelandparking" }] });
+    if (!result) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    const data = getData(result);
+    res.send(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+// Get Chart Data For Hotel Function
+export const getBookingChartDataForParking = async (req, res) => {
+  try {
+    const result = await booking.find({ $and: [{ canceled: false }, { Booking_type: "parking" }] });
+    if (!result) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    const data = getData(result);
+    res.send(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 // Get Specific Booking By Owner Id
 export const getBookingHotelByOwnerId = async (req, res) => {
   const ownerId = mongoose.Types.ObjectId(req.params.id);

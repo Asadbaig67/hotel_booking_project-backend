@@ -7,6 +7,7 @@ import { getRoomByPrices } from "../Functions/Hotel/getRoomsPrices.js";
 import { fileURLToPath } from "url";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import { SendEmail } from "../Functions/Emails/SendEmail.js";
+import { getData } from "../Functions/ChartData/GetData.js"
 import path from "path";
 import fs from "fs";
 
@@ -449,9 +450,12 @@ export const approveHotel = async (req, res) => {
     if (data.approved === true) {
       return res.status(200).json({ message: "Hotel Already Approved" });
     }
+
+    const currentDate = new Date();
+
     const result = await Hotel.findByIdAndUpdate(
       req.params.id,
-      { approved: true },
+      { approved: true, createdAt: currentDate },
       { new: true }
     );
 
@@ -559,6 +563,21 @@ export const approveHotelAndUpdateRating = async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
+
+// Get Chart Data For Hotel Function
+export const getChartDataForHotel = async (req, res) => {
+  try {
+    const result = await Hotel.find({ approved: true });
+    if (!result) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    const data = getData(result);
+    res.send(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 // Delete Parking Function
 export const deleteHotel = async (req, res) => {
   try {

@@ -256,6 +256,20 @@ export const getParkingBySearch = async (req, res) => {
   }
 };
 
+// Get Chart Data For Parking Function
+export const getChartDataForParking = async (req, res) => {
+  try {
+    const result = await Parking.find({ approved: true });
+    if (!result) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    const data = getData(result);
+    res.send(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 // Update Parking Function
 export const updateParking = async (req, res) => {
   try {
@@ -474,9 +488,11 @@ export const approveParking = async (req, res) => {
     if (data.approved)
       return res.status(422).json({ message: "Parking Already Approved" });
 
+    const currentDate = new Date();
+
     const result = await Parking.findOneAndUpdate(
       { _id: req.params.id },
-      { approved: true },
+      { approved: true, approvedAt: currentDate },
       { new: true }
     );
 

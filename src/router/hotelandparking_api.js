@@ -21,6 +21,7 @@ import {
   deleteParkingImages,
   getHotelById,
   approveHotelAndParkingAndRating,
+  getChartDataForHotel,
 } from "../controller/hotelandparking.js";
 
 const Router = express.Router();
@@ -57,6 +58,8 @@ Router.get(
 );
 // Search Hotel And Parking By Search Query
 Router.get("/search", getHotelAndParkingBySearch);
+// Get Chart Data For Admin Hotel
+Router.get("/chart/hotelandparkingData", getChartDataForHotel);
 // Update Hotel And Parking New
 Router.patch("/updatehotelandparkingdata/:id", updateHotelAndParkingNew);
 // Update Hotel And Parking Booked Slots

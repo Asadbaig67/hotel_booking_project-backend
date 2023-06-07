@@ -16,6 +16,7 @@ import {
   UpdateParkingNew,
   deleteParkingImages,
   approveParkingAndUpdateRating,
+  getChartDataForParking,
 } from "../controller/parking.js";
 
 const Router = express.Router();
@@ -38,6 +39,8 @@ Router.get("/getParkingByOwnerId/:id", getParkingByOwnerId);
 Router.get("/getApprovedParkingByOwnerId/:id", getApprovedParkingByOwnerId);
 //Get unapproved Parking By Owner Id Route
 Router.get("/getUnapprovedParkingByOwnerId/:id", getUnapprovedParkingByOwnerId);
+// Get Chart Data For Admin Hotel
+Router.get("/chart/parkingData", getChartDataForParking);
 // Update Parking Route
 Router.patch("/updateparking/:id", updateParking);
 // Update Parking New

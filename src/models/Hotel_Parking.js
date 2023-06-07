@@ -84,6 +84,9 @@ const HotelandParkingschema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  createdAt: {
+    type: Date,
+  },
 });
 // createing a new collection
 const HotelandParking = mongoose.model(

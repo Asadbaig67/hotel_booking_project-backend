@@ -63,6 +63,9 @@ const parkingschema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  createdAt: {
+    type: Date,
+  },
 });
 
 // createing a new collection

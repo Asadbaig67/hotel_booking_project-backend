@@ -398,6 +398,20 @@ export const getHotelAndParkingBySearch = async (req, res) => {
   res.status(200).json(hotelData);
 };
 
+// Get Chart Data For Hotel And Parking Function
+export const getChartDataForHotel = async (req, res) => {
+  try {
+    const result = await HotelandParking.find({ approved: true });
+    if (!result) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+    const data = getData(result);
+    res.send(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 // Update Hotel And Parking
 export const updateHotelAndParking = async (req, res) => {
   try {
@@ -675,9 +689,11 @@ export const approveHotelAndParking = async (req, res) => {
         .json({ message: "Hotel And Parking Already Approved" });
     }
 
+    const currentDate = new Date();
+
     const result = await HotelandParking.findByIdAndUpdate(
       req.params.id,
-      { approved: true },
+      { approved: true, createdAt: currentDate },
       { new: true }
     );
     if (result) {

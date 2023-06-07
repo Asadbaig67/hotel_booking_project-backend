@@ -49,7 +49,11 @@ import {
   getAllUpcomingBooking,
   getAllPreviousBookingByUserId,
   getAllUpcomingBookingByUserId,
+  getBookingChartDataForHotel,
+  getBookingChartDataForHotelandParking,
+  getBookingChartDataForParking,
 } from "../controller/booking.js";
+import { get } from "mongoose";
 
 // Add Hotel Booking
 router.post("/addBooking", addBooking);
@@ -102,6 +106,16 @@ router.get(
   "/getPreviousBookingsByHotelOwnerId/:id",
   getPreviousBookingByHotelOwnerId
 );
+
+// Get Hotel Booking Data For Chart
+router.get("/chart/hotelbookings", getBookingChartDataForHotel);
+
+// Get Hotel Booking Data For Chart
+router.get("/chart/hotelandparkingbookings", getBookingChartDataForHotelandParking);
+
+// Get Hotel Booking Data For Chart
+router.get("/chart/parkingbookings", getBookingChartDataForParking);
+
 
 // Get Previous Bookings By Parking Owner Id
 router.get(
