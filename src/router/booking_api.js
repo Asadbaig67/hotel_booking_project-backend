@@ -42,6 +42,11 @@ import {
   freeBookedParkingSlotsByBookingId,
   freeBookedHotelAndParkingByBookingId,
   freeBookedHotelRoomsByBookingId,
+  getAllPreviousBooking,
+  getPreviousBookingByHotelOwnerId,
+  getPreviousBookingByParkingOwnerId,
+  getPreviousBookingByHotelAndParkingOwnerId,
+  getAllUpcomingBooking,
 } from "../controller/booking.js";
 
 // Add Hotel Booking
@@ -83,6 +88,32 @@ router.get(
   "/getPreviousBookingHotelandParkingByUserId/:id",
   getPreviousBookingHotelandParkingByUserId
 );
+
+// Get All Previous Bookings
+router.get("/getAllPreviousBookings", getAllPreviousBooking);
+
+// Get Previous Bookings By Hotel Owner Id
+router.get(
+  "/getPreviousBookingsByHotelOwnerId/:id",
+  getPreviousBookingByHotelOwnerId
+);
+
+// Get Previous Bookings By Parking Owner Id
+router.get(
+  "/getPreviousBookingsByParkingOwnerId/:id",
+  getPreviousBookingByParkingOwnerId
+);
+
+// Get Previous Bookings By Hotel And Parking Owner Id
+router.get(
+  "/getPreviousBookingsByHotelAndParkingOwnerId/:id",
+  getPreviousBookingByHotelAndParkingOwnerId
+);
+
+
+// Get All Upcomming Bookings
+router.get("/getAllUpcommingBookings", getAllPreviousBooking);
+
 
 //Get Upcoming hotel booking by user id
 router.get(

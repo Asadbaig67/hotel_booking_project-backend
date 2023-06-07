@@ -159,6 +159,7 @@ export const addhotelandparking = async (req, res) => {
 
     // If Hotel and Parking saved successfully
     if (result) {
+
       createNotificationProperty(
         "hotel and parking",
         "Hotel and Parking Added",
@@ -166,15 +167,15 @@ export const addhotelandparking = async (req, res) => {
         Date.now(),
         result.ownerId
       );
-      (await User.find({ account_type: "admin" })).forEach((user) => {
-        createNotificationProperty(
-          "hotel and parking",
-          "Hotel and Parking Added",
-          `New Your hotel and parking ${result.hotel_name} is added successfully by ${result.ownerId}`,
-          Date.now(),
-          user._id
-        );
-      });
+      // (await User.find({ account_type: "admin" })).forEach((user) => {
+      //   createNotificationProperty(
+      //     "hotel and parking",
+      //     "Hotel and Parking Added",
+      //     `New Your hotel and parking ${result.hotel_name} is added successfully by ${result.ownerId}`,
+      //     Date.now(),
+      //     user._id
+      //   );
+      // });
 
       const Owner = await User.findById(ownerId);
 
