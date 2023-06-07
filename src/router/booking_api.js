@@ -47,6 +47,8 @@ import {
   getPreviousBookingByParkingOwnerId,
   getPreviousBookingByHotelAndParkingOwnerId,
   getAllUpcomingBooking,
+  getAllPreviousBookingByUserId,
+  getAllUpcomingBookingByUserId,
 } from "../controller/booking.js";
 
 // Add Hotel Booking
@@ -92,6 +94,9 @@ router.get(
 // Get All Previous Bookings
 router.get("/getAllPreviousBookings", getAllPreviousBooking);
 
+// Get All Previous Bookings By User Id
+router.get("/getAllPreviousBookingsByUserId/:id", getAllPreviousBookingByUserId);
+
 // Get Previous Bookings By Hotel Owner Id
 router.get(
   "/getPreviousBookingsByHotelOwnerId/:id",
@@ -112,7 +117,10 @@ router.get(
 
 
 // Get All Upcomming Bookings
-router.get("/getAllUpcommingBookings", getAllPreviousBooking);
+router.get("/getAllUpcommingBookings", getAllUpcomingBooking);
+
+// Get All Upcomming Bookings By User Id
+router.get("/getAllUpcommingBookingsByUserId/:id", getAllUpcomingBookingByUserId);
 
 
 //Get Upcoming hotel booking by user id

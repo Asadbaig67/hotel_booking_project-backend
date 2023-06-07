@@ -658,6 +658,32 @@ export const getAllPreviousBooking = async (req, res) => {
   }
 };
 
+// Get All Previous Bookings Function
+export const getAllPreviousBookingByUserId = async (req, res) => {
+  const userId = mongoose.Types.ObjectId(req.params.id);
+  try {
+
+    const bookings = await booking.find({ userId });
+
+    bookings = bookings.filter((booking) => booking.canceled === false);
+
+    let currentDate = new Date();
+
+    const filteredResult = bookings.filter((booking) => {
+      const bookingCheckIn = new Date(booking.checkIn);
+      const bookingCheckOut = new Date(booking.checkOut);
+      return (
+        (bookingCheckIn < currentDate && bookingCheckOut < currentDate) ||
+        (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate)
+      );
+    });
+
+    res.status(200).json(filteredResult);
+  } catch (error) {
+    res.status(404).json("Booking not found");
+  }
+};
+
 // Get Previous Booking By Hotel Owner Id
 export const getPreviousBookingByHotelOwnerId = async (req, res) => {
   const hotelOwnerId = mongoose.Types.ObjectId(req.params.id);
@@ -821,7 +847,29 @@ export const getAllUpcomingBooking = async (req, res) => {
     bookings = bookings.filter((booking) => booking.canceled === false);
     let currentDate = new Date();
 
-    const filteredResult = result.filter((booking) => {
+    const filteredResult = bookings.filter((booking) => {
+      const bookingCheckIn = new Date(booking.checkIn);
+      const bookingCheckOut = new Date(booking.checkOut);
+      return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
+    });
+
+    res.status(200).json(filteredResult);
+  } catch (error) {
+    res.status(404).json("Booking not found");
+  }
+};
+
+
+// Get All Upcomming Bookings By UserId
+export const getAllUpcomingBookingByUserId = async (req, res) => {
+  const userId = mongoose.Types.ObjectId(req.params.id);
+  try {
+
+    const bookings = await booking.find({ userId });
+    bookings = bookings.filter((booking) => booking.canceled === false);
+    let currentDate = new Date();
+
+    const filteredResult = bookings.filter((booking) => {
       const bookingCheckIn = new Date(booking.checkIn);
       const bookingCheckOut = new Date(booking.checkOut);
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
