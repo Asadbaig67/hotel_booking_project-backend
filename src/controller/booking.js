@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Promise } from "mongoose";
 import booking from "../models/booking.js";
 import Parking from "../models/Parking.js";
 import Hotel from "../models/Hotel.js";
@@ -481,6 +481,166 @@ export const getBookingChartDataForHotel = async (req, res) => {
     console.log(error);
   }
 };
+
+// Get Chart Data For Hotel Function
+export const getCombinedBookingChartDataForHotelPartner = async (req, res) => {
+  const ownerId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    // get all hotels of this owner
+    const hotels = await Hotel.find({ ownerId });
+
+    // get all bookings of these hotels
+    const hotelIds = hotels.map((hotel) => hotel._id);
+    const result = await booking.find({ $and: [{ canceled: false }, { Booking_type: "hotel" }, { hotelId: { $in: hotelIds } }] });
+
+    if (!result) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+
+    const data = getData(result);
+
+    res.send(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Get Chart Data For Hotel Function
+export const getBookingChartDataForHotelPartner = async (req, res) => {
+  const ownerId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    // get all hotels of this owner
+    let hotels = await Hotel.find({ ownerId });
+
+    // get all bookings of these hotels
+    const hotelIds = Object.values(hotels).map((hotel) => hotel._id);
+    const result = await booking.find({ $and: [{ canceled: false }, { Booking_type: "hotel" }, { hotelId: { $in: hotelIds } }] });
+
+    if (!result) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+
+    const DataArray = hotelIds.map((hotelId) => {
+      const hotelBookings = result.filter((booking) => booking.hotelId.toString() === hotelId.toString());
+      const data = getData(hotelBookings);
+      return data;
+    });
+
+    res.send(DataArray);
+
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Get Chart Data For Hotel Function
+export const getCombinedBookingChartDataForHotelParkingPartner = async (req, res) => {
+  const ownerId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    // get all hotels of this owner
+    const hotels = await Hotel.find({ ownerId });
+
+    // get all bookings of these hotels
+    const hotelIds = hotels.map((hotel) => hotel._id);
+    const result = await booking.find({ $and: [{ canceled: false }, { Booking_type: "hotelandparking" }, { HotelAndParkingId: { $in: hotelIds } }] });
+
+    if (!result) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+
+    const data = getData(result);
+
+    res.send(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Get Chart Data For Hotel Function
+export const getBookingChartDataForHotelParkingPartner = async (req, res) => {
+  const ownerId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    // get all hotels of this owner
+    let hotels = await Hotel.find({ ownerId });
+
+    // get all bookings of these hotels
+    const hotelIds = Object.values(hotels).map((hotel) => hotel._id);
+    const result = await booking.find({ $and: [{ canceled: false }, { Booking_type: "hotelandparking" }, { HotelAndParkingId: { $in: hotelIds } }] });
+
+    if (!result) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+
+    const DataArray = hotelIds.map((hotelId) => {
+      const hotelBookings = result.filter((booking) => booking.HotelAndParkingId.toString() === hotelId.toString());
+      const data = getData(hotelBookings);
+      return data;
+    });
+
+    res.send(DataArray);
+
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+
+// Get Chart Data For Hotel Function
+export const getCombinedBookingChartDataForParkingPartner = async (req, res) => {
+  const ownerId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    // get all hotels of this owner
+    const parkings = await Hotel.find({ ownerId });
+
+    // get all bookings of these hotels
+    const parkingIds = parkings.map((parking) => parking._id);
+    const result = await booking.find({ $and: [{ canceled: false }, { Booking_type: "parking" }, { parkingId: { $in: parkingIds } }] });
+
+    if (!result) {
+      return res.status(404).json({ message: "No parkings found" });
+    }
+
+    const data = getData(result);
+
+    res.send(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Get Chart Data For Hotel Function
+export const getBookingChartDataForParkingPartner = async (req, res) => {
+  const ownerId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    // get all hotels of this owner
+    let parkings = await Hotel.find({ ownerId });
+
+    // get all bookings of these hotels
+    const parkingIds = Object.values(parkings).map((parking) => parking._id);
+    const result = await booking.find({ $and: [{ canceled: false }, { Booking_type: "hotelandparking" }, { parkingId: { $in: parkingIds } }] });
+
+    if (!result) {
+      return res.status(404).json({ message: "No hotels found" });
+    }
+
+    const DataArray = parkingIds.map((parkingId) => {
+      const parkingBookings = result.filter((booking) => booking.parkingId.toString() === parkingId.toString());
+      const data = getData(parkingBookings);
+      return data;
+    });
+
+    res.send(DataArray);
+
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+
+
+
 // Get Chart Data For Hotel Function
 export const getBookingChartDataForHotelandParking = async (req, res) => {
   try {
@@ -683,6 +843,31 @@ export const getPreviousBookingHotelandParkingByUserId = async (req, res) => {
 export const getAllPreviousBooking = async (req, res) => {
   try {
     let bookings = await booking.find();
+
+    bookings = bookings.filter((booking) => booking.canceled === false);
+
+    let currentDate = new Date();
+
+    const filteredResult = bookings.filter((booking) => {
+      const bookingCheckIn = new Date(booking.checkIn);
+      const bookingCheckOut = new Date(booking.checkOut);
+      return (
+        (bookingCheckIn < currentDate && bookingCheckOut < currentDate) ||
+        (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate)
+      );
+    });
+
+    res.status(200).json(filteredResult);
+  } catch (error) {
+    res.status(404).json("Booking not found");
+  }
+};
+
+// Get All Previous Bookings Function
+export const GetPrevTotalBookingByUserId = async (req, res) => {
+  const userId = mongoose.Types.ObjectId(req.params.id);
+  try {
+    let bookings = await booking.find({ userId });
 
     bookings = bookings.filter((booking) => booking.canceled === false);
 
