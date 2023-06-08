@@ -293,7 +293,6 @@ export const addBookingParking = async (req, res) => {
   // checkIn = new Date(checkIn);
   // checkOut = new Date(checkOut);
   parking = JSON.parse(parking);
-  console.log("parking: ", parking);
   const createdAt = Date.now();
   let total_price = parking.Total_slots * parking.Parking_price;
   let slots = parking.Total_slots;
@@ -733,7 +732,7 @@ export const getPreviousBookingByHotelOwnerId = async (req, res) => {
     // console.log("ids: ", ids);
     // console.log("hotelIds: ", hotelIds);
     const bookings = await booking.find({ hotelId: { $in: hotelIds } });
-    console.log("bookings: ", bookings);
+    // console.log("bookings: ", bookings);
     let currentDate = new Date();
     const filteredResult = bookings.filter((booking) => {
       const bookingCheckIn = new Date(booking.checkIn);
@@ -1344,7 +1343,7 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
     const hotelparkingId = bookingById.HotelAndParkingId.toString();
     const booked_slots = bookingById.parking.Total_slots;
 
-    console.log("hotelparkingId = ", hotelparkingId);
+    // console.log("hotelparkingId = ", hotelparkingId);
 
     const updatedHotelParking = await HotelandParking.findByIdAndUpdate(
       hotelparkingId,

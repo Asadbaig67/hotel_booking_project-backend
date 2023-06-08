@@ -8,6 +8,7 @@ import { checkRoomAndParkingAvailability } from "../Functions/HotelParking/check
 import { getRoomByPrices } from "../Functions/Hotel/getRoomsPrices.js";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import fs from "fs";
+import { getData } from "../Functions/ChartData/GetData.js";
 
 // Add Hotel And Parking Function
 export const addhotelandparking = async (req, res) => {
@@ -159,7 +160,6 @@ export const addhotelandparking = async (req, res) => {
 
     // If Hotel and Parking saved successfully
     if (result) {
-
       createNotificationProperty(
         "hotel and parking",
         "Hotel and Parking Added",
@@ -184,7 +184,8 @@ export const addhotelandparking = async (req, res) => {
         name: Owner.firstName + " " + Owner.lastName,
         email: Owner.email,
         subject: "Hotel And Parking Added",
-        message: "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
+        message:
+          "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
       });
 
       res.status(201).json({ message: "Hotel and Parking Added Successfully" });
@@ -715,7 +716,8 @@ export const approveHotelAndParking = async (req, res) => {
         name: user.firstName + " " + user.lastName,
         email: user.email,
         subject: "Hotel Approved",
-        message: "Your hotel has been approved successfully. Thank you for choosing Desalis Hotels.",
+        message:
+          "Your hotel has been approved successfully. Thank you for choosing Desalis Hotels.",
       });
     }
     if (result) {
