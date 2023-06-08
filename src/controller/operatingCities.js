@@ -66,6 +66,24 @@ export const addOperatingHotelCity = async (req, res) => {
   }
 };
 
+export const getAllOperatingCities= async (req, res) => {
+  try {
+    const operatingCities = await OperatingCities.find();
+    if (operatingCities) {
+      operatingCities.forEach((operatingCity) => {
+        operatingCity.cities.forEach((city) => {
+          city.city = city.city.charAt(0).toUpperCase() + city.city.slice(1);
+        });
+      });
+      return res.status(200).json(operatingCities);
+    } else {
+      return res.status(200).json([]);
+    }
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+}
+
 export const getHotelOperatingCities = async (req, res) => {
   try {
     const operatingCities = await OperatingCities.findOne({

@@ -403,9 +403,9 @@ export const getHotelAndParkingBySearch = async (req, res) => {
 export const getChartDataForHotel = async (req, res) => {
   try {
     const result = await HotelandParking.find({ approved: true });
-    if (!result) {
-      return res.status(404).json({ message: "No hotels found" });
-    }
+    // if (!result) {
+    //   return res.status(404).json({ message: "No hotels found" });
+    // }
     const data = getData(result);
     res.send(data);
   } catch (error) {
