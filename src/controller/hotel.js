@@ -7,7 +7,7 @@ import { getRoomByPrices } from "../Functions/Hotel/getRoomsPrices.js";
 import { fileURLToPath } from "url";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import { SendEmail } from "../Functions/Emails/SendEmail.js";
-import { getData } from "../Functions/ChartData/GetData.js"
+import { getData } from "../Functions/ChartData/GetData.js";
 import path from "path";
 import fs from "fs";
 
@@ -106,7 +106,6 @@ export const addHotel = async (req, res) => {
         );
       });
 
-
       const Owner = await User.findById(ownerId);
 
       // Send Email
@@ -114,9 +113,9 @@ export const addHotel = async (req, res) => {
         name: Owner.firstName + " " + Owner.lastName,
         email: Owner.email,
         subject: "Hotel Added",
-        message: "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
+        message:
+          "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
       });
-
 
       return res.status(201).json({ message: "Hotel Added Successfully" });
     } else {
@@ -479,7 +478,8 @@ export const approveHotel = async (req, res) => {
         name: user.firstName + " " + user.lastName,
         email: user.email,
         subject: "Hotel Approved",
-        message: "Your hotel has been approved successfully. Thank you for choosing Desalis Hotels.",
+        message:
+          "Your hotel has been approved successfully. Thank you for choosing Desalis Hotels.",
       });
     }
 
@@ -569,10 +569,10 @@ export const getChartDataForHotel = async (req, res) => {
   try {
     const result = await Hotel.find({ approved: true });
     if (!result) {
-      return res.status(404).json({ message: "No hotels found" });
+      return res.status(200).json(new Array(12).fill(0));
     }
     const data = getData(result);
-    res.send(data);
+    res.status(200).send(data);
   } catch (error) {
     console.log(error);
   }

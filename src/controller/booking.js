@@ -284,7 +284,6 @@ export const addBookingHotelAndParking = async (req, res) => {
 
 // Add Parking Booking Function Updated
 export const addBookingParking = async (req, res) => {
-
   let { userId, parkingId, checkIn, checkOut, parking } = req.query;
 
   if (!userId || !parkingId || !parking || !checkIn || !checkOut) {
@@ -294,7 +293,6 @@ export const addBookingParking = async (req, res) => {
   // checkIn = new Date(checkIn);
   // checkOut = new Date(checkOut);
   parking = JSON.parse(parking);
-  console.log("parking: ", parking);
   const createdAt = Date.now();
   let total_price = parking.Total_slots * parking.Parking_price;
   let slots = parking.Total_slots;
@@ -471,7 +469,9 @@ export const getBookingByType = async (req, res) => {
 // Get Chart Data For Hotel Function
 export const getBookingChartDataForHotel = async (req, res) => {
   try {
-    const result = await booking.find({ $and: [{ canceled: false }, { Booking_type: "hotel" }] });
+    const result = await booking.find({
+      $and: [{ canceled: false }, { Booking_type: "hotel" }],
+    });
     if (!result) {
       return res.status(404).json({ message: "No hotels found" });
     }
@@ -644,7 +644,9 @@ export const getBookingChartDataForParkingPartner = async (req, res) => {
 // Get Chart Data For Hotel Function
 export const getBookingChartDataForHotelandParking = async (req, res) => {
   try {
-    const result = await booking.find({ $and: [{ canceled: false }, { Booking_type: "hotelandparking" }] });
+    const result = await booking.find({
+      $and: [{ canceled: false }, { Booking_type: "hotelandparking" }],
+    });
     if (!result) {
       return res.status(404).json({ message: "No hotels found" });
     }
@@ -657,7 +659,9 @@ export const getBookingChartDataForHotelandParking = async (req, res) => {
 // Get Chart Data For Hotel Function
 export const getBookingChartDataForParking = async (req, res) => {
   try {
-    const result = await booking.find({ $and: [{ canceled: false }, { Booking_type: "parking" }] });
+    const result = await booking.find({
+      $and: [{ canceled: false }, { Booking_type: "parking" }],
+    });
     if (!result) {
       return res.status(404).json({ message: "No hotels found" });
     }
@@ -888,8 +892,7 @@ export const GetPrevTotalBookingByUserId = async (req, res) => {
 export const getAllPreviousBookingByUserId = async (req, res) => {
   const userId = mongoose.Types.ObjectId(req.params.id);
   try {
-
-    const bookings = await booking.find({ userId });
+    let bookings = await booking.find({ userId });
 
     bookings = bookings.filter((booking) => booking.canceled === false);
 
@@ -903,8 +906,8 @@ export const getAllPreviousBookingByUserId = async (req, res) => {
         (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate)
       );
     });
-
-    res.status(200).json(filteredResult);
+    const bookingOut = await convertIntoRequiredFormat(filteredResult);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -914,12 +917,12 @@ export const getAllPreviousBookingByUserId = async (req, res) => {
 export const getPreviousBookingByHotelOwnerId = async (req, res) => {
   const hotelOwnerId = mongoose.Types.ObjectId(req.params.id);
   try {
-    const hotelIds = (await Hotel.find({ ownerId: hotelOwnerId }).select("_id"));
+    const hotelIds = await Hotel.find({ ownerId: hotelOwnerId }).select("_id");
     // const ids = hotelIds.map((id) => id._id.toString());
     // console.log("ids: ", ids);
     // console.log("hotelIds: ", hotelIds);
     const bookings = await booking.find({ hotelId: { $in: hotelIds } });
-    console.log("bookings: ", bookings);
+    // console.log("bookings: ", bookings);
     let currentDate = new Date();
     const filteredResult = bookings.filter((booking) => {
       const bookingCheckIn = new Date(booking.checkIn);
@@ -935,7 +938,6 @@ export const getPreviousBookingByHotelOwnerId = async (req, res) => {
   } catch (error) {
     res.status(404).json({ message: "No Booking Found", error });
   }
-
 };
 
 // Get Previous Booking By Parking Owner Id
@@ -989,7 +991,6 @@ export const getPreviousBookingByHotelAndParkingOwnerId = async (req, res) => {
     res.status(404).json("No Booking Found");
   }
 };
-
 
 //Get Upcoming Hotel Booking By User Id
 export const getUpcomingBookingHotelByUserId = async (req, res) => {
@@ -1072,7 +1073,6 @@ export const getUpcomingBookingHotelandParkingByUserId = async (req, res) => {
 // Get All Upcomming Bookings
 export const getAllUpcomingBooking = async (req, res) => {
   try {
-
     let bookings = await booking.find();
     bookings = bookings.filter((booking) => booking.canceled === false);
     let currentDate = new Date();
@@ -1089,13 +1089,11 @@ export const getAllUpcomingBooking = async (req, res) => {
   }
 };
 
-
 // Get All Upcomming Bookings By UserId
 export const getAllUpcomingBookingByUserId = async (req, res) => {
   const userId = mongoose.Types.ObjectId(req.params.id);
   try {
-
-    const bookings = await booking.find({ userId });
+    let bookings = await booking.find({ userId });
     bookings = bookings.filter((booking) => booking.canceled === false);
     let currentDate = new Date();
 
@@ -1105,7 +1103,8 @@ export const getAllUpcomingBookingByUserId = async (req, res) => {
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
 
-    res.status(200).json(filteredResult);
+    const reult = await convertIntoRequiredFormat(filteredResult);
+    res.status(reult.status).json(reult.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -1530,7 +1529,7 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
     const hotelparkingId = bookingById.HotelAndParkingId.toString();
     const booked_slots = bookingById.parking.Total_slots;
 
-    console.log("hotelparkingId = ", hotelparkingId);
+    // console.log("hotelparkingId = ", hotelparkingId);
 
     const updatedHotelParking = await HotelandParking.findByIdAndUpdate(
       hotelparkingId,
