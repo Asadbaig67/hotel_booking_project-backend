@@ -707,7 +707,7 @@ export const getAllPreviousBooking = async (req, res) => {
 export const getAllPreviousBookingByUserId = async (req, res) => {
   const userId = mongoose.Types.ObjectId(req.params.id);
   try {
-    const bookings = await booking.find({ userId });
+    let bookings = await booking.find({ userId });
 
     bookings = bookings.filter((booking) => booking.canceled === false);
 
@@ -721,8 +721,8 @@ export const getAllPreviousBookingByUserId = async (req, res) => {
         (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate)
       );
     });
-
-    res.status(200).json(filteredResult);
+    const bookingOut = await convertIntoRequiredFormat(filteredResult);
+    res.status(bookingOut.status).json(bookingOut.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -908,7 +908,7 @@ export const getAllUpcomingBooking = async (req, res) => {
 export const getAllUpcomingBookingByUserId = async (req, res) => {
   const userId = mongoose.Types.ObjectId(req.params.id);
   try {
-    const bookings = await booking.find({ userId });
+    let bookings = await booking.find({ userId });
     bookings = bookings.filter((booking) => booking.canceled === false);
     let currentDate = new Date();
 
@@ -918,7 +918,8 @@ export const getAllUpcomingBookingByUserId = async (req, res) => {
       return bookingCheckIn > currentDate && bookingCheckOut > currentDate;
     });
 
-    res.status(200).json(filteredResult);
+    const reult = await convertIntoRequiredFormat(filteredResult);
+    res.status(reult.status).json(reult.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
