@@ -52,6 +52,13 @@ import {
   getBookingChartDataForHotel,
   getBookingChartDataForHotelandParking,
   getBookingChartDataForParking,
+  getCombinedBookingChartDataForHotelPartner,
+  getBookingChartDataForHotelPartner,
+  getCombinedBookingChartDataForHotelParkingPartner,
+  getCombinedBookingChartDataForParkingPartner,
+  getBookingChartDataForHotelParkingPartner,
+  getBookingChartDataForParkingPartner
+
 } from "../controller/booking.js";
 import { get } from "mongoose";
 
@@ -115,6 +122,24 @@ router.get("/chart/hotelandparkingbookings", getBookingChartDataForHotelandParki
 
 // Get Hotel Booking Data For Chart
 router.get("/chart/parkingbookings", getBookingChartDataForParking);
+
+// Get Combined Partner Hotel Chart Data
+router.get("/chart/combinedpartnerhotel/:id", getCombinedBookingChartDataForHotelPartner);
+
+// Get Partner Hotel Booking Data For Chart For All Hotels
+router.get("/chart/partnerhotelbookings/:id", getBookingChartDataForHotelPartner);
+
+// Get Combined Partner Hotel Chart Data
+router.get("/chart/combinedpartnerhotelparking/:id", getCombinedBookingChartDataForHotelParkingPartner);
+
+// Get Partner Hotel Booking Data For Chart For All Hotels
+router.get("/chart/partnerhotelparkingbookings/:id", getBookingChartDataForHotelParkingPartner);
+
+// Get Combined Partner Hotel Chart Data
+router.get("/chart/combinedpartnerparking/:id", getCombinedBookingChartDataForParkingPartner);
+
+// Get Partner Hotel Booking Data For Chart For All Hotels
+router.get("/chart/partnerparkingbookings/:id", getBookingChartDataForParkingPartner);
 
 
 // Get Previous Bookings By Parking Owner Id
