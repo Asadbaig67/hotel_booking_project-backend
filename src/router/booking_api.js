@@ -53,7 +53,7 @@ import {
   getBookingChartDataForHotelandParking,
   getBookingChartDataForParking,
 } from "../controller/booking.js";
-import { get } from "mongoose";
+
 
 // Add Hotel Booking
 router.post("/addBooking", addBooking);

@@ -47,6 +47,6 @@ export const convertIntoRequiredFormat = async (data) => {
     })
   );
 
-  if (bookingOut.length === 0) return { status: 400, data: [] };
+  if (bookingOut.length === 0) return { status: 200, data: [] };
   else return { status: 200, data: bookingOut };
 };
