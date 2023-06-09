@@ -57,8 +57,12 @@ import {
   getCombinedBookingChartDataForHotelParkingPartner,
   getCombinedBookingChartDataForParkingPartner,
   getBookingChartDataForHotelParkingPartner,
-  getBookingChartDataForParkingPartner
-
+  getBookingChartDataForParkingPartner,
+  getUserBookingChartDataForHotel,
+  getUserBookingChartDataForParking,
+  getUserBookingChartDataForHotelAndParking,
+  getUserAllBookingChartData,
+  getAllBookingsByUserId
 } from "../controller/booking.js";
 
 
@@ -78,6 +82,8 @@ router.get("/getBookingByType/:type", getBookingByType);
 router.get("/getBookingHotelByOwnerId/:id", getBookingHotelByOwnerId);
 //Get Specific Parking Booking By Owner Id
 router.get("/getBookingParkingByOwnerId/:id", getBookingParkingByOwnerId);
+//Get all bookings by userId
+router.get("/getAllBookingsByUserId/:id", getAllBookingsByUserId);
 //Get Specific Hotel Booking By Owner Id
 router.get(
   "/getBookingHotelandParkingByOwnerId/:id",
@@ -115,13 +121,13 @@ router.get(
 );
 
 // Get Hotel Booking Data For Chart
-router.get("/chart/hotelbookings", getBookingChartDataForHotel);
+router.get("/chart/hotelbookings/:id", getBookingChartDataForHotel);
 
-// Get Hotel Booking Data For Chart
-router.get("/chart/hotelandparkingbookings", getBookingChartDataForHotelandParking);
+// Get Hotel and parking Booking Data For Chart
+router.get("/chart/hotelandparkingbookings/:id", getBookingChartDataForHotelandParking);
 
-// Get Hotel Booking Data For Chart
-router.get("/chart/parkingbookings", getBookingChartDataForParking);
+// Get parking Booking Data For Chart
+router.get("/chart/parkingbookings/:id", getBookingChartDataForParking);
 
 // Get Combined Partner Hotel Chart Data
 router.get("/chart/combinedpartnerhotel/:id", getCombinedBookingChartDataForHotelPartner);
@@ -141,6 +147,17 @@ router.get("/chart/combinedpartnerparking/:id", getCombinedBookingChartDataForPa
 // Get Partner Hotel Booking Data For Chart For All Hotels
 router.get("/chart/partnerparkingbookings/:id", getBookingChartDataForParkingPartner);
 
+//Get User Hotel Booking Data For Chart For All Hotels
+router.get("/chart/userhotelbookings/:id", getUserBookingChartDataForHotel);
+
+//Get User Hotel Booking Data For Chart For All parkings
+router.get("/chart/userparkingbookings/:id", getUserBookingChartDataForParking);
+
+//Get User Hotel Booking Data For Chart For All Hotel and parkings
+router.get("/chart/userhotelandparkingbookings/:id", getUserBookingChartDataForHotelAndParking);
+
+//Get User Hotel Booking Data For Chart For All 
+router.get("/chart/userallbookings/:id", getUserAllBookingChartData);
 
 // Get Previous Bookings By Parking Owner Id
 router.get(

@@ -262,9 +262,9 @@ export const getParkingBySearch = async (req, res) => {
 export const getChartDataForParking = async (req, res) => {
   try {
     const result = await Parking.find({ approved: true });
-    if (!result) {
-      return res.status(404).json({ message: "No hotels found" });
-    }
+    // if (!result) {
+    //   return res.status(404).json({ message: "No hotels found" });
+    // }
     const data = getData(result);
     res.send(data);
   } catch (error) {
