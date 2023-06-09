@@ -475,13 +475,13 @@ export const getBookingChartDataForHotel = async (req, res) => {
     const hotelIds = hotel.map((hotel) => hotel._id);
     const hotelName = hotel.map((hotel) => hotel.name);
     const result = [];
-    hotelIds.map(async (hotelId, i) => {
+    for (let i = 0; i < hotelIds.length; i++) {
+      const hotelId = hotelIds[i];
       const data = await booking.find({
         $and: [{ canceled: false }, { Booking_type: "hotel" }, { hotelId }],
       });
       result.push({ name: hotelName[i], data: getData(data) });
-      console.log(result);
-    });
+    }
     res.status(200).json(result);
   } catch (error) {
     console.log(error);
@@ -767,13 +767,17 @@ export const getBookingChartDataForHotelandParking = async (req, res) => {
     const hotelIds = hotel.map((hotel) => hotel._id);
     const hotelName = hotel.map((hotel) => hotel.hotel_name);
     const result = [];
-    hotelIds.map(async (hotelId, i) => {
+    for (let i = 0; i < hotelIds.length; i++) {
+      const hotelId = hotelIds[i];
       const data = await booking.find({
-        $and: [{ canceled: false }, { Booking_type: "hotelandparking" }, { hotelAndParkingId: hotelId }],
+        $and: [
+          { canceled: false },
+          { Booking_type: "hotelandparking" },
+          { HotelAndParkingId: hotelId },
+        ],
       });
       result.push({ name: hotelName[i], data: getData(data) });
-      console.log(result);
-    });
+    }
     res.status(200).json(result);
   } catch (error) {
     console.log(error);
@@ -784,17 +788,20 @@ export const getBookingChartDataForParking = async (req, res) => {
   const ownerId = mongoose.Types.ObjectId(req.params.id);
   try {
     const parking = await Parking.find({ ownerId });
-    if (parking.length === 0) return res.status(200).json(new Array(12).fill(0));
+    if (parking.length === 0)
+      return res.status(200).json(new Array(12).fill(0));
     const parkingIds = parking.map((parking) => parking._id);
     const parkingName = parking.map((parking) => parking.name);
     const result = [];
-    parkingIds.map(async (parkingId, i) => {
+    for (let i = 0; i < parkingIds.length; i++) {
+      const parkingId = parkingIds[i];
       const data = await booking.find({
         $and: [{ canceled: false }, { Booking_type: "parking" }, { parkingId }],
       });
       result.push({ name: parkingName[i], data: getData(data) });
       console.log(result);
-    });
+    }
+
     res.status(200).json(result);
   } catch (error) {
     console.log(error);

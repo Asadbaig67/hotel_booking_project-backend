@@ -64,8 +64,6 @@ const hoteli_parking_Location = path.join(
   "/src/uploads",
   "Hotel_Parking_Images"
 );
-// console.log(hotelimagesLocation);
-// C:\Users\X1 Yoga\Apex_Space_project_Backend\hotel_booking_project-backend\src\uploads\HotelImages
 
 app.use("/uploads/HotelImages", express.static(hotelimagesLocation));
 app.use("/uploads/ParkingImages", express.static(parkingLocation));
@@ -74,20 +72,7 @@ app.use(
   express.static(hoteli_parking_Location)
 );
 
-// app.use(express.static(hotelsLocation));
 
-// Define the multer storage configuration
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, 'uploads/') // The folder where to save the images
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, Date.now() + '-' + file.originalname); // Use the original name of the file
-//   }
-// })
-
-// Initialize multer with the storage configuration
-// const upload = multer({ storage: storage });
 
 // To parse cookies
 app.use(cookieParser());
