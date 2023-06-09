@@ -121,13 +121,13 @@ router.get(
 );
 
 // Get Hotel Booking Data For Chart
-router.get("/chart/hotelbookings", getBookingChartDataForHotel);
+router.get("/chart/hotelbookings/:id", getBookingChartDataForHotel);
 
 // Get Hotel and parking Booking Data For Chart
-router.get("/chart/hotelandparkingbookings", getBookingChartDataForHotelandParking);
+router.get("/chart/hotelandparkingbookings/:id", getBookingChartDataForHotelandParking);
 
 // Get parking Booking Data For Chart
-router.get("/chart/parkingbookings", getBookingChartDataForParking);
+router.get("/chart/parkingbookings/:id", getBookingChartDataForParking);
 
 // Get Combined Partner Hotel Chart Data
 router.get("/chart/combinedpartnerhotel/:id", getCombinedBookingChartDataForHotelPartner);
