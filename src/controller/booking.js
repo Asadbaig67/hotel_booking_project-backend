@@ -808,6 +808,45 @@ export const getBookingChartDataForParking = async (req, res) => {
   }
 };
 
+// Get All Booking Chart Data For Hotel Function
+export const getAllBookingChartDataForHotel = async (req, res) => {
+  try {
+    const result = await booking.find({
+      $and: [{ canceled: false }, { Booking_type: "hotel" }],
+    });
+    const data = getData(result);
+    res.send(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Get All Booking Chart Data For Hotel Function
+export const getAllBookingChartDataForParking = async (req, res) => {
+  try {
+    const result = await booking.find({
+      $and: [{ canceled: false }, { Booking_type: "parking" }],
+    });
+    const data = getData(result);
+    res.send(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Get All Booking Chart Data For Hotel Function
+export const getAllBookingChartDataForHotelAndParking = async (req, res) => {
+  try {
+    const result = await booking.find({
+      $and: [{ canceled: false }, { Booking_type: "hotelandparking" }],
+    });
+    const data = getData(result);
+    res.send(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 // Get Specific Booking By Owner Id
 export const getBookingHotelByOwnerId = async (req, res) => {
   const ownerId = mongoose.Types.ObjectId(req.params.id);
