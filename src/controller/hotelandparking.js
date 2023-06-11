@@ -8,6 +8,7 @@ import { checkRoomAndParkingAvailability } from "../Functions/HotelParking/check
 import { getRoomByPrices } from "../Functions/Hotel/getRoomsPrices.js";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import fs from "fs";
+
 import { getData } from "../Functions/ChartData/GetData.js";
 import { SendEmail } from "../Functions/Emails/SendEmail.js";
 

@@ -103,15 +103,15 @@ export const addBooking = async (req, res) => {
       Date.now(),
       ownerId
     );
-    await User.find({ account_type: "admin" }).map((admin) => {
-      createNotificationProperty(
-        "booking",
-        "Hotel Booked",
-        `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel ${hotel.name}.`,
-        Date.now(),
-        admin._id
-      );
-    });
+    // await User.find({ account_type: "admin" }).map((admin) => {
+    //   createNotificationProperty(
+    //     "booking",
+    //     "Hotel Booked",
+    //     `New booking has been placed in dates ${checkIn} to ${checkOut} at hotel ${hotel.name}.`,
+    //     Date.now(),
+    //     admin._id
+    //   );
+    // });
     // If Booking Successfull, Send Success Message
 
     await SendEmail({
