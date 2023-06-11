@@ -5,6 +5,7 @@ import { Emailverify, SendVerificationEmail } from "./emailVerification.js";
 import { sendVerificationmail } from "./mailer.js";
 import { SendEmail } from '../Functions/Emails/SendEmail.js'
 import axios from "axios";
+import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 
 // User Registration Function
 export const registration = async (req, res) => {

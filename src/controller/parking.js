@@ -9,7 +9,6 @@ import { getData } from "../Functions/ChartData/GetData.js";
 // Add Parking Function
 export const addParking = async (req, res) => {
   try {
-
     const {
       ownerId,
       name,
@@ -25,7 +24,6 @@ export const addParking = async (req, res) => {
       rating,
     } = req.body;
 
-
     if (
       !ownerId ||
       !name ||
@@ -40,13 +38,11 @@ export const addParking = async (req, res) => {
       !facilities ||
       !rating
     ) {
-      return res
-        .status(500)
-        .json({ error: "All fields are required! " });
+      return res.status(500).json({ error: "All fields are required! " });
     }
 
     const exists = await Parking.findOne({
-      $and: [{ name }, { city }]
+      $and: [{ name }, { city }],
     });
     if (exists) {
       return res.status(422).json({ error: "Parking already exists" });
@@ -173,7 +169,7 @@ export const getParkingByCity = async (req, res) => {
     if (!response)
       return res.status(404).json({ message: "Parking Not Found" });
     res.send(response);
-  } catch (error) { }
+  } catch (error) {}
 };
 
 // Get Parking By Id Function
@@ -496,7 +492,7 @@ export const approveParking = async (req, res) => {
 
     const result = await Parking.findOneAndUpdate(
       { _id: req.params.id },
-      { approved: true, approvedAt: currentDate },
+      { approved: true, createdAt: currentDate },
       { new: true }
     );
 
