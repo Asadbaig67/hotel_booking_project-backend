@@ -174,7 +174,7 @@ export const addhotelandparking = async (req, res) => {
           "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
       });
 
-      res.status(200).json({ message: "Hotel and Parking Added Successfully" });
+      res.status(200).json({ message: "Hotel and Parking Added Successfully", hotel: result });
     } else {
       res.status(500).json({ message: "Hotel and Parking Cannot be Added" });
     }
