@@ -51,6 +51,7 @@ export const registration = async (req, res) => {
       otp: otp,
     });
 
+    
     // Save the new passwordreset document
     await newUser.save();
 

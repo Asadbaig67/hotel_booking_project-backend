@@ -119,9 +119,9 @@ export const addHotel = async (req, res) => {
           "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
       });
 
-      return res.status(200).json({ message: "Hotel Added Successfully" });
+      return res.status(200).json({ message: "Hotel Added Successfully", });
     } else {
-      return res.status(500).json({ message: "Hotel Cannot be Added" });
+      return res.status(500).json({ message: "Hotel Cannot be Added", hotel: result });
     }
   } catch (error) {
     console.log(error);

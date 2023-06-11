@@ -73,6 +73,7 @@ export const Emailverify = async (req, res) => {
 
   // Converting account type to lowercase
   const accountType = account_type.toLowerCase();
+  
   // creating new user
   const new_user = new User({
     firstName,
