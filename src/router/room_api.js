@@ -8,13 +8,16 @@ import {
   deleteRoomByIdFromHotel,
   deleteRoomByIdFromHotelAndParking,
   updateRoom,
-  deleteRoomNumbers
+  deleteRoomNumbers,
+  addHotelParkingRoom
 } from "../controller/room.js";
 
 const Router = express.Router();
 
 // Add Room
 Router.post("/addroom", addRoom);
+// Add Hotel Parking Room
+Router.post("/addhotelparkingroom", addHotelParkingRoom);
 // Get All Rooms
 Router.get("/getallrooms", getAllRoom);
 // Get Room By Id

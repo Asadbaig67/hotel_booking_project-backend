@@ -100,6 +100,101 @@ export const addRoom = async (req, res) => {
   }
 };
 
+export const addHotelParkingRoom = async (req, res) => {
+  try {
+    const { hotelId, type, price, description, room_no } = req.body;
+
+    if (!hotelId || !type || !price || !description || !room_no) {
+      return res.status(422).json({
+        error: "All fields are required! ",
+        data: {
+          hotelId,
+          type,
+          price,
+          description,
+          room_no,
+        },
+      });
+    }
+
+    const hotel = await HotelAndParking.findById(hotelId);
+
+    if (!hotel) {
+      return res.status(422).json({ error: "Hotel does not exist" });
+    }
+
+    const existingRooms = await Room.find({ _id: { $in: hotel.rooms } });
+    const existingRoom = existingRooms.find(
+      (room) => room.type.toLowerCase() === type.toLowerCase()
+    );
+
+    if (existingRoom) {
+      existingRoom.price = price;
+      existingRoom.description = description;
+      // Check if any of the new room numbers already exist in the existing room object
+      const newRoomNumbers = room_no.filter((roomNo) => {
+        return !existingRoom.room_no.some((room) => room.number === roomNo);
+      });
+
+      if (newRoomNumbers.length === 0)
+        return res.status(201).json({ error: "Room already exists" });
+
+      // Add only the new room numbers that don't already exist
+      newRoomNumbers.forEach((roomNo) => {
+        // room_no.forEach((roomNo) => {
+        existingRoom.room_no.push({ number: roomNo, unavailableDates: [] });
+      });
+      // room_no.forEach(roomNo => {
+      //   existingRoom.room_no.push({ number: roomNo, unavailableDates: [] });
+      // });
+      await existingRoom.save();
+      return res.status(200).json({ message: "Rooms Added Successfully" });
+    }
+
+    const roomObjects = room_no.map((roomNo) => ({
+      number: roomNo,
+      unavailableDates: [],
+    }));
+    const newRoom = new Room({
+      hotelId,
+      type,
+      price,
+      description,
+      room_no: roomObjects,
+    });
+
+    const result = await newRoom.save();
+
+    if (!result) {
+      return res.status(500).json({ message: "Room Cannot be Added" });
+    }
+
+    hotel.rooms.push(newRoom._id);
+    await hotel.save();
+    createNotificationProperty(
+      "Room",
+      "New Room Added",
+      `New ${type} room added to ${hotel.name}`,
+      new Date(),
+      hotel.ownerId
+    );
+    (await User.find({ account_type: "admin" })).forEach((user) => {
+      createNotificationProperty(
+        "Room",
+        "New Room Added",
+        `New ${type} room added to ${hotel.name}`,
+        Date.now(),
+        user._id
+      );
+    });
+
+    return res.status(201).json({ message: "Rooms Added Successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Room Could Not Be Added" });
+  }
+};
+
 export const getAllRoom = async (req, res) => {
   let result = await Room.find();
   res.send(result);
