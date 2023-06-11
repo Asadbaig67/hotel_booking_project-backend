@@ -27,6 +27,7 @@ export const passportGoogleSetup = (clientID, clientSecret) => {
 
 
         // To Store User In DataBase
+        console.log("Profile =", profile);
         const user = await User.findOne({ googleId: profile.id });
         if (user) {
             return done(null, user);
@@ -47,14 +48,16 @@ export const passportGoogleSetup = (clientID, clientSecret) => {
     passport.serializeUser((profile, done) => {
         // This function will be called when the user is authenticated
         // You can perform additional actions here, like storing the user in a database
-        done(null, profile.id);
+        console.log("Profile in serialize User =", profile);
+        done(null, profile.googleId);
     });
-    passport.deserializeUser(async (id, done) => {
+    passport.deserializeUser(async (googleId, done) => {
         // This function will be called when the user is authenticated
         // You can perform additional actions here, like storing the user in a database
 
-        const user = await User.findOne({ googleId: id });
-        console.log(user);
+        console.log("ID Is", googleId);
+        const user = await User.findOne({ googleId });
+        console.log("User =", user);
         done(null, user);
     });
 

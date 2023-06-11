@@ -9,12 +9,68 @@ import { getRoomByPrices } from "../Functions/Hotel/getRoomsPrices.js";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import fs from "fs";
 import { getData } from "../Functions/ChartData/GetData.js";
+import { SendEmail } from "../Functions/Emails/SendEmail.js";
 
 // Add Hotel And Parking Function
 export const addhotelandparking = async (req, res) => {
   try {
-    const { hotel_photos, parking_photos } = req.files;
 
+    const {
+      ownerId,
+      hotel_name,
+      hotel_title,
+      hotel_rating,
+      hotel_address,
+      city,
+      country,
+      total_slots,
+      booked_slots,
+      hotel_description,
+      parking_name,
+      parking_title,
+      address,
+      price,
+      parking_description,
+      facilities,
+    } = req.body;
+
+    // Check if all fields are filled
+    if (
+      !ownerId ||
+      !hotel_name ||
+      !hotel_title ||
+      !hotel_rating ||
+      !address ||
+      !city ||
+      !country ||
+      !hotel_description ||
+      !parking_name ||
+      !parking_title ||
+      !booked_slots ||
+      !total_slots ||
+      !price ||
+      !parking_description ||
+      !facilities
+    ) {
+      return res.status(422).json({
+        error: "All fields are required! "
+      });
+    }
+
+    const exists = await HotelandParking.findOne({
+      $and: [{ hotel_name }, { hotel_city: city }],
+    });
+
+    if (exists) {
+      return res
+        .status(422)
+        .json({ error: "Hotel and Parking already exists" });
+
+    }
+
+
+    // Upload Hotel and Parking Images
+    const { hotel_photos, parking_photos } = req.files;
     if (
       !hotel_photos ||
       !parking_photos ||
@@ -61,78 +117,8 @@ export const addhotelandparking = async (req, res) => {
     const parkingPhotos = parking_fileNames.map(
       (fileName) => `${baseUrl}/uploads/Hotel_Parking_Images/${fileName}`
     );
+    // Images Upload End
 
-    const {
-      ownerId,
-      hotel_name,
-      hotel_title,
-      hotel_rating,
-      hotel_address,
-      city,
-      country,
-      total_slots,
-      booked_slots,
-      hotel_description,
-      parking_name,
-      parking_title,
-      address,
-      price,
-      parking_description,
-      facilities,
-    } = req.body;
-
-    // Check if all fields are filled
-    if (
-      !ownerId ||
-      !hotel_name ||
-      !hotel_title ||
-      !hotel_rating ||
-      !address ||
-      !city ||
-      !country ||
-      !hotel_description ||
-      !parking_name ||
-      !parking_title ||
-      !booked_slots ||
-      !total_slots ||
-      !price ||
-      !parking_description ||
-      !facilities
-    ) {
-      return res.status(422).json({
-        error: "All fields are required! ",
-        dataGot: {
-          ownerId,
-          hotel_name,
-          hotel_title,
-          hotel_rating,
-          hotel_address,
-          city,
-          country,
-          hotel_description,
-          address,
-          parking_name,
-          parking_title,
-          booked_slots,
-          total_slots,
-          price,
-          parking_description,
-        },
-        datafrombody: req.body,
-      });
-    }
-
-    // Check if hotel and parking already exists
-    // $or: [{ status: "A" }, { qty: { $lt: 30 } }]
-    const exists = await HotelandParking.findOne({
-      $or: [{ hotel_name }, { parking_name }],
-    });
-
-    if (exists) {
-      return res
-        .status(422)
-        .json({ error: "Hotel and Parking already exists" });
-    }
 
     // Create a new Hotel and Parking
     const new_hotelandparking = new HotelandParking({
@@ -167,15 +153,15 @@ export const addhotelandparking = async (req, res) => {
         Date.now(),
         result.ownerId
       );
-      // (await User.find({ account_type: "admin" })).forEach((user) => {
-      //   createNotificationProperty(
-      //     "hotel and parking",
-      //     "Hotel and Parking Added",
-      //     `New Your hotel and parking ${result.hotel_name} is added successfully by ${result.ownerId}`,
-      //     Date.now(),
-      //     user._id
-      //   );
-      // });
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel and parking",
+          "Hotel and Parking Added",
+          `New Your hotel and parking ${result.hotel_name} is added successfully by ${result.ownerId}`,
+          Date.now(),
+          user._id
+        );
+      });
 
       const Owner = await User.findById(ownerId);
 
@@ -188,7 +174,7 @@ export const addhotelandparking = async (req, res) => {
           "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
       });
 
-      res.status(201).json({ message: "Hotel and Parking Added Successfully" });
+      res.status(200).json({ message: "Hotel and Parking Added Successfully" });
     } else {
       res.status(500).json({ message: "Hotel and Parking Cannot be Added" });
     }

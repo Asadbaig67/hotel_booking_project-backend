@@ -92,11 +92,27 @@ Router.get("/login", loginSuccess);
 Router.get(
   "/google/callback",
   passport.authenticate("google", {
-    successRedirect: "http://localhost:3000/",
+    successRedirect: "http://localhost:3000/signin",
     failureRedirect: "/login/failed",
-  })
+  }),
+  (req, res) => {
+    res.status(200).json({ message: "Login Success", user: req.user });
+  }
+
 );
 // Router.get("/google/callback", googleAuthenticateCallback);
+
+Router.get('/auth/example', function (req, res, next) {
+  passport.authenticate('google', function (err, user, info) {
+    if (err) { return next(err); }
+    if (!user) { return res.redirect('http://localhost:3000/signin'); }
+    req.logIn(user, function (err) {
+      if (err) { return next(err); }
+      // Send the user ID to the client
+      return res.json({ id: user.id });
+    });
+  })(req, res, next);
+});
 
 // Login Faliure Api
 Router.get("/login/failed", loginFailed);
@@ -104,7 +120,9 @@ Router.get("/login/failed", loginFailed);
 // Google Authentication First Link To Be Visited
 Router.get(
   "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] }
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+  }
   ));
 // Router.get("/google", googleAuthenticate);
 

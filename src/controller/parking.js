@@ -9,10 +9,53 @@ import { getData } from "../Functions/ChartData/GetData.js";
 // Add Parking Function
 export const addParking = async (req, res) => {
   try {
+
+    const {
+      ownerId,
+      name,
+      title,
+      total_slots,
+      description,
+      booked_slots,
+      city,
+      country,
+      address,
+      price,
+      facilities,
+      rating,
+    } = req.body;
+
+
+    if (
+      !ownerId ||
+      !name ||
+      !title ||
+      !total_slots ||
+      !description ||
+      !booked_slots ||
+      !city ||
+      !country ||
+      !address ||
+      !price ||
+      !facilities ||
+      !rating
+    ) {
+      return res
+        .status(500)
+        .json({ error: "All fields are required! " });
+    }
+
+    const exists = await Parking.findOne({
+      $and: [{ name }, { city }]
+    });
+    if (exists) {
+      return res.status(422).json({ error: "Parking already exists" });
+    }
+
+    // Images Handling Code
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).json({ error: "No files were uploaded." });
     }
-
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     const hotelsLocation = path.join(
@@ -38,48 +81,7 @@ export const addParking = async (req, res) => {
     const photos = fileNames.map(
       (fileName) => `${baseUrl}/uploads/ParkingImages/${fileName}`
     );
-
-    const {
-      ownerId,
-      name,
-      title,
-      total_slots,
-      description,
-      booked_slots,
-      city,
-      country,
-      address,
-      price,
-      facilities,
-      rating,
-    } = req.body;
-
-    if (
-      !ownerId ||
-      !name ||
-      !title ||
-      !total_slots ||
-      !description ||
-      !booked_slots ||
-      !city ||
-      !country ||
-      !address ||
-      !price ||
-      !facilities ||
-      !rating
-    ) {
-      return res
-        .status(422)
-        .json({ error: "All fields are required! ", data: req.body });
-    }
-
-    const exists = await Parking.findOne({
-      name,
-      city,
-    });
-    if (exists) {
-      return res.status(422).json({ error: "Parking already exists" });
-    }
+    // Images Handling Code End
 
     const new_parking = new Parking({
       ownerId,
@@ -124,10 +126,10 @@ export const addParking = async (req, res) => {
         email: Owner.email,
         subject: "Parking Added",
         message:
-          "Your Added has been added successfully. Thank you for choosing Desalis Hotels. We will review your Parking and get back to you as soon as possible. ",
+          "Your Parking Added has been added successfully. Thank you for choosing Desalis Hotels. We will review your Parking and get back to you as soon as possible. ",
       });
 
-      res.status(201).json({ message: "Parking Added Successfully" });
+      res.status(200).json({ message: "Parking Added Successfully" });
     } else {
       res.status(500).json({ message: "Parking Cannot be Added" });
     }
@@ -171,7 +173,7 @@ export const getParkingByCity = async (req, res) => {
     if (!response)
       return res.status(404).json({ message: "Parking Not Found" });
     res.send(response);
-  } catch (error) {}
+  } catch (error) { }
 };
 
 // Get Parking By Id Function
