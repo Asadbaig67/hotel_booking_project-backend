@@ -14,30 +14,6 @@ import fs from "fs";
 // Add Hotel Function
 export const addHotel = async (req, res) => {
   try {
-    if (!req.files || Object.keys(req.files).length === 0) {
-      return res.status(400).json({ error: "No files were uploaded." });
-    }
-
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const hotelsLocation = path.join(__dirname, "..", "uploads", "HotelImages");
-
-    const files = Object.values(req.files).flat();
-    const fileNames = [];
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const fileName = file.name.replace(/\s+/g, "");
-      fileNames.push(fileName);
-      const filePath = path.join(hotelsLocation, fileName);
-      // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
-      await file.mv(filePath);
-    }
-
-    const baseUrl = "http://localhost:5000";
-    const photos = fileNames.map(
-      (fileName) => `${baseUrl}/uploads/HotelImages/${fileName}`
-    );
 
     const {
       ownerId,
@@ -62,17 +38,43 @@ export const addHotel = async (req, res) => {
       !address ||
       !facilities
     ) {
-      return res.status(422).json({ error: "All fields are required! " });
+      return res.status(500).json({ error: "All fields are required! " });
     }
 
+
     const exists = await Hotel.findOne({
-      name: name,
-      city: city,
-      address: address,
+      $and: [{ name }, { city }]
     });
     if (exists) {
       return res.status(422).json({ error: "Hotel already exists" });
     }
+
+    // Images Handling Code
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).json({ error: "No files were uploaded." });
+    }
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const hotelsLocation = path.join(__dirname, "..", "uploads", "HotelImages");
+
+    const files = Object.values(req.files).flat();
+    const fileNames = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileName = file.name.replace(/\s+/g, "");
+      fileNames.push(fileName);
+      const filePath = path.join(hotelsLocation, fileName);
+      // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
+      await file.mv(filePath);
+    }
+
+    const baseUrl = "http://localhost:5000";
+    const photos = fileNames.map(
+      (fileName) => `${baseUrl}/uploads/HotelImages/${fileName}`
+    );
+    // Images Handling Code Ends Here
 
     const new_hotel = new Hotel({
       ownerId,
@@ -117,7 +119,7 @@ export const addHotel = async (req, res) => {
           "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
       });
 
-      return res.status(201).json({ message: "Hotel Added Successfully" });
+      return res.status(200).json({ message: "Hotel Added Successfully" });
     } else {
       return res.status(500).json({ message: "Hotel Cannot be Added" });
     }
