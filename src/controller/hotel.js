@@ -522,7 +522,7 @@ export const approveHotelAndUpdateRating = async (req, res) => {
     }
     const result = await Hotel.findByIdAndUpdate(
       req.params.id,
-      { approved: true, rating: req.body.rating },
+      { approved: true, rating: req.body.rating, createdAt: Date.now() },
       { new: true }
     );
     if (result) {

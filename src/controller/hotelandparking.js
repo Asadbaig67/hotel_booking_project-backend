@@ -746,7 +746,7 @@ export const approveHotelAndParkingAndRating = async (req, res) => {
 
     const result = await HotelandParking.findByIdAndUpdate(
       req.params.id,
-      { approved: true, hotel_rating: req.body.hotel_rating },
+      { approved: true, hotel_rating: req.body.hotel_rating, createdAt: Date.now() },
       { new: true }
     );
     if (result) {

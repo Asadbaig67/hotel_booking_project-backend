@@ -552,7 +552,7 @@ export const approveParkingAndUpdateRating = async (req, res) => {
 
     const result = await Parking.findOneAndUpdate(
       { _id: req.params.id },
-      { approved: true, rating: req.body.rating },
+      { approved: true, rating: req.body.rating, createdAt: Date.now() },
       { new: true }
     );
 
