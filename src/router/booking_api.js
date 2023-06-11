@@ -62,9 +62,11 @@ import {
   getUserBookingChartDataForParking,
   getUserBookingChartDataForHotelAndParking,
   getUserAllBookingChartData,
-  getAllBookingsByUserId
+  getAllBookingsByUserId,
+  getAllBookingChartDataForHotel,
+  getAllBookingChartDataForParking,
+  getAllBookingChartDataForHotelAndParking,
 } from "../controller/booking.js";
-
 
 // Add Hotel Booking
 router.post("/addBooking", addBooking);
@@ -112,7 +114,10 @@ router.get(
 router.get("/getAllPreviousBookings", getAllPreviousBooking);
 
 // Get All Previous Bookings By User Id
-router.get("/getAllPreviousBookingsByUserId/:id", getAllPreviousBookingByUserId);
+router.get(
+  "/getAllPreviousBookingsByUserId/:id",
+  getAllPreviousBookingByUserId
+);
 
 // Get Previous Bookings By Hotel Owner Id
 router.get(
@@ -124,28 +129,58 @@ router.get(
 router.get("/chart/hotelbookings/:id", getBookingChartDataForHotel);
 
 // Get Hotel and parking Booking Data For Chart
-router.get("/chart/hotelandparkingbookings/:id", getBookingChartDataForHotelandParking);
+router.get(
+  "/chart/hotelandparkingbookings/:id",
+  getBookingChartDataForHotelandParking
+);
+
+//Get all hotel bookings data for chart
+router.get("/chart/Allhotelbookings", getAllBookingChartDataForHotel);
+
+//Get all hotel bookings data for chart
+router.get("/chart/Allparkingbookings", getAllBookingChartDataForParking);
+
+//Get all hotel bookings data for chart
+router.get("/chart/Allhotelandparkingbookings", getAllBookingChartDataForHotelAndParking);
 
 // Get parking Booking Data For Chart
 router.get("/chart/parkingbookings/:id", getBookingChartDataForParking);
 
 // Get Combined Partner Hotel Chart Data
-router.get("/chart/combinedpartnerhotel/:id", getCombinedBookingChartDataForHotelPartner);
+router.get(
+  "/chart/combinedpartnerhotel/:id",
+  getCombinedBookingChartDataForHotelPartner
+);
 
 // Get Partner Hotel Booking Data For Chart For All Hotels
-router.get("/chart/partnerhotelbookings/:id", getBookingChartDataForHotelPartner);
+router.get(
+  "/chart/partnerhotelbookings/:id",
+  getBookingChartDataForHotelPartner
+);
 
 // Get Combined Partner Hotel Chart Data
-router.get("/chart/combinedpartnerhotelparking/:id", getCombinedBookingChartDataForHotelParkingPartner);
+router.get(
+  "/chart/combinedpartnerhotelparking/:id",
+  getCombinedBookingChartDataForHotelParkingPartner
+);
 
 // Get Partner Hotel Booking Data For Chart For All Hotels
-router.get("/chart/partnerhotelparkingbookings/:id", getBookingChartDataForHotelParkingPartner);
+router.get(
+  "/chart/partnerhotelparkingbookings/:id",
+  getBookingChartDataForHotelParkingPartner
+);
 
 // Get Combined Partner Hotel Chart Data
-router.get("/chart/combinedpartnerparking/:id", getCombinedBookingChartDataForParkingPartner);
+router.get(
+  "/chart/combinedpartnerparking/:id",
+  getCombinedBookingChartDataForParkingPartner
+);
 
 // Get Partner Hotel Booking Data For Chart For All Hotels
-router.get("/chart/partnerparkingbookings/:id", getBookingChartDataForParkingPartner);
+router.get(
+  "/chart/partnerparkingbookings/:id",
+  getBookingChartDataForParkingPartner
+);
 
 //Get User Hotel Booking Data For Chart For All Hotels
 router.get("/chart/userhotelbookings/:id", getUserBookingChartDataForHotel);
@@ -154,9 +189,12 @@ router.get("/chart/userhotelbookings/:id", getUserBookingChartDataForHotel);
 router.get("/chart/userparkingbookings/:id", getUserBookingChartDataForParking);
 
 //Get User Hotel Booking Data For Chart For All Hotel and parkings
-router.get("/chart/userhotelandparkingbookings/:id", getUserBookingChartDataForHotelAndParking);
+router.get(
+  "/chart/userhotelandparkingbookings/:id",
+  getUserBookingChartDataForHotelAndParking
+);
 
-//Get User Hotel Booking Data For Chart For All 
+//Get User Hotel Booking Data For Chart For All
 router.get("/chart/userallbookings/:id", getUserAllBookingChartData);
 
 // Get Previous Bookings By Parking Owner Id
@@ -171,13 +209,14 @@ router.get(
   getPreviousBookingByHotelAndParkingOwnerId
 );
 
-
 // Get All Upcomming Bookings
 router.get("/getAllUpcommingBookings", getAllUpcomingBooking);
 
 // Get All Upcomming Bookings By User Id
-router.get("/getAllUpcommingBookingsByUserId/:id", getAllUpcomingBookingByUserId);
-
+router.get(
+  "/getAllUpcommingBookingsByUserId/:id",
+  getAllUpcomingBookingByUserId
+);
 
 //Get Upcoming hotel booking by user id
 router.get(
@@ -249,16 +288,28 @@ router.get("/getCancelledBookingsByUserId/:id", getCancelledBookingsByUserId);
 router.get("/getCancelledBookingsByHotelId/:id", getCancelledBookingsByHotelId);
 
 //Get Cancelled Bookings By Parking Id
-router.get("/getCancelledBookingsByParkingId/:id", getCancelledBookingsByParkingId);
+router.get(
+  "/getCancelledBookingsByParkingId/:id",
+  getCancelledBookingsByParkingId
+);
 
 //Get Cancelled Bookings By Hotel And Parking Id
-router.get("/getCancelledBookingsByHotelAndParkingId/:id", getCancelledBookingsByHotelAndParkingId);
+router.get(
+  "/getCancelledBookingsByHotelAndParkingId/:id",
+  getCancelledBookingsByHotelAndParkingId
+);
 
 //Get Cancelled Bookings By Hotel OwnerId
-router.get("/getCancelledBookingsByHotelOwnerId/:id", getCancelledBookingsByHotelOwnerId);
+router.get(
+  "/getCancelledBookingsByHotelOwnerId/:id",
+  getCancelledBookingsByHotelOwnerId
+);
 
 //Get Cancelled Bookings By Parking OwnerId
-router.get("/getCancelledBookingsByParkingOwnerId/:id", getCancelledBookingsByParkingOwnerId);
+router.get(
+  "/getCancelledBookingsByParkingOwnerId/:id",
+  getCancelledBookingsByParkingOwnerId
+);
 
 //Get Cancelled Bookings By Hotel And Parking OwnerId
 router.get(
@@ -277,12 +328,18 @@ router.delete("/cancelHotelReservation/:id", cancelHotelReservation);
 // Cancel Parking Reservation
 router.delete("/cancelParkingReservation/:id", cancelParkingReservation);
 // Cancel Hotel And Parking Reservation
-router.delete("/cancelHotelAndParkingReservation/:id", cancelHotelAndParkingReservation);
+router.delete(
+  "/cancelHotelAndParkingReservation/:id",
+  cancelHotelAndParkingReservation
+);
 // Free Hotel Rooms
 router.delete("/freeHotelRooms/:id", freeBookedHotelRoomsByBookingId);
 // Free Parking Slots
 router.delete("/freeParkingSlots/:id", freeBookedParkingSlotsByBookingId);
 // Free Hotel Rooms And Parking Slots
-router.delete("/freeHotelRoomsAndParkingSlots/:id", freeBookedHotelAndParkingByBookingId);
+router.delete(
+  "/freeHotelRoomsAndParkingSlots/:id",
+  freeBookedHotelAndParkingByBookingId
+);
 
 export default router;
