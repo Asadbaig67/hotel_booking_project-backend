@@ -14,7 +14,6 @@ import fs from "fs";
 // Add Hotel Function
 export const addHotel = async (req, res) => {
   try {
-
     const {
       ownerId,
       name,
@@ -41,9 +40,8 @@ export const addHotel = async (req, res) => {
       return res.status(500).json({ error: "All fields are required! " });
     }
 
-
     const exists = await Hotel.findOne({
-      $and: [{ name }, { city }]
+      $and: [{ name }, { city }],
     });
     if (exists) {
       return res.status(422).json({ error: "Hotel already exists" });
@@ -119,9 +117,11 @@ export const addHotel = async (req, res) => {
           "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
       });
 
-      return res.status(200).json({ message: "Hotel Added Successfully", });
+      return res.status(200).json({ message: "Hotel Added Successfully" });
     } else {
-      return res.status(500).json({ message: "Hotel Cannot be Added", hotel: result });
+      return res
+        .status(500)
+        .json({ message: "Hotel Cannot be Added", hotel: result });
     }
   } catch (error) {
     console.log(error);
@@ -296,7 +296,7 @@ export const getHotelByCity = async (req, res) => {
   hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
   hotelData = hotelData.filter((hotel) => hotel.hotel.approved === true);
 
-  if (hotelData === [])
+  if (hotelData.length === 0)
     return res.status(401).json({ message: "No Hotel Found" });
 
   return res.status(200).json(hotelData);

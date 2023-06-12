@@ -249,6 +249,11 @@ export const getParkingBySearch = async (req, res) => {
     parkingData = parkingData.filter(
       (parking) => parking.parking.approved === true
     );
+    if (parkingData.length === 0) {
+      return res
+        .status(401)
+        .json({ parkingList: { message: "Parking Not Found" } });
+    }
 
     res.status(200).json({ parkingList: parkingData });
   } catch (error) {

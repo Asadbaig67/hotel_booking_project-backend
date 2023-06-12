@@ -171,22 +171,22 @@ export const addHotelParkingRoom = async (req, res) => {
 
     hotel.rooms.push(newRoom._id);
     await hotel.save();
-    createNotificationProperty(
-      "Room",
-      "New Room Added",
-      `New ${type} room added to ${hotel.name}`,
-      new Date(),
-      hotel.ownerId
-    );
-    (await User.find({ account_type: "admin" })).forEach((user) => {
-      createNotificationProperty(
-        "Room",
-        "New Room Added",
-        `New ${type} room added to ${hotel.name}`,
-        Date.now(),
-        user._id
-      );
-    });
+    // createNotificationProperty(
+    //   "Room",
+    //   "New Room Added",
+    //   `New ${type} room added to ${hotel.name}`,
+    //   new Date(),
+    //   hotel.ownerId
+    // );
+    // (await User.find({ account_type: "admin" })).forEach((user) => {
+    //   createNotificationProperty(
+    //     "Room",
+    //     "New Room Added",
+    //     `New ${type} room added to ${hotel.name}`,
+    //     Date.now(),
+    //     user._id
+    //   );
+    // });
 
     return res.status(201).json({ message: "Rooms Added Successfully" });
   } catch (error) {
