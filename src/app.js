@@ -49,6 +49,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(fileUpload());
 
+
+// Location of static files
 const hotelimagesLocation = path.join(
   process.cwd(),
   "/src/uploads",
@@ -64,13 +66,20 @@ const hoteli_parking_Location = path.join(
   "/src/uploads",
   "Hotel_Parking_Images"
 );
+const user_profile_Location = path.join(
+  process.cwd(),
+  "/src/uploads",
+  "User_Profile_Images"
+);
 
+// To access static files
 app.use("/uploads/HotelImages", express.static(hotelimagesLocation));
 app.use("/uploads/ParkingImages", express.static(parkingLocation));
 app.use(
   "/uploads/Hotel_Parking_Images",
   express.static(hoteli_parking_Location)
 );
+app.use("/uploads/User_Profile_Images", express.static(user_profile_Location));
 
 
 

@@ -19,6 +19,9 @@ const userschema = new mongoose.Schema({
     type: String,
     // required: true,
   },
+  photo: {
+    type: String,
+  },
   account_type: {
     type: String,
     // required: true,
@@ -26,7 +29,7 @@ const userschema = new mongoose.Schema({
   partner_type: {
     type: String,
   },
-  notifications:[
+  notifications: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Notification",
