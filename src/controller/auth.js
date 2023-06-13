@@ -5,6 +5,7 @@ import { Emailverify, SendVerificationEmail } from "./emailVerification.js";
 import { sendVerificationmail } from "./mailer.js";
 import { SendEmail } from '../Functions/Emails/SendEmail.js'
 import axios from "axios";
+import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 
 // User Registration Function
 export const registration = async (req, res) => {
@@ -35,27 +36,6 @@ export const registration = async (req, res) => {
     if (exists) {
       return res.status(422).json({ error: "User already exists" });
     }
-
-    // axios call to send verification email
-    // const url = "http://localhost:5000/email/sendverifyemail";
-    // const options = {
-    //   method: "POST",
-    //   url: url,
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   data: {
-    //     email: email,
-    //   }
-    // }
-    // const response = await axios(options);
-    // // console.log(response.data);
-    // if (!response.data) {
-    //   return res.status(200).json({ message: "Verification Email Sent" });
-    // }
-    // Converting account type to lowercase
-
-    // Check if the email is present in the ResetPasswordOtp database
 
     const otp = Math.floor(Math.random() * 900000) + 100000;
 
@@ -91,31 +71,7 @@ export const registration = async (req, res) => {
     }
 
     return res.status(200).json({ message: "Verification Email Sent" });
-    // return res.status(200).json({ message: "Verification Email Sent" });
-
-    // account_type.toLowerCase();
-
-    // User Email Verification API
-
-    // creating new user
-    // const new_user = new User({
-    //   firstName,
-    //   lastName,
-    //   email,
-    //   account_type,
-    //   password,
-    //   c_password,
-    // });
-
-    // // saving new user
-    // const result = await new_user.save();
-
-    // checking if user is saved
-    // if (result) {
-    //   res.status(201).json({ message: "User Created successfully" });
-    // } else {
-    //   res.status(500).json({ message: "User Registration Failed" });
-    // }
+    
   } catch (error) {
     console.log(error);
   }

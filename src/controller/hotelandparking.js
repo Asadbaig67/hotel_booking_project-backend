@@ -357,7 +357,7 @@ export const getHotelAndParkingBySearch = async (req, res) => {
 
   let cityHotel = await HotelandParking.find({ hotel_city: city });
   if (!cityHotel) {
-    res.status(404).json({ message: "No hotels found" });
+    return res.status(404).json({ message: "No hotels found" });
   }
 
   await getRoomByHotel(cityHotel, roomsArr);
@@ -382,6 +382,9 @@ export const getHotelAndParkingBySearch = async (req, res) => {
   hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
   // hotelData = hotelData.filter((hotel) => hotel.parking >= vehicle);
   hotelData = hotelData.filter((hotel) => hotel.hotel.approved === true);
+  if(hotelData.length === 0){
+    return res.status(401).json({ message: "No hotels found" });
+  }
 
   res.status(200).json(hotelData);
 };
@@ -747,7 +750,7 @@ export const approveHotelAndParkingAndRating = async (req, res) => {
 
     const result = await HotelandParking.findByIdAndUpdate(
       req.params.id,
-      { approved: true, hotel_rating: req.body.hotel_rating },
+      { approved: true, hotel_rating: req.body.hotel_rating, createdAt: Date.now() },
       { new: true }
     );
     if (result) {
