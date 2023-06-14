@@ -14,6 +14,7 @@ import {
   getuserbyid,
   updateAccountPassword,
   getUserIdAndname,
+  updateAccountNew
 } from "../controller/auth.js";
 import { authorization } from "../middleware/authentication.js";
 import {
@@ -81,6 +82,9 @@ Router.patch("/update/:id", updateAccount);
 
 //Update password
 Router.put("/updatepassword/:id", updateAccountPassword);
+
+//Update user
+Router.put("/updateuser", updateAccountNew);
 
 // Delete User
 Router.delete("/delete/:id", deleteAccount);

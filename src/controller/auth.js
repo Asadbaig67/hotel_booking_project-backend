@@ -4,6 +4,9 @@ import Emailverification from "../models/emailVerification.js";
 import { Emailverify, SendVerificationEmail } from "./emailVerification.js";
 import { sendVerificationmail } from "./mailer.js";
 import { SendEmail } from '../Functions/Emails/SendEmail.js'
+import { fileURLToPath } from "url";
+import path from "path";
+import fs from "fs";
 import axios from "axios";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 
@@ -23,12 +26,13 @@ export const registration = async (req, res) => {
       !password ||
       !c_password
     ) {
-      return res.status(422).json({ error: "All fields are required!" });
+      return res.status(500).json({ error: "All fields are required!" });
     }
+    console.log(password, c_password);
 
     // Checking if password and confirm password are same
-    if (!password === c_password) {
-      return res.status(422).json({ error: "Incorrect password" });
+    if (password !== c_password) {
+      return res.status(500).json({ error: "Passwords do not match" });
     }
 
     // Checking if user already exists
@@ -52,7 +56,7 @@ export const registration = async (req, res) => {
       otp: otp,
     });
 
-    
+
     // Save the new passwordreset document
     await newUser.save();
 
@@ -198,6 +202,71 @@ export const updateAccount = async (req, res) => {
   }
 };
 
+// Updayte Accout New function
+export const updateAccountNew = async (req, res) => {
+  try {
+
+    let photo = "";
+    let fileName = "";
+    const { image } = req.files || {};
+    if (image) {
+
+
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const imageDirectory = path.join(__dirname, '..', 'uploads', 'User_Profile_Images');
+
+      fileName = image.name.replace(/\s+/g, '');
+      const filePath = path.join(imageDirectory, fileName);
+      // const filePath = path.join(imageDirectory, `${Date.now()}_${fileName}`);
+
+      try {
+        await image.mv(filePath);
+        const baseUrlHotel = "http://localhost:5000";
+        photo = `${baseUrlHotel}/uploads/User_Profile_Images/${fileName}`
+        // Do something with the photo URL
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    const {
+      id,
+      firstName,
+      lastName,
+      email
+    } = req.body;
+
+    if (
+      !id ||
+      !firstName ||
+      !lastName ||
+      !email
+    ) {
+      return res.status(500).json({ error: "All fields are required! " });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      {
+        firstName,
+        lastName,
+        email,
+        ...(photo && { photo }),
+      },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ message: "User updated successfully" });
+
+  } catch (error) {
+    console.log(error);
+  }
+};
 //Update Account Password Function
 export const updateAccountPassword = async (req, res) => {
   const userId = req.params.id;
