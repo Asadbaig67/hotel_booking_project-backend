@@ -382,7 +382,7 @@ export const getHotelAndParkingBySearch = async (req, res) => {
   hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
   // hotelData = hotelData.filter((hotel) => hotel.parking >= vehicle);
   hotelData = hotelData.filter((hotel) => hotel.hotel.approved === true);
-  if(hotelData.length === 0){
+  if (hotelData.length === 0) {
     return res.status(401).json({ message: "No hotels found" });
   }
 
@@ -612,7 +612,7 @@ export const updateHotelAndParkingNew = async (req, res) => {
         );
       });
       // console.log("photos Array =", photos);
-      return res.status(201).json({
+      return res.status(200).json({
         message: "Hotel And Parking Updated Successfully",
       });
     } else {

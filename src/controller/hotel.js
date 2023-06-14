@@ -391,7 +391,7 @@ export const UpdateHotel = async (req, res) => {
       !address ||
       !facilities
     ) {
-      return res.status(422).json({ error: "All fields are required! " });
+      return res.status(500).json({ error: "All fields are required! " });
     }
 
     const updated_hotel = await Hotel.findByIdAndUpdate(
@@ -432,7 +432,7 @@ export const UpdateHotel = async (req, res) => {
         );
       });
       console.log("photos Array =", photos);
-      return res.status(201).json({
+      return res.status(200).json({
         message: "Hotel Updated Successfully",
       });
     } else {
