@@ -419,22 +419,22 @@ export const UpdateParkingNew = async (req, res) => {
 
     // const result = await Updated_parking.save();
     if (Updated_parking) {
-      createNotificationProperty(
-        "Parking",
-        "Parking updated",
-        `Your parking ${Updated_parking.name} updated successfully`,
-        Date.now(),
-        result.ownerId
-      );
-      (await User.find({ account_type: "admin" })).forEach((user) => {
-        createNotificationProperty(
-          "Parking",
-          "parking updated",
-          `A parking ${Updated_parking.name} is updated`,
-          Date.now(),
-          user._id
-        );
-      });
+    //   createNotificationProperty(
+    //     "Parking",
+    //     "Parking updated",
+    //     `Your parking ${Updated_parking.name} updated successfully`,
+    //     Date.now(),
+    //     result.ownerId
+    //   );
+    //   (await User.find({ account_type: "admin" })).forEach((user) => {
+    //     createNotificationProperty(
+    //       "Parking",
+    //       "parking updated",
+    //       `A parking ${Updated_parking.name} is updated`,
+    //       Date.now(),
+    //       user._id
+    //     );
+    //   });
       res.status(201).json({ message: "Parking Added Successfully" });
     } else {
       res.status(500).json({ message: "Parking Cannot be Added" });

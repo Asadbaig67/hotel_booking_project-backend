@@ -563,7 +563,7 @@ export const updateHotelAndParkingNew = async (req, res) => {
       return res.status(422).json({ error: "All fields are required! " });
     }
 
-    const updated_hotelParking = await Hotel.findByIdAndUpdate(
+    const updated_hotelParking = await HotelandParking.findByIdAndUpdate(
       req.params.id,
       {
         hotel_name,
@@ -595,22 +595,22 @@ export const updateHotelAndParkingNew = async (req, res) => {
     // const result = await updated_hotel.save();
     // const updated_hotelParking = true;
     if (updated_hotelParking) {
-      createNotificationProperty(
-        "hotel and parking",
-        "Hotel and Parking updated",
-        `Your hotel and parking ${updated_hotelParking.hotel_name} is updated`,
-        Date.now(),
-        updated_hotelParking.ownerId
-      );
-      (await User.find({ account_type: "admin" })).forEach((user) => {
-        createNotificationProperty(
-          "hotel and parking",
-          "Hotel and Parking updated",
-          `A hotel and parking ${updated_hotelParking.hotel_name} is updated by ${updated_hotelParking.ownerId}`,
-          Date.now(),
-          user._id
-        );
-      });
+      // createNotificationProperty(
+      //   "hotel and parking",
+      //   "Hotel and Parking updated",
+      //   `Your hotel and parking ${updated_hotelParking.hotel_name} is updated`,
+      //   Date.now(),
+      //   updated_hotelParking.ownerId
+      // );
+      // (await User.find({ account_type: "admin" })).forEach((user) => {
+      //   createNotificationProperty(
+      //     "hotel and parking",
+      //     "Hotel and Parking updated",
+      //     `A hotel and parking ${updated_hotelParking.hotel_name} is updated by ${updated_hotelParking.ownerId}`,
+      //     Date.now(),
+      //     user._id
+      //   );
+      // });
       // console.log("photos Array =", photos);
       return res.status(201).json({
         message: "Hotel And Parking Updated Successfully",
