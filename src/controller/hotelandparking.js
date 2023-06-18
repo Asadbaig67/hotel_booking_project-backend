@@ -935,7 +935,10 @@ export const deleteHotelImages = async (req, res) => {
   const linkarray = link.split("/");
   // Delete Image from location
   const filename = linkarray[linkarray.length - 1];
-  const filePath = path.join(__dirname, "../uploads/HotelImages", filename);
+  const filePath = path.join(__dirname, "../uploads/Hotel_Parking_Images", filename);
+
+  console.log("filePath =", filePath);
+
   // Check if the file exists
   if (fs.existsSync(filePath)) {
     // Delete the file
@@ -971,7 +974,7 @@ export const deleteParkingImages = async (req, res) => {
   const linkarray = link.split("/");
   // Delete Image from location
   const filename = linkarray[linkarray.length - 1];
-  const filePath = path.join(__dirname, "../uploads/HotelImages", filename);
+  const filePath = path.join(__dirname, "../uploads/Hotel_Parking_Images", filename);
   // Check if the file exists
   if (fs.existsSync(filePath)) {
     // Delete the file
