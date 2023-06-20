@@ -391,7 +391,7 @@ export const UpdateHotel = async (req, res) => {
       !address ||
       !facilities
     ) {
-      return res.status(422).json({ error: "All fields are required! " });
+      return res.status(500).json({ error: "All fields are required! " });
     }
 
     const updated_hotel = await Hotel.findByIdAndUpdate(
@@ -415,23 +415,24 @@ export const UpdateHotel = async (req, res) => {
     // const result = await updated_hotel.save();
     // const updated_hotel = true;
     if (updated_hotel) {
-      // createNotificationProperty(
-      //   "hotel",
-      //   "Hotel Updated",
-      //   `Your hotel ${name} is updated`,
-      //   Date.now(),
-      //   updated_hotel.ownerId
-      // );
-      // (await User.find({ account_type: "admin" })).forEach((user) => {
-      //   createNotificationProperty(
-      //     "hotel",
-      //     "Hotel Updated",
-      //     `Hotel ${name} is updated by ${ownerId}`,
-      //     Date.now(),
-      //     user._id
-      //   );
-      // });
-      return res.status(201).json({
+      createNotificationProperty(
+        "hotel",
+        "Hotel Updated",
+        `Your hotel ${name} is updated`,
+        Date.now(),
+        updated_hotel.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel",
+          "Hotel Updated",
+          `Hotel ${name} is updated by ${ownerId}`,
+          Date.now(),
+          user._id
+        );
+      });
+      console.log("photos Array =", photos);
+      return res.status(200).json({
         message: "Hotel Updated Successfully",
       });
     } else {
