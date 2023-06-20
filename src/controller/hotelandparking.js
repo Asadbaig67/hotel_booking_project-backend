@@ -382,7 +382,7 @@ export const getHotelAndParkingBySearch = async (req, res) => {
   hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
   // hotelData = hotelData.filter((hotel) => hotel.parking >= vehicle);
   hotelData = hotelData.filter((hotel) => hotel.hotel.approved === true);
-  if(hotelData.length === 0){
+  if (hotelData.length === 0) {
     return res.status(401).json({ message: "No hotels found" });
   }
 
@@ -444,14 +444,10 @@ export const updateHotelAndParkingNew = async (req, res) => {
   try {
     let hotel_photos = [];
     let parking_photos = [];
-    // If User Adds new Images
+    // // If User Adds new Images
     const { hotelPhotos, parkingPhotos } = req.files || {};
-    if (
-      hotelPhotos &&
-      parkingPhotos &&
-      Object.keys(hotelPhotos).length !== 0 &&
-      Object.keys(parkingPhotos).length !== 0
-    ) {
+
+    if (hotelPhotos && Object.keys(hotelPhotos).length !== 0) {
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = path.dirname(__filename);
       const hotelsLocation = path.join(
@@ -463,6 +459,42 @@ export const updateHotelAndParkingNew = async (req, res) => {
 
       const filesHotel = Object.values(req.files.hotelPhotos).flat();
       const fileNamesHotel = [];
+
+      if (typeof req.files.hotelPhotos.length === "undefined") {
+        let hotelArray = [req.files.hotelPhotos];
+        for (let i = 0; i < hotelArray.length; i++) {
+          const file = hotelArray[i];
+          const fileName = file.name.replace(/\s+/g, "");
+          fileNamesHotel.push(fileName);
+          const filePath = path.join(hotelsLocation, fileName);
+          await file.mv(filePath);
+        }
+      } else {
+        console.log("filesHotel =", filesHotel, filesHotel.length);
+        for (let i = 0; i < filesHotel.length; i++) {
+          const file = filesHotel[i];
+          const fileName = file.name.replace(/\s+/g, "");
+          fileNamesHotel.push(fileName);
+          const filePath = path.join(hotelsLocation, fileName);
+          await file.mv(filePath);
+        }
+      }
+
+      const baseUrlHotel = "http://localhost:5000";
+      hotel_photos = fileNamesHotel.map(
+        (fileName) => `${baseUrlHotel}/uploads/Hotel_Parking_Images/${fileName}`
+      );
+    }
+
+    if (parkingPhotos && Object.keys(parkingPhotos).length !== 0) {
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const hotelsLocation = path.join(
+        __dirname,
+        "..",
+        "uploads",
+        "Hotel_Parking_Images"
+      );
       const filesParking = Object.values(req.files.parkingPhotos).flat();
       const fileNamesParking = [];
 
@@ -471,60 +503,94 @@ export const updateHotelAndParkingNew = async (req, res) => {
         for (let i = 0; i < pakringArray.length; i++) {
           const file = pakringArray[i];
           const fileName = file.name.replace(/\s+/g, "");
-          // const fileName = file.name;
-          fileNamesHotel.push(fileName);
+          fileNamesParking.push(fileName);
           const filePath = path.join(hotelsLocation, fileName);
-          // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
           await file.mv(filePath);
         }
       } else {
         for (let i = 0; i < filesParking.length; i++) {
           const file = filesParking[i];
-          // const fileName = file.name;
-          // console.log(fileName);
           const fileName = file.name.replace(/\s+/g, "");
-          // fileNamesParking.push(fileName);
-          const filePath = path.join(hotelsLocation, fileName);
-          // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
-          await file.mv(filePath);
-        }
-      }
-
-      if (typeof req.files.hotelPhotos.length === "undefined") {
-        let hotelArray = [req.files.hotelPhotos];
-        for (let i = 0; i < hotelArray.length; i++) {
-          const file = hotelArray[i];
-          const fileName = file.name.replace(/\s+/g, "");
-          // const fileName = file.name;
           fileNamesParking.push(fileName);
           const filePath = path.join(hotelsLocation, fileName);
-          // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
-          await file.mv(filePath);
-        }
-      } else {
-        console.log("filesHotel =", filesHotel, filesHotel.length);
-        for (let i = 0; i < filesHotel.length; i++) {
-          const file = filesHotel[i];
-          // const fileName = file.name;
-          // console.log(fileName);
-          const fileName = file.name.replace(/\s+/g, "");
-          fileNamesHotel.push(fileName);
-          const filePath = path.join(hotelsLocation, fileName);
-          // const filePath = path.join(hotelsLocation, `${Date.now()}_${fileName}`);
           await file.mv(filePath);
         }
       }
-
-      const baseUrlHotel = "http://localhost:5000";
-      hotel_photos = fileNamesParking.map(
-        (fileName) => `${baseUrlHotel}/uploads/Hotel_Parking_Images/${fileName}`
-      );
       const baseUrlParking = "http://localhost:5000";
-      parking_photos = fileNamesHotel.map(
+      parking_photos = fileNamesParking.map(
         (fileName) =>
           `${baseUrlParking}/uploads/Hotel_Parking_Images/${fileName}`
       );
     }
+
+    // if (
+    //   hotelPhotos &&
+    //   parkingPhotos &&
+    //   Object.keys(hotelPhotos).length !== 0 &&
+    //   Object.keys(parkingPhotos).length !== 0
+    // ) {
+    //   const __filename = fileURLToPath(import.meta.url);
+    //   const __dirname = path.dirname(__filename);
+    //   const hotelsLocation = path.join(
+    //     __dirname,
+    //     "..",
+    //     "uploads",
+    //     "Hotel_Parking_Images"
+    //   );
+
+    //   const filesHotel = Object.values(req.files.hotelPhotos).flat();
+    //   const fileNamesHotel = [];
+    //   const filesParking = Object.values(req.files.parkingPhotos).flat();
+    //   const fileNamesParking = [];
+
+    //   if (typeof req.files.parkingPhotos.length === "undefined") {
+    //     let pakringArray = [req.files.parkingPhotos];
+    //     for (let i = 0; i < pakringArray.length; i++) {
+    //       const file = pakringArray[i];
+    //       const fileName = file.name.replace(/\s+/g, "");
+    //       fileNamesHotel.push(fileName);
+    //       const filePath = path.join(hotelsLocation, fileName);
+    //       await file.mv(filePath);
+    //     }
+    //   } else {
+    //     for (let i = 0; i < filesParking.length; i++) {
+    //       const file = filesParking[i];
+    //       const fileName = file.name.replace(/\s+/g, "");
+    //       const filePath = path.join(hotelsLocation, fileName);
+    //       await file.mv(filePath);
+    //     }
+    //   }
+
+    //   if (typeof req.files.hotelPhotos.length === "undefined") {
+    //     let hotelArray = [req.files.hotelPhotos];
+    //     for (let i = 0; i < hotelArray.length; i++) {
+    //       const file = hotelArray[i];
+    //       const fileName = file.name.replace(/\s+/g, "");
+    //       fileNamesParking.push(fileName);
+    //       const filePath = path.join(hotelsLocation, fileName);
+    //       await file.mv(filePath);
+    //     }
+    //   } else {
+    //     console.log("filesHotel =", filesHotel, filesHotel.length);
+    //     for (let i = 0; i < filesHotel.length; i++) {
+    //       const file = filesHotel[i];
+    //       const fileName = file.name.replace(/\s+/g, "");
+    //       fileNamesHotel.push(fileName);
+    //       const filePath = path.join(hotelsLocation, fileName);
+    //       await file.mv(filePath);
+    //     }
+    //   }
+
+    //   const baseUrlHotel = "http://localhost:5000";
+    //   hotel_photos = fileNamesParking.map(
+    //     (fileName) => `${baseUrlHotel}/uploads/Hotel_Parking_Images/${fileName}`
+    //   );
+    //   const baseUrlParking = "http://localhost:5000";
+    //   parking_photos = fileNamesHotel.map(
+    //     (fileName) =>
+    //       `${baseUrlParking}/uploads/Hotel_Parking_Images/${fileName}`
+    //   );
+    // }
 
     const {
       hotel_name,
@@ -563,24 +629,23 @@ export const updateHotelAndParkingNew = async (req, res) => {
       return res.status(422).json({ error: "All fields are required! " });
     }
 
-    const updated_hotelParking = await Hotel.findByIdAndUpdate(
+
+    const updated_hotelParking = await HotelandParking.findByIdAndUpdate(
       req.params.id,
       {
         hotel_name,
         hotel_title,
         hotel_rating,
         hotel_address,
-        city,
-        country,
-        total_slots,
-        booked_slots,
+        hotel_city: city,
+        hotel_city: country,
+        parking_total_slots: total_slots,
+        parking_booked_slots: booked_slots,
         hotel_description,
         parking_name,
         parking_title,
-        address,
-        price,
+        parking_price: price,
         parking_description,
-        facilities,
         ...(hotel_photos.length > 0 && {
           $push: { hotel_photos: { $each: hotel_photos } },
         }),
@@ -612,7 +677,7 @@ export const updateHotelAndParkingNew = async (req, res) => {
         );
       });
       // console.log("photos Array =", photos);
-      return res.status(201).json({
+      return res.status(200).json({
         message: "Hotel And Parking Updated Successfully",
       });
     } else {
@@ -870,7 +935,10 @@ export const deleteHotelImages = async (req, res) => {
   const linkarray = link.split("/");
   // Delete Image from location
   const filename = linkarray[linkarray.length - 1];
-  const filePath = path.join(__dirname, "../uploads/HotelImages", filename);
+  const filePath = path.join(__dirname, "../uploads/Hotel_Parking_Images", filename);
+
+  console.log("filePath =", filePath);
+
   // Check if the file exists
   if (fs.existsSync(filePath)) {
     // Delete the file
@@ -906,7 +974,7 @@ export const deleteParkingImages = async (req, res) => {
   const linkarray = link.split("/");
   // Delete Image from location
   const filename = linkarray[linkarray.length - 1];
-  const filePath = path.join(__dirname, "../uploads/HotelImages", filename);
+  const filePath = path.join(__dirname, "../uploads/Hotel_Parking_Images", filename);
   // Check if the file exists
   if (fs.existsSync(filePath)) {
     // Delete the file

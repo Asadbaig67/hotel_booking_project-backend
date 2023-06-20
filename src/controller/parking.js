@@ -169,7 +169,7 @@ export const getParkingByCity = async (req, res) => {
     if (!response)
       return res.status(404).json({ message: "Parking Not Found" });
     res.send(response);
-  } catch (error) {}
+  } catch (error) { }
 };
 
 // Get Parking By Id Function
@@ -371,7 +371,7 @@ export const UpdateParkingNew = async (req, res) => {
     ) {
       return res
         .status(422)
-        .json({ error: "All fields are required! ", data: req.body });
+        .json({ error: "All fields are required! " });
     }
 
     // const exists = await Parking.findOne({
@@ -435,7 +435,7 @@ export const UpdateParkingNew = async (req, res) => {
           user._id
         );
       });
-      res.status(201).json({ message: "Parking Added Successfully" });
+      res.status(200).json({ message: "Parking Added Successfully" });
     } else {
       res.status(500).json({ message: "Parking Cannot be Added" });
     }
