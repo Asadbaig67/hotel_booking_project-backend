@@ -950,9 +950,6 @@ export const getPreviousBookingHotelByUserId = async (req, res) => {
     const result = bookingByUserId.filter(
       (booking) => booking.Booking_type === "hotel"
     );
-    if (!result) {
-      return res.status(404).json("Booking not found");
-    }
 
     let currentDate = new Date();
 
@@ -980,9 +977,9 @@ export const getPreviousBookingParkingByUserId = async (req, res) => {
     const result = bookingByUserId.filter(
       (booking) => booking.Booking_type === "parking"
     );
-    if (!bookingByUserId || bookingByUserId.length === 0) {
-      return res.status(404).json("Booking not found");
-    }
+    // if (!bookingByUserId || bookingByUserId.length === 0) {
+    //   return res.status(404).json("Booking not found");
+    // }
     let currentDate = new Date();
 
     const filteredResult = result.filter((booking) => {
@@ -1009,9 +1006,6 @@ export const getPreviousBookingHotelandParkingByUserId = async (req, res) => {
     const result = bookingByUserId.filter(
       (booking) => booking.Booking_type === "hotelandparking"
     );
-    if (!bookingByUserId || !result.length > 0) {
-      return res.status(404).json("Booking not found");
-    }
     let currentDate = new Date();
 
     const filteredResult = result.filter((booking) => {
@@ -1191,9 +1185,9 @@ export const getUpcomingBookingHotelByUserId = async (req, res) => {
     const result = bookingByUserId.filter(
       (booking) => booking.Booking_type === "hotel"
     );
-    if (!bookingByUserId || result.length === 0) {
-      return res.status(404).json("Booking not found");
-    }
+    // if (!bookingByUserId || result.length === 0) {
+    //   return res.status(404).json("Booking not found");
+    // }
     let currentDate = new Date();
 
     const filteredResult = result.filter((booking) => {
@@ -1217,9 +1211,6 @@ export const getUpcomingBookingParkingByUserId = async (req, res) => {
     const result = bookingByUserId.filter(
       (booking) => booking.Booking_type === "parking"
     );
-    if (!bookingByUserId || result.length === 0) {
-      return res.status(404).json("Booking not found");
-    }
     let currentDate = new Date();
 
     const filteredResult = result.filter((booking) => {
@@ -1243,9 +1234,6 @@ export const getUpcomingBookingHotelandParkingByUserId = async (req, res) => {
     const result = bookingByUserId.filter(
       (booking) => booking.Booking_type === "hotelandparking"
     );
-    if (!bookingByUserId || result.length === 0) {
-      return res.status(404).json("Booking not found");
-    }
     let currentDate = new Date();
 
     const filteredResult = result.filter((booking) => {
