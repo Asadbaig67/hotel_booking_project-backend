@@ -222,7 +222,7 @@ export const updateAccountNew = async (req, res) => {
 
       try {
         await image.mv(filePath);
-        const baseUrlHotel = "http://46.32.232.208:5000";
+        const baseUrlHotel = "http://localhost:5000";
         photo = `${baseUrlHotel}/uploads/User_Profile_Images/${fileName}`
         // Do something with the photo URL
       } catch (error) {
