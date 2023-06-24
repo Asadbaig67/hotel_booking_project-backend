@@ -58,7 +58,6 @@ export const Emailverify = async (req, res) => {
   const decodedObj = QueryString.parse(decodeURIComponent(verifyemail));
 
   // Destructuring the decoded object
-  // const { email, otp } = decodedObj;
   const { email, otp, firstName, lastName, account_type, password } =
     decodedObj;
 

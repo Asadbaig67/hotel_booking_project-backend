@@ -444,7 +444,6 @@ export const updateHotelAndParkingNew = async (req, res) => {
   try {
     let hotel_photos = [];
     let parking_photos = [];
-    // // If User Adds new Images
     const { hotelPhotos, parkingPhotos } = req.files || {};
 
     if (hotelPhotos && Object.keys(hotelPhotos).length !== 0) {
@@ -523,75 +522,6 @@ export const updateHotelAndParkingNew = async (req, res) => {
       );
     }
 
-    // if (
-    //   hotelPhotos &&
-    //   parkingPhotos &&
-    //   Object.keys(hotelPhotos).length !== 0 &&
-    //   Object.keys(parkingPhotos).length !== 0
-    // ) {
-    //   const __filename = fileURLToPath(import.meta.url);
-    //   const __dirname = path.dirname(__filename);
-    //   const hotelsLocation = path.join(
-    //     __dirname,
-    //     "..",
-    //     "uploads",
-    //     "Hotel_Parking_Images"
-    //   );
-
-    //   const filesHotel = Object.values(req.files.hotelPhotos).flat();
-    //   const fileNamesHotel = [];
-    //   const filesParking = Object.values(req.files.parkingPhotos).flat();
-    //   const fileNamesParking = [];
-
-    //   if (typeof req.files.parkingPhotos.length === "undefined") {
-    //     let pakringArray = [req.files.parkingPhotos];
-    //     for (let i = 0; i < pakringArray.length; i++) {
-    //       const file = pakringArray[i];
-    //       const fileName = file.name.replace(/\s+/g, "");
-    //       fileNamesHotel.push(fileName);
-    //       const filePath = path.join(hotelsLocation, fileName);
-    //       await file.mv(filePath);
-    //     }
-    //   } else {
-    //     for (let i = 0; i < filesParking.length; i++) {
-    //       const file = filesParking[i];
-    //       const fileName = file.name.replace(/\s+/g, "");
-    //       const filePath = path.join(hotelsLocation, fileName);
-    //       await file.mv(filePath);
-    //     }
-    //   }
-
-    //   if (typeof req.files.hotelPhotos.length === "undefined") {
-    //     let hotelArray = [req.files.hotelPhotos];
-    //     for (let i = 0; i < hotelArray.length; i++) {
-    //       const file = hotelArray[i];
-    //       const fileName = file.name.replace(/\s+/g, "");
-    //       fileNamesParking.push(fileName);
-    //       const filePath = path.join(hotelsLocation, fileName);
-    //       await file.mv(filePath);
-    //     }
-    //   } else {
-    //     console.log("filesHotel =", filesHotel, filesHotel.length);
-    //     for (let i = 0; i < filesHotel.length; i++) {
-    //       const file = filesHotel[i];
-    //       const fileName = file.name.replace(/\s+/g, "");
-    //       fileNamesHotel.push(fileName);
-    //       const filePath = path.join(hotelsLocation, fileName);
-    //       await file.mv(filePath);
-    //     }
-    //   }
-
-    //   const baseUrlHotel = "http://localhost:5000";
-    //   hotel_photos = fileNamesParking.map(
-    //     (fileName) => `${baseUrlHotel}/uploads/Hotel_Parking_Images/${fileName}`
-    //   );
-    //   const baseUrlParking = "http://localhost:5000";
-    //   parking_photos = fileNamesHotel.map(
-    //     (fileName) =>
-    //       `${baseUrlParking}/uploads/Hotel_Parking_Images/${fileName}`
-    //   );
-    // }
-
     const {
       hotel_name,
       hotel_title,
@@ -656,8 +586,6 @@ export const updateHotelAndParkingNew = async (req, res) => {
       { new: true }
     );
 
-    // const result = await updated_hotel.save();
-    // const updated_hotelParking = true;
     if (updated_hotelParking) {
       // createNotificationProperty(
       //   "hotel and parking",
@@ -675,7 +603,6 @@ export const updateHotelAndParkingNew = async (req, res) => {
       //     user._id
       //   );
       // });
-      // console.log("photos Array =", photos);
       return res.status(200).json({
         message: "Hotel And Parking Updated Successfully",
       });

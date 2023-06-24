@@ -64,9 +64,6 @@ export const OtpVerify = async (req, res) => {
   if (userauth.otp !== otp)
     return res.status(400).json({ error: "Invalid OTP" });
 
-  // Return Success Message
-  // return res.status(200).json({ message: "OTP Verified Successfully" });
-  // redirect to the reset password page
   res.redirect(`http://localhost:3000/reset/password`);
 };
 
