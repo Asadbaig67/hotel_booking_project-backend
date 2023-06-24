@@ -111,7 +111,7 @@ export const addhotelandparking = async (req, res) => {
       await file.mv(filePath);
     }
 
-    const baseUrl = "http://localhost:5000";
+    const baseUrl = "http://46.32.232.208:5000";
     const hotelPhotos = hotel_fileNames.map(
       (fileName) => `${baseUrl}/uploads/Hotel_Parking_Images/${fileName}`
     );
@@ -480,7 +480,7 @@ export const updateHotelAndParkingNew = async (req, res) => {
         }
       }
 
-      const baseUrlHotel = "http://localhost:5000";
+      const baseUrlHotel = "http://46.32.232.208:5000";
       hotel_photos = fileNamesHotel.map(
         (fileName) => `${baseUrlHotel}/uploads/Hotel_Parking_Images/${fileName}`
       );
@@ -516,7 +516,7 @@ export const updateHotelAndParkingNew = async (req, res) => {
           await file.mv(filePath);
         }
       }
-      const baseUrlParking = "http://localhost:5000";
+      const baseUrlParking = "http://46.32.232.208:5000";
       parking_photos = fileNamesParking.map(
         (fileName) =>
           `${baseUrlParking}/uploads/Hotel_Parking_Images/${fileName}`
@@ -581,11 +581,11 @@ export const updateHotelAndParkingNew = async (req, res) => {
     //     }
     //   }
 
-    //   const baseUrlHotel = "http://localhost:5000";
+    //   const baseUrlHotel = "http://46.32.232.208:5000";
     //   hotel_photos = fileNamesParking.map(
     //     (fileName) => `${baseUrlHotel}/uploads/Hotel_Parking_Images/${fileName}`
     //   );
-    //   const baseUrlParking = "http://localhost:5000";
+    //   const baseUrlParking = "http://46.32.232.208:5000";
     //   parking_photos = fileNamesHotel.map(
     //     (fileName) =>
     //       `${baseUrlParking}/uploads/Hotel_Parking_Images/${fileName}`
