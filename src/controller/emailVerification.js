@@ -24,7 +24,7 @@ export const SendVerificationEmail = async (req, res) => {
   const user = await newUser.save();
   // Send the otp to the email
 
-  let url = `http://46.32.232.208:5000/mail/emailverification`;
+  let url = `http://localhost:5000/mail/emailverification`;
   let options = {
     method: "POST",
     headers: {
