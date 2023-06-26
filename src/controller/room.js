@@ -2,8 +2,6 @@ import Hotel from "../models/Hotel.js";
 import HotelAndParking from "../models/Hotel_Parking.js";
 import Room from "../models/Room.js";
 import User from "../models/user.js";
-import path from "path";
-import { fileURLToPath } from "url";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 
 export const addRoom = async (req, res) => {
@@ -52,9 +50,6 @@ export const addRoom = async (req, res) => {
         // room_no.forEach((roomNo) => {
         existingRoom.room_no.push({ number: roomNo, unavailableDates: [] });
       });
-      // room_no.forEach(roomNo => {
-      //   existingRoom.room_no.push({ number: roomNo, unavailableDates: [] });
-      // });
       await existingRoom.save();
       return res.status(200).json({ message: "Rooms Added Successfully" });
     }
@@ -144,12 +139,8 @@ export const addHotelParkingRoom = async (req, res) => {
 
       // Add only the new room numbers that don't already exist
       newRoomNumbers.forEach((roomNo) => {
-        // room_no.forEach((roomNo) => {
         existingRoom.room_no.push({ number: roomNo, unavailableDates: [] });
       });
-      // room_no.forEach(roomNo => {
-      //   existingRoom.room_no.push({ number: roomNo, unavailableDates: [] });
-      // });
       await existingRoom.save();
       return res.status(200).json({ message: "Rooms Added Successfully" });
     }

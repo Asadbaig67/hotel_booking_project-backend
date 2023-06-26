@@ -8,14 +8,9 @@ export const getRoomByPrices = async (rooms) => {
     rooms.map(async (roomId) => {
       try {
         const room = await Room.findById(roomId.toString());
-        // const obj = {
-        //   type: room.type,
-        //   price: room.price,
-        // };
         if (room.type === "Single") {
           StandardPrice = room.price;
         }
-        // roomPrices.push(obj);
       } catch (error) {
         throw new Error(`Error getting room ${roomId}: ${error.message}`);
       }

@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 
 import {
   getAll,
-  login,
   registration,
   updateAccount,
   deleteAccount,
@@ -16,11 +15,6 @@ import {
   getUserIdAndname,
   updateAccountNew
 } from "../controller/auth.js";
-import { authorization } from "../middleware/authentication.js";
-import {
-  googleAuthenticate,
-  googleAuthenticateCallback,
-} from "../middleware/google_auth.js";
 
 dotenv.config({ path: "../config/config.env" });
 

@@ -374,29 +374,6 @@ export const UpdateParkingNew = async (req, res) => {
         .json({ error: "All fields are required! " });
     }
 
-    // const exists = await Parking.findOne({
-    //   name,
-    //   city,
-    // });
-    // if (exists) {
-    //   return res.status(422).json({ error: "Parking already exists" });
-    // }
-
-    // const new_parking = new Parking({
-    //   ownerId,
-    //   name,
-    //   title,
-    //   total_slots,
-    //   booked_slots,
-    //   description,
-    //   price,
-    //   city,
-    //   country,
-    //   address,
-    //   photos,
-    //   Facilities: facilities
-    // });
-
     const Updated_parking = await Parking.findByIdAndUpdate(
       req.params.id,
       {
@@ -412,7 +389,6 @@ export const UpdateParkingNew = async (req, res) => {
         address,
         ...(photos.length > 0 && { $push: { photos: { $each: photos } } }),
         $addToSet: { Facilities: { $each: facilities } },
-        // Facilities: facilities
       },
       { new: true }
     );

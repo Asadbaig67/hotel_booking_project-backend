@@ -22,8 +22,7 @@ export const addEmail = async (req, res) => {
       return res.status(200).json({ message: "Email already exists" });
 
    } catch (error) {
-      console.log(error);
-      // res.status(409).json({ message: error.message });
+      res.status(409).json({ message: error.message });
    }
 };
 export const getAllEmails = async (req, res) => {

@@ -5,26 +5,25 @@ import jwt from "jsonwebtoken";
 const userschema = new mongoose.Schema({
   firstName: {
     type: String,
-    // required: true,
+    
   },
   lastName: {
     type: String,
-    // required: true,
+    
   },
   googleId: {
     type: String,
-    // unique: true
   },
   email: {
     type: String,
-    // required: true,
+    
   },
   photo: {
     type: String,
   },
   account_type: {
     type: String,
-    // required: true,
+    
   },
   partner_type: {
     type: String,
@@ -35,29 +34,20 @@ const userschema = new mongoose.Schema({
       ref: "Notification",
     }
   ],
-  // subuser: {
-  //   type: Number,
-  //   // required: true,
-  // },
-  // subusers: [
-  //   {
-  //     type: mongoose.Schema.Types.ObjectId,
-  //     // required: true,
-  //   },
-  // ],
+  
   password: {
     type: String,
-    // required: true,
+    
   },
   c_password: {
     type: String,
-    // required: true,
+    
   },
   tokens: [
     {
       token: {
         type: String,
-        // required: true,
+        
       },
     },
   ],
