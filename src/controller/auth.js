@@ -1,13 +1,10 @@
 import bcryptjs from "bcryptjs";
 import User from "../models/user.js";
 import Emailverification from "../models/emailVerification.js";
-import { Emailverify, SendVerificationEmail } from "./emailVerification.js";
 import { sendVerificationmail } from "./mailer.js";
 import { SendEmail } from '../Functions/Emails/SendEmail.js'
 import { fileURLToPath } from "url";
 import path from "path";
-import fs from "fs";
-import axios from "axios";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 
 // User Registration Function
@@ -128,9 +125,6 @@ export const login = async (req, res) => {
   } else {
     let token = await exists.generatetoken();
     if (token) {
-      // res.status(201).json(token);
-      // res.cookie("user_token", token).status(201).json({ message: "Login Success" });
-
       res
         .cookie("tokens", token, {
           maxAge: 1000 * 60 * 60 * 24, // 1 day
@@ -149,19 +143,6 @@ export const login = async (req, res) => {
 export const updateAccount = async (req, res) => {
   try {
     const userId = req.params.id;
-
-    // const { firstName, lastName, email, account_type, password, c_password } = req.body;
-
-    // Checking if all fields are filled
-    // if (!firstName || !lastName || !email || !account_type) {
-    //   return res.status(422).json({ error: "All fields are required!" });
-    // }
-
-    // Checking if password and confirm password are same
-    // if (password && c_password && password !== c_password) {
-    //   return res.status(422).json({ error: "Passwords do not match" });
-    // }
-
     const newuser = await User.findById(userId);
 
     // Finding user by ID and updating their information
@@ -210,8 +191,6 @@ export const updateAccountNew = async (req, res) => {
     let fileName = "";
     const { image } = req.files || {};
     if (image) {
-
-
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = path.dirname(__filename);
       const imageDirectory = path.join(__dirname, '..', 'uploads', 'User_Profile_Images');
@@ -267,6 +246,7 @@ export const updateAccountNew = async (req, res) => {
     console.log(error);
   }
 };
+
 //Update Account Password Function
 export const updateAccountPassword = async (req, res) => {
   const userId = req.params.id;
@@ -293,7 +273,6 @@ export const updateAccountPassword = async (req, res) => {
     user.password = newPassword;
     user.c_password = newPassword;
     // Save the changes
-    const savedChanges = await user.save();
     createNotificationProperty(
       "User",
       "Password changed",
