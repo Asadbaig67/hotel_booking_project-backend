@@ -68,7 +68,7 @@ export const addHotel = async (req, res) => {
       await file.mv(filePath);
     }
 
-    const baseUrl = "http://46.32.232.208:5000";
+    const baseUrl = "http://localhost:5000";
     const photos = fileNames.map(
       (fileName) => `${baseUrl}/uploads/HotelImages/${fileName}`
     );
@@ -360,7 +360,7 @@ export const UpdateHotel = async (req, res) => {
         await file.mv(filePath);
       }
 
-      const baseUrl = "http://46.32.232.208:5000";
+      const baseUrl = "http://localhost:5000";
       photos = fileNames.map(
         (fileName) => `${baseUrl}/uploads/HotelImages/${fileName}`
       );
