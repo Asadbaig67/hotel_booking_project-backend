@@ -1,23 +1,21 @@
 import mongoose from "mongoose";
 
 const OperatingCitiesSchema = new mongoose.Schema({
-  type: {
+  city: {
     type: String,
-    required: true,
-    unique: true,
   },
-  cities: [
-    {
-      city: {
-        type: String,
-        required: true,
-      },
-      createdAt: {
-        type: Date,
-        // default: Date.now,
-      },
-    },
-  ],
+  hotel: {
+    type: Boolean,
+    default: false,
+  },
+  parking: {
+    type: Boolean,
+    default: false,
+  },
+  hotelAndParking: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const OperatingCities = mongoose.model(

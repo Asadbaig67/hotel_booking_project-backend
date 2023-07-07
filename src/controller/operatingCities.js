@@ -8,96 +8,54 @@ export const addOperatingHotelCity = async (req, res) => {
     return res.status(400).json({ message: "Please enter all fields" });
   }
   try {
-    const user = await User.find();
-    const operatingCities = await OperatingCities.findOne({
-      type: type.toLowerCase(),
+    const operatingCity = await OperatingCities.findOne({
+      city: city.toLowerCase(),
     });
-    if (operatingCities) {
-      const isCityPresent = operatingCities.cities.find((cityObj) => {
-        return cityObj.city === city.toLowerCase();
-      });
-      if (isCityPresent) {
-        return res.status(400).json({ message: "City already present" });
-      } else {
-        operatingCities.cities.push({
-          city: city.toLowerCase(),
-          createdAt: Date.now(),
-        });
-        await operatingCities.save();
-        if (user) {
-          user.forEach(async (user) => {
-            const id = user._id.toString();
-            createNotificationProperty(
-              "operating city",
-              "New Operating City Added",
-              `City ${city} has been added for ${type}`,
-              Date.now(),
-              id
-            );
-          });
-        }
-        return res.status(200).json({ message: "City updated successfully" });
+    if (operatingCity) {
+      if (operatingCity[type] === true) {
+        return res.status(400).json({ message: "City already exists" });
       }
-    } else {
-      const newOperatingCities = new OperatingCities({
-        type: type.toLowerCase(),
-        cities: {
-          city: city.toLowerCase(),
-          createdAt: Date.now(),
-        },
-      });
-      await newOperatingCities.save();
-      if (user) {
-        user.forEach(async (user) => {
-          const id = user._id.toString();
-          createNotificationProperty(
-            "operating city",
-            "Operating City Added",
-            `City ${city} has been added to ${type}`,
-            Date.now(),
-            id
-          );
-        });
-      }
+      operatingCity[type] = true;
+      await operatingCity.save();
       return res.status(200).json({ message: "City added successfully" });
     }
+    const newOperatingCity = new OperatingCities({
+      city: city.toLowerCase(),
+      [type]: true,
+    });
+    await newOperatingCity.save();
+    return res.status(200).json({ message: "City added successfully" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
 
-export const getAllOperatingCities= async (req, res) => {
+export const getAllOperatingCities = async (req, res) => {
   try {
     const operatingCities = await OperatingCities.find();
+    // const responseArr = [];
     if (operatingCities) {
-      operatingCities.forEach((operatingCity) => {
-        operatingCity.cities.forEach((city) => {
-          city.city = city.city.charAt(0).toUpperCase() + city.city.slice(1);
-        });
-      });
+      // operatingCities.map((city, i) => {
+      //   responseArr[i] = city.city.charAt(0).toUpperCase() + city.city.slice(1);
+      // });
       return res.status(200).json(operatingCities);
-    } else {
-      return res.status(200).json([]);
     }
+    return res.status(200).json([]);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
-}
+};
 
 export const getHotelOperatingCities = async (req, res) => {
   try {
-    const operatingCities = await OperatingCities.findOne({
-      type: "hotel",
-    });
-    if (operatingCities) {
-      let responseArr = [];
-      operatingCities.cities.map((city) => {
-        city.city = city.city.charAt(0).toUpperCase() + city.city.slice(1);
-        responseArr.push(city.city);
+    const operatingCities = await OperatingCities.find();
+    const filteredCity = operatingCities.filter((city) => city.hotel);
+    let responseArr = [];
+    if (filteredCity) {
+      filteredCity.map((city, i) => {
+        responseArr[i] = city.city.charAt(0).toUpperCase() + city.city.slice(1);
       });
       return res.status(200).json(responseArr);
-    } else {
-      return res.status(200).json([]);
     }
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -106,18 +64,14 @@ export const getHotelOperatingCities = async (req, res) => {
 
 export const getParkingOperatingCity = async (req, res) => {
   try {
-    const operatingCities = await OperatingCities.findOne({
-      type: "parking",
-    });
-    if (operatingCities) {
-      let responseArr = [];
-      operatingCities.cities.map((city) => {
-        city.city = city.city.charAt(0).toUpperCase() + city.city.slice(1);
-        responseArr.push(city.city);
+    const operatingCities = await OperatingCities.find();
+    const filteredCity = operatingCities.filter((city) => city.parking);
+    let responseArr = [];
+    if (filteredCity) {
+      filteredCity.map((city, i) => {
+        responseArr[i] = city.city.charAt(0).toUpperCase() + city.city.slice(1);
       });
       return res.status(200).json(responseArr);
-    } else {
-      return res.status(200).json([]);
     }
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -126,18 +80,14 @@ export const getParkingOperatingCity = async (req, res) => {
 
 export const getHotelAndParkingOperatingCity = async (req, res) => {
   try {
-    const operatingCities = await OperatingCities.findOne({
-      type: "hotelandparking",
-    });
-    if (operatingCities) {
-      let responseArr = [];
-      operatingCities.cities.map((city) => {
-        city.city = city.city.charAt(0).toUpperCase() + city.city.slice(1);
-        responseArr.push(city.city);
+    const operatingCities = await OperatingCities.find();
+    const filteredCity = operatingCities.filter((city) => city.hotelAndParking);
+    let responseArr = [];
+    if (filteredCity) {
+      filteredCity.map((city, i) => {
+        responseArr[i] = city.city.charAt(0).toUpperCase() + city.city.slice(1);
       });
       return res.status(200).json(responseArr);
-    } else {
-      return res.status(200).json([]);
     }
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -210,45 +160,29 @@ export const getOperatingCityByType = async (req, res) => {
 };
 
 export const deleteOperatingCity = async (req, res) => {
-  const { type, cityId } = req.body;
-  if (!type || !cityId) {
-    return res.status(400).json({ message: "Please enter all fields" });
-  }
   try {
-    const userAdmin = await User.find({ account_type: "admin" });
-    const userPartner = await User.find({ account_type: "partner" });
-    const users = [...userAdmin, ...userPartner];
-    const operatingCities = await OperatingCities.findOne({
-      type: type.toLowerCase(),
-    });
-    if (operatingCities) {
-      const isCityPresent = operatingCities.cities.find((cityObj) => {
-        return cityObj._id.toString() === cityId;
-      });
-      if (isCityPresent) {
-        const index = operatingCities.cities.indexOf(cityId);
-        operatingCities.cities.splice(index, 1);
-        await operatingCities.save();
-        if (users) {
-          users.forEach(async (user) => {
-            const id = user._id.toString();
-            createNotificationProperty(
-              "operating city",
-              "Operating City Deleted",
-              `City ${operatingCities.city} has been deleted from ${type}`,
-              Date.now(),
-              id
-            );
-          });
-        }
-        return res.status(200).json({ message: "City deleted successfully" });
-      } else {
-        return res.status(400).json({ message: "City not available" });
-      }
-    } else {
-      return res.status(400).json({ message: "City not present" });
+    const { city, type } = req.body;
+
+    if (!city || !type) {
+      return res.status(400).json({ message: "Please provide both city and type" });
     }
+
+    const operatingCity = await OperatingCities.findOne({
+      city: city.toLowerCase(),
+    });
+
+    if (operatingCity) {
+      if (operatingCity[type] === true) {
+        operatingCity[type] = false;
+        await operatingCity.save();
+        return res.status(200).json({ message: "City deleted successfully" });
+      }
+      return res.status(400).json({ message: "City does not exist or already deleted" });
+    }
+
+    return res.status(400).json({ message: "City does not exist" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
+
