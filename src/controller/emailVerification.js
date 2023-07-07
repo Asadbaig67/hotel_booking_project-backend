@@ -1,4 +1,6 @@
 import Emailverification from "../models/emailVerification.js";
+import UnverifiedUsers from "../models/UnverifiedUsers.js";
+import Hotel from "../models/Hotel.js";
 import User from "../models/user.js";
 import fetch from "node-fetch";
 import QueryString from "qs";
@@ -67,23 +69,48 @@ export const Emailverify = async (req, res) => {
   if (!userVerify)
     return res.status(400).json({ error: "OTP Expired! Please Retry" });
   // Check if the otp is correct
-  if (userVerify.otp !== otp)
+  if (userVerify.otp !== otp) {
     return res.status(400).json({ error: "Invalid OTP" });
+  }
 
-  // Converting account type to lowercase
-  const accountType = account_type.toLowerCase();
-  
-  // creating new user
-  const new_user = new User({
-    firstName,
-    lastName,
-    email,
-    account_type: accountType,
-    password,
-  });
+  let result = null;
+  // Checking if user already exists in unverified users
+  const Unverified_user = await UnverifiedUsers.findOne({ email });
+  if (Unverified_user) {
+    // Converting account type to lowercase
+    const hotel = await Hotel.findById(Unverified_user.property_id);
+    hotel.ownerId = new_user._id;
+    await hotel.save();
 
-  // saving new user
-  const result = await new_user.save();
+    // creating new user
+    const new_user = new User({
+      firstName,
+      lastName,
+      email,
+      account_type: "partner",
+      partner_type: Unverified_user.property_type,
+      password,
+    });
+    // saving new user
+    result = await new_user.save();
+  } else {
+    // Converting account type to lowercase
+    const accountType = account_type.toLowerCase();
+
+    // creating new user
+    const new_user = new User({
+      firstName,
+      lastName,
+      email,
+      account_type: accountType,
+      password,
+    });
+
+    // saving new user
+    result = await new_user.save();
+
+  }
+
 
   // Send Email For Successfull Registration
   let data = {

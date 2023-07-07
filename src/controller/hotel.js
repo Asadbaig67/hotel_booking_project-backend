@@ -1,5 +1,6 @@
 import Hotel from "../models/Hotel.js";
 import User from "../models/user.js";
+import UnverifiedUsers from "../models/UnverifiedUsers.js";
 import { checkRoomAvailability } from "../Functions/Hotel/checkroomAvailabilty.js";
 import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty.js";
 import { getRoomByHotel } from "../Functions/Hotel/getRoomByHotel.js";
@@ -8,6 +9,7 @@ import { fileURLToPath } from "url";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import { SendEmail } from "../Functions/Emails/SendEmail.js";
 import { getData } from "../Functions/ChartData/GetData.js";
+
 import path from "path";
 import fs from "fs";
 
@@ -16,6 +18,7 @@ export const addHotel = async (req, res) => {
   try {
     const {
       ownerId,
+      email,
       name,
       title,
       rating,
@@ -27,7 +30,6 @@ export const addHotel = async (req, res) => {
     } = req.body;
 
     if (
-      !ownerId ||
       !name ||
       !title ||
       !rating ||
@@ -75,7 +77,7 @@ export const addHotel = async (req, res) => {
     // Images Handling Code Ends Here
 
     const new_hotel = new Hotel({
-      ownerId,
+      ...(ownerId && { ownerId }),
       name,
       title,
       rating,
@@ -84,10 +86,19 @@ export const addHotel = async (req, res) => {
       country,
       address,
       photos,
+      ...(ownerId ? { ownerAvailablity: true } : { ownerAvailablity: false }),
       Facilities: facilities,
     });
 
     const result = await new_hotel.save();
+
+    const newUser = new UnverifiedUsers({
+      email: email,
+      property_type: "Hotel",
+      property_id: new_hotel._id,
+    });
+    await newUser.save();
+
     if (result) {
       createNotificationProperty(
         "hotel",

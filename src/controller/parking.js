@@ -11,6 +11,7 @@ export const addParking = async (req, res) => {
   try {
     const {
       ownerId,
+      email,
       name,
       title,
       total_slots,
@@ -25,7 +26,6 @@ export const addParking = async (req, res) => {
     } = req.body;
 
     if (
-      !ownerId ||
       !name ||
       !title ||
       !total_slots ||
@@ -80,7 +80,7 @@ export const addParking = async (req, res) => {
     // Images Handling Code End
 
     const new_parking = new Parking({
-      ownerId,
+      ...(ownerId && { ownerId }),
       name,
       title,
       total_slots,
@@ -91,11 +91,18 @@ export const addParking = async (req, res) => {
       country,
       rating,
       address,
+      ...(ownerId ? { ownerAvailablity: true } : { ownerAvailablity: false }),
       photos,
       Facilities: facilities,
     });
 
     const result = await new_parking.save();
+    const newUser = new UnverifiedUsers({
+      email: email,
+      property_type: "Parking",
+      property_id: new_parking._id,
+    });
+    await newUser.save();
     if (result) {
       createNotificationProperty(
         "Parking",

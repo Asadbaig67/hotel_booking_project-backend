@@ -63,6 +63,10 @@ const parkingschema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  ownerAvailablity: {
+    type: Boolean,
+    default: true,
+  },
   createdAt: {
     type: Date,
   },
