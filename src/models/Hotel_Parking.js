@@ -71,6 +71,10 @@ const HotelandParkingschema = new mongoose.Schema({
       type: String,
     },
   ],
+  ownerAvailablity: {
+    type: Boolean,
+    default: true,
+  },
   Facilities: [
     {
       type: String,

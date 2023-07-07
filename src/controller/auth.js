@@ -1,6 +1,7 @@
 import bcryptjs from "bcryptjs";
 import User from "../models/user.js";
 import Emailverification from "../models/emailVerification.js";
+
 import { sendVerificationmail } from "./mailer.js";
 import { SendEmail } from '../Functions/Emails/SendEmail.js'
 import { fileURLToPath } from "url";
@@ -31,6 +32,7 @@ export const registration = async (req, res) => {
     if (password !== c_password) {
       return res.status(500).json({ error: "Passwords do not match" });
     }
+
 
     // Checking if user already exists
     const exists = await User.findOne({ email });
@@ -72,7 +74,7 @@ export const registration = async (req, res) => {
     }
 
     return res.status(200).json({ message: "Verification Email Sent" });
-    
+
   } catch (error) {
     console.log(error);
   }

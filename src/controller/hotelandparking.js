@@ -2,6 +2,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import HotelandParking from "../models/Hotel_Parking.js";
 import User from "../models/user.js";
+import UnverifiedUsers from "../models/UnverifiedUsers.js";
 import { getRoomByHotel } from "../Functions/Hotel/getRoomByHotel.js";
 import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty.js";
 import { checkRoomAndParkingAvailability } from "../Functions/HotelParking/checkRoomAndParkingAvailabilty.js";
@@ -18,6 +19,7 @@ export const addhotelandparking = async (req, res) => {
 
     const {
       ownerId,
+      email,
       hotel_name,
       hotel_title,
       hotel_rating,
@@ -37,7 +39,6 @@ export const addhotelandparking = async (req, res) => {
 
     // Check if all fields are filled
     if (
-      !ownerId ||
       !hotel_name ||
       !hotel_title ||
       !hotel_rating ||
@@ -123,7 +124,7 @@ export const addhotelandparking = async (req, res) => {
 
     // Create a new Hotel and Parking
     const new_hotelandparking = new HotelandParking({
-      ownerId,
+      ...(ownerId && { ownerId }),
       hotel_name,
       hotel_title,
       hotel_rating,
@@ -136,6 +137,7 @@ export const addhotelandparking = async (req, res) => {
       parking_booked_slots: booked_slots,
       parking_total_slots: total_slots,
       parking_description,
+      ...(ownerId ? { ownerAvailablity: true } : { ownerAvailablity: false }),
       hotel_photos: hotelPhotos,
       parking_photos: parkingPhotos,
       parking_price: price,
@@ -144,6 +146,13 @@ export const addhotelandparking = async (req, res) => {
 
     // Save Hotel and Parking
     const result = await new_hotelandparking.save();
+
+    const newUser = new UnverifiedUsers({
+      email: email,
+      property_type: "HotelAndParking",
+      property_id: new_hotelandparking._id,
+    });
+    await newUser.save();
 
     // If Hotel and Parking saved successfully
     if (result) {
