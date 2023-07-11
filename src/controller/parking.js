@@ -145,7 +145,12 @@ export const addParking = async (req, res) => {
 export const getAllParking = async (req, res) => {
   let result = await Parking.find();
   try {
-    const response = result.filter((item) => item.approved === true);
+    const response = result.filter(
+      (item) =>
+        item.approved === true &&
+        item.ownerAvailablity === true &&
+        item.deList === false
+    );
     if (!response)
       return res.status(404).json({ message: "Parking Not Found" });
     res.status(200).json(response);
@@ -158,7 +163,12 @@ export const getAllParking = async (req, res) => {
 export const getPendingParking = async (req, res) => {
   let result = await Parking.find();
   try {
-    const response = result.filter((item) => item.approved === false);
+    const response = result.filter(
+      (item) =>
+        item.approved === false &&
+        item.ownerAvailablity === true &&
+        item.deList === false
+    );
     if (!response)
       return res.status(404).json({ message: "Parking Not Found" });
     res.status(200).json(response);
@@ -172,11 +182,16 @@ export const getParkingByCity = async (req, res) => {
   let city = req.params.city;
   try {
     let result = await Parking.find({ city });
-    const response = result.filter((item) => item.approved === true);
+    const response = result.filter(
+      (item) =>
+        item.approved === true &&
+        item.ownerAvailablity === true &&
+        item.deList === false
+    );
     if (!response)
       return res.status(404).json({ message: "Parking Not Found" });
     res.send(response);
-  } catch (error) { }
+  } catch (error) {}
 };
 
 // Get Parking By Id Function
@@ -196,7 +211,8 @@ export const getParkingById = async (req, res) => {
 export const getParkingByOwnerId = async (req, res) => {
   let ownerId = req.params.id;
   try {
-    const data = await Parking.find({ ownerId });
+    const result = await Parking.find({ ownerId });
+    const data = result.filter((item) => item.deList === false);
     if (!data) return res.status(404).json({ message: "Parking Not Found" });
     res.status(200).json(data);
   } catch (error) {
@@ -209,7 +225,12 @@ export const getApprovedParkingByOwnerId = async (req, res) => {
   let ownerId = req.params.id;
   try {
     const data = await Parking.find({ ownerId });
-    const response = data.filter((item) => item.approved === true);
+    const response = data.filter(
+      (item) =>
+        item.approved === true &&
+        item.ownerAvailablity === true &&
+        item.deList === false
+    );
     if (!response)
       return res.status(404).json({ message: "Parking Not Found" });
     res.status(200).json(response);
@@ -223,7 +244,12 @@ export const getUnapprovedParkingByOwnerId = async (req, res) => {
   let ownerId = req.params.id;
   try {
     const data = await Parking.find({ ownerId });
-    const response = data.filter((item) => item.approved === false);
+    const response = data.filter(
+      (item) =>
+        item.approved === false &&
+        item.ownerAvailablity === true &&
+        item.deList === false
+    );
     if (!response)
       return res.status(404).json({ message: "Parking Not Found" });
     res.status(200).json(response);
@@ -252,9 +278,15 @@ export const getParkingBySearch = async (req, res) => {
         parkingData[i].available = false;
       }
     });
-    parkingData = parkingData.filter((parking) => parking.available === true);
     parkingData = parkingData.filter(
-      (parking) => parking.parking.approved === true
+      (parking) =>
+        parking.available === true && parking.parking.approved === true
+    );
+    parkingData = parkingData.filter(
+      (parking) =>
+        parking.parking.approved === true &&
+        parking.parking.ownerAvailablity === true &&
+        parking.parking.deList === false
     );
     if (parkingData.length === 0) {
       return res
@@ -271,7 +303,11 @@ export const getParkingBySearch = async (req, res) => {
 // Get Chart Data For Parking Function
 export const getChartDataForParking = async (req, res) => {
   try {
-    const result = await Parking.find({ approved: true });
+    const result = await Parking.find({
+      approved: true,
+      ownerAvailablity: true,
+      deList: false,
+    });
     // if (!result) {
     //   return res.status(404).json({ message: "No hotels found" });
     // }
@@ -282,6 +318,55 @@ export const getChartDataForParking = async (req, res) => {
   }
 };
 
+// Get delisted parking by owner id
+export const getDelistedParkingByOwnerId = async (req, res) => {
+  let ownerId = req.params.id;
+  try {
+    const data = await Parking.find({ ownerId });
+    const response = data.filter((item) => item.deList === true);
+    if (!response)
+      return res.status(404).json({ message: "Parking Not Found" });
+    res.status(200).json(response);
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+// Get delisted parking function
+export const getAllDelistedParking = async (req, res) => {
+  try {
+    const data = await Parking.find({ deList: true });
+    if (!data) return res.status(404).json({ message: "Parking Not Found" });
+    res.status(200).json(data);
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+// Add Parking to the list Function
+export const addParkingToList = async (req, res) => {
+  const { id, account_type } = req.body;
+  try {
+    if (!id || !account_type)
+      return res.status(400).json({ message: "Invalid Request" });
+    const result = await Parking.findById(id);
+    if (!result) return res.status(404).json({ message: "Parking Not Found" });
+    if (result.deList === false)
+      return res.status(400).json({ message: "Parking Already Delisted" });
+    if (account_type === "admin") {
+      result.deList = false;
+      result.approved = true;
+      await result.save();
+      return res.status(200).json({ message: "Parking Added To List Successfully" });
+    } else if (account_type === "partner") {
+      result.deList = false;
+      await result.save();
+      return res.status(200).json({ message: "Parking Added To List Successfully" });
+    }
+  } catch (error) {
+    res.json(error);
+  }
+};
 // Update Parking Function
 export const updateParking = async (req, res) => {
   try {
@@ -376,9 +461,7 @@ export const UpdateParkingNew = async (req, res) => {
       !price ||
       !facilities
     ) {
-      return res
-        .status(422)
-        .json({ error: "All fields are required! " });
+      return res.status(422).json({ error: "All fields are required! " });
     }
 
     const Updated_parking = await Parking.findByIdAndUpdate(
@@ -585,24 +668,26 @@ export const approveParkingAndUpdateRating = async (req, res) => {
 // Delete Parking Function
 export const deleteParking = async (req, res) => {
   try {
-    const result = await Parking.findOneAndDelete({ _id: req.params.id });
+    const result = await Parking.findById(req.params.id);
     if (result) {
-      createNotificationProperty(
-        "Parking",
-        "Parking deleted",
-        `Your parking ${result.name} deleted`,
-        Date.now(),
-        result.ownerId
-      );
-      (await User.find({ account_type: "admin" })).forEach((user) => {
-        createNotificationProperty(
-          "Parking",
-          "parking added",
-          `A Your parking ${result.name} deleted`,
-          Date.now(),
-          user._id
-        );
-      });
+      result.deList = true;
+      await result.save();
+      // createNotificationProperty(
+      //   "Parking",
+      //   "Parking deleted",
+      //   `Your parking ${result.name} deleted`,
+      //   Date.now(),
+      //   result.ownerId
+      // );
+      // (await User.find({ account_type: "admin" })).forEach((user) => {
+      //   createNotificationProperty(
+      //     "Parking",
+      //     "parking added",
+      //     `A Your parking ${result.name} deleted`,
+      //     Date.now(),
+      //     user._id
+      //   );
+      // });
       res.status(200).json({ message: "Parking Deleted Successfully" });
     } else {
       res.status(404).json({ message: "Parking Not Found" });
