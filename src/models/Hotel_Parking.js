@@ -78,7 +78,7 @@ const HotelandParkingschema = new mongoose.Schema({
   Facilities: [
     {
       type: String,
-    }
+    },
   ],
   parking_price: {
     type: Number,
@@ -90,6 +90,10 @@ const HotelandParkingschema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
+  },
+  deList: {
+    type: Boolean,
+    default: false,
   },
 });
 // createing a new collection

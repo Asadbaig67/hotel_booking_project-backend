@@ -22,6 +22,9 @@ import {
   getHotelById,
   approveHotelAndParkingAndRating,
   getChartDataForHotel,
+  getDeListedHotelAndParkingByOwnerId,
+  getDeListedHotelAndParking,
+  addhotelandparkingToList
 } from "../controller/hotelandparking.js";
 
 const Router = express.Router();
@@ -73,6 +76,15 @@ Router.put(
 );
 // Update Hotel And Parking
 Router.patch("/updatehotelandparking/:id", updateHotelAndParking);
+// Get delisted Hotel And Parking
+Router.get("/getAllDelistedHotelAndParking", getDeListedHotelAndParking);
+// Get delisted Hotel And Parking By Owner Id
+Router.get(
+  "/getdelistedhotelandparkingbyownerid/:id",
+  getDeListedHotelAndParkingByOwnerId
+);
+// Add to list Hotel And Parking
+Router.put("/addHotelandparkingToList", addhotelandparkingToList);
 // Delete Hotel And Parking
 Router.delete("/deletehotelandparking/:id", deleteHotelAndParking);
 // Delete Hotel Images

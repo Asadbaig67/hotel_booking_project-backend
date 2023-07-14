@@ -142,7 +142,12 @@ export const addHotel = async (req, res) => {
 // Get All Hotels List Function
 export const getAllHotels = async (req, res) => {
   let result = await Hotel.find();
-  let response = result.filter((hotel) => hotel.approved === true);
+  let response = result.filter(
+    (hotel) =>
+      hotel.approved === true &&
+      hotel.ownerAvailablity === true &&
+      hotel.deList === false
+  );
   if (!response) {
     return res.status(404).json({ message: "No hotels found" });
   }
@@ -153,11 +158,11 @@ export const getAllHotels = async (req, res) => {
 export const getHotelByCityName = async (req, res) => {
   let city = req.params.city;
   city = city.toString();
-  const hotels = await Hotel.find({ city: city });
+
+  const hotels = await Hotel.find({ city: city, deList: false });
   if (!hotels) {
     return res.status(404).json({ message: "No hotels found" });
   }
-
 
   let array = hotels.map((singlehotel, index) => {
     let obj = {};
@@ -167,10 +172,16 @@ export const getHotelByCityName = async (req, res) => {
 
   res.status(200).json(array);
 };
+
 // Get Pending Hotels List Function
 export const getPendingHotels = async (req, res) => {
   let result = await Hotel.find();
-  let response = result.filter((hotel) => hotel.approved === false);
+  let response = result.filter(
+    (hotel) =>
+      hotel.approved === false &&
+      hotel.ownerAvailablity === true &&
+      hotel.deList === false
+  );
   if (!response) {
     return res.status(404).json({ message: "No hotels found" });
   }
@@ -197,7 +208,8 @@ export const getHotelsById = async (req, res) => {
 export const getHotelByOwnerId = async (req, res) => {
   const ownerId = req.params.id;
   try {
-    const result = await Hotel.find({ ownerId });
+    const data = await Hotel.find({ ownerId });
+    const result = data.filter((hotel) => hotel.deList === false);
     if (!result) {
       return res.status(404).json({ message: "No hotels found" });
     }
@@ -223,7 +235,12 @@ export const getApprovedHotelByOwnerId = async (req, res) => {
   const ownerId = req.params.id;
   try {
     const result = await Hotel.find({ ownerId });
-    const response = result.filter((hotel) => hotel.approved === true);
+    const response = result.filter(
+      (hotel) =>
+        hotel.approved === true &&
+        hotel.ownerAvailablity === true &&
+        hotel.deList === false
+    );
     if (!response) {
       return res.status(404).json({ message: "No hotels found" });
     }
@@ -238,7 +255,12 @@ export const getUnapprovedHotelByOwnerId = async (req, res) => {
   const ownerId = req.params.id;
   try {
     const result = await Hotel.find({ ownerId });
-    const response = result.filter((hotel) => hotel.approved === false);
+    const response = result.filter(
+      (hotel) =>
+        hotel.approved === false &&
+        hotel.ownerAvailablity === true &&
+        hotel.deList === false
+    );
     if (!response) {
       return res.status(404).json({ message: "No hotels found" });
     }
@@ -252,7 +274,12 @@ export const getUnapprovedHotelByOwnerId = async (req, res) => {
 export const getHotelByCityCount = async (req, res) => {
   const city = req.params.city;
   try {
-    const count = await Hotel.countDocuments({ city: city, approved: true });
+    const count = await Hotel.countDocuments({
+      city: city,
+      approved: true,
+      ownerAvailablity: true,
+      deList: false,
+    });
     // if (!count) {
     //   return res.status(404).json({ message: "No hotels found" });
     // }
@@ -302,7 +329,12 @@ export const getHotelByCity = async (req, res) => {
     room_available
   );
   hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
-  hotelData = hotelData.filter((hotel) => hotel.hotel.approved === true);
+  hotelData = hotelData.filter(
+    (hotel) =>
+      hotel.hotel.approved === true &&
+      hotel.hotel.ownerAvailablity === true &&
+      hotel.deList === false
+  );
 
   if (hotelData.length === 0)
     return res.status(401).json({ message: "No Hotel Found" });
@@ -577,7 +609,11 @@ export const approveHotelAndUpdateRating = async (req, res) => {
 // Get Chart Data For Hotel Function
 export const getChartDataForHotel = async (req, res) => {
   try {
-    const result = await Hotel.find({ approved: true });
+    const result = await Hotel.find({
+      approved: true,
+      ownerAvailablity: true,
+      deList: false,
+    });
     if (!result) {
       return res.status(200).json(new Array(12).fill(0));
     }
@@ -588,27 +624,85 @@ export const getChartDataForHotel = async (req, res) => {
   }
 };
 
+//Get delisted hotels by owner id function
+export const getDeListedByOwnerId = async (req, res) => {
+  try {
+    const result = await Hotel.find({
+      ownerId: req.params.id,
+      deList: true,
+    });
+    if (!result) {
+      return res.status(200).json([]);
+    }
+    res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Get all delisted hotels function
+export const getAllDeListedHotels = async (req, res) => {
+  try {
+    const result = await Hotel.find({ deList: true });
+    if (!result) {
+      return res.status(200).json([]);
+    }
+    res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+  }
+};
+// Add hotel to listing function
+export const addHotelToList = async (req, res) => {
+  const { id, account_type } = req.body;
+  try {
+    if (!id || !account_type) {
+      return res.status(400).json({ message: "Invalid Request" });
+    }
+    const result = await Hotel.findById(id);
+    if (!result) {
+      return res.status(404).json({ message: "Hotel Not Found" });
+    }
+    if (result.deList === false) {
+      return res.status(200).json({ message: "Hotel Already Listed" });
+    }
+    if (account_type === "admin") {
+      result.deList = false;
+      result.approved = true;
+      await result.save();
+      return res.status(200).json({ message: "Hotel Listed Successfully" });
+    } else if (account_type === "partner") {
+      result.deList = false;
+      await result.save();
+      return res.status(200).json({ message: "Hotel Listed Successfully" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 // Delete Parking Function
 export const deleteHotel = async (req, res) => {
   try {
-    const result = await Hotel.findOneAndDelete({ _id: req.params.id });
+    const result = await Hotel.findById(req.params.id);
     if (result) {
-      createNotificationProperty(
-        "Hotel",
-        "Hotel Deleted",
-        `Your hotel ${result.name} is deleted`,
-        Date.now(),
-        result.ownerId
-      );
-      (await User.find({ account_type: "admin" })).forEach((user) => {
-        createNotificationProperty(
-          "hotel",
-          "Hotel Deleted",
-          `Hotel ${result.name} is deleted`,
-          Date.now(),
-          user._id
-        );
-      });
+      result.deList = true;
+      await result.save();
+      // createNotificationProperty(
+      //   "Hotel",
+      //   "Hotel Deleted",
+      //   `Your hotel ${result.name} is deleted`,
+      //   Date.now(),
+      //   result.ownerId
+      // );
+      // (await User.find({ account_type: "admin" })).forEach((user) => {
+      //   createNotificationProperty(
+      //     "hotel",
+      //     "Hotel Deleted",
+      //     `Hotel ${result.name} is deleted`,
+      //     Date.now(),
+      //     user._id
+      //   );
+      // });
       res.status(200).json({ message: "Hotel Deleted Successfully" });
     } else {
       res.status(404).json({ message: "Hotel Not Found" });
@@ -621,7 +715,11 @@ export const deleteHotel = async (req, res) => {
 // Get Top 4 Hotels Function
 export const getTopHotels = async (req, res) => {
   try {
-    const hotels = await Hotel.find({ approved: true })
+    const hotels = await Hotel.find({
+      approved: true,
+      ownerAvailablity: true,
+      deList: false,
+    })
       .sort({ rating: -1 })
       .limit(4);
 

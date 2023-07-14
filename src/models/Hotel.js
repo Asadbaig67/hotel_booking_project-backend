@@ -42,7 +42,7 @@ const hotelschema = new mongoose.Schema({
   Facilities: [
     {
       type: String,
-    }
+    },
   ],
   rooms: [
     {
@@ -60,6 +60,10 @@ const hotelschema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
+  },
+  deList: {
+    type: Boolean,
+    default: false,
   },
 });
 
