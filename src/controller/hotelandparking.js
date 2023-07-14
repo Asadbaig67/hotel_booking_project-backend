@@ -112,7 +112,7 @@ export const addhotelandparking = async (req, res) => {
       await file.mv(filePath);
     }
 
-    const baseUrl = "http://localhost:5000";
+    const baseUrl = "http://46.32.232.208:5000";
     const hotelPhotos = hotel_fileNames.map(
       (fileName) => `${baseUrl}/uploads/Hotel_Parking_Images/${fileName}`
     );
@@ -156,23 +156,32 @@ export const addhotelandparking = async (req, res) => {
 
     // If Hotel and Parking saved successfully
     if (result) {
-      createNotificationProperty(
-        "hotel and parking",
-        "Hotel and Parking Added",
-        `Your hotel and parking ${result.hotel_name} is added successfully`,
-        Date.now(),
-        result.ownerId
-      );
-      (await User.find({ account_type: "admin" })).forEach((user) => {
-        createNotificationProperty(
-          "hotel and parking",
-          "Hotel and Parking Added",
-          `New Your hotel and parking ${result.hotel_name} is added successfully by ${result.ownerId}`,
-          Date.now(),
-          user._id
-        );
+      // createNotificationProperty(
+      //   "hotel and parking",
+      //   "Hotel and Parking Added",
+      //   `Your hotel and parking ${result.hotel_name} is added successfully`,
+      //   Date.now(),
+      //   result.ownerId
+      // );
+      // (await User.find({ account_type: "admin" })).forEach((user) => {
+      //   createNotificationProperty(
+      //     "hotel and parking",
+      //     "Hotel and Parking Added",
+      //     `New Your hotel and parking ${result.hotel_name} is added successfully by ${result.ownerId}`,
+      //     Date.now(),
+      //     user._id
+      //   );
+      // });
+
+    if (email) {
+      await SendEmail({
+        email: email,
+        subject: "Hotel And Parking Added",
+        message:
+          "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
       });
 
+    } else {
       const Owner = await User.findById(ownerId);
 
       // Send Email
@@ -183,15 +192,18 @@ export const addhotelandparking = async (req, res) => {
         message:
           "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
       });
-
-      res.status(200).json({ message: "Hotel and Parking Added Successfully", hotel: result });
-    } else {
-      res.status(500).json({ message: "Hotel and Parking Cannot be Added" });
     }
-  } catch (error) {
-    // If any error occurs
-    console.log(error);
+
+
+
+    res.status(200).json({ message: "Hotel and Parking Added Successfully", hotel: result });
+  } else {
+    res.status(500).json({ message: "Hotel and Parking Cannot be Added" });
   }
+} catch (error) {
+  // If any error occurs
+  console.log(error);
+}
 };
 
 // Get All Hotels And Parking
@@ -488,7 +500,7 @@ export const updateHotelAndParkingNew = async (req, res) => {
         }
       }
 
-      const baseUrlHotel = "http://localhost:5000";
+      const baseUrlHotel = "http://46.32.232.208:5000";
       hotel_photos = fileNamesHotel.map(
         (fileName) => `${baseUrlHotel}/uploads/Hotel_Parking_Images/${fileName}`
       );
@@ -524,7 +536,7 @@ export const updateHotelAndParkingNew = async (req, res) => {
           await file.mv(filePath);
         }
       }
-      const baseUrlParking = "http://localhost:5000";
+      const baseUrlParking = "http://46.32.232.208:5000";
       parking_photos = fileNamesParking.map(
         (fileName) =>
           `${baseUrlParking}/uploads/Hotel_Parking_Images/${fileName}`

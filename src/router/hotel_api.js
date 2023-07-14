@@ -18,7 +18,8 @@ import {
   deleteHotelImages,
   UpdateHotel,
   approveHotelAndUpdateRating,
-  getChartDataForHotel
+  getChartDataForHotel,
+  getHotelRoomsList,
 } from "../controller/hotel.js";
 
 // Initialize multer with the storage configuration
@@ -45,6 +46,8 @@ Router.get("/getUnapprovedhotelbyonwerid/:id", getUnapprovedHotelByOwnerId);
 Router.get("/gethotelbycity/:city", getHotelByCityName);
 // Get Top 4 Hotels
 Router.get("/gettophotels", getTopHotels);
+// get Hotel Rooms List
+Router.get("/gethotelrooms", getHotelRoomsList);
 // Get Hotel By City
 Router.get("/search", getHotelByCity);
 // Get Chart Data For Admin Hotel

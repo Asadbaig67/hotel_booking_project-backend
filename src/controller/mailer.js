@@ -71,7 +71,7 @@ export const sendmail = async (req, res) => {
 // Send Email Verification Link
 export const sendVerificationmail = async (email, otp, firstName, lastName, password, account_type) => {
     try {
-        const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+        const baseUrl = process.env.BASE_URL || 'http://46.32.232.208:5000';
 
         let config = {
             service: "gmail",
@@ -137,7 +137,7 @@ export const sendVerificationmail = async (email, otp, firstName, lastName, pass
 // Send OTP Verification Link
 export const sendOtpVerificationmail = async (user, email, otp) => {
     try {
-        const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+        const baseUrl = process.env.BASE_URL || 'http://46.32.232.208:5000';
 
         let config = {
             service: "gmail",
