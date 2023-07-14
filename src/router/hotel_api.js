@@ -20,6 +20,9 @@ import {
   approveHotelAndUpdateRating,
   getChartDataForHotel,
   getHotelRoomsList,
+  getDeListedByOwnerId,
+  getAllDeListedHotels,
+  addHotelToList
 } from "../controller/hotel.js";
 
 // Initialize multer with the storage configuration
@@ -60,6 +63,12 @@ Router.patch("/updatehotel/:id", updateHotel);
 Router.put("/approvehotel/:id", approveHotel);
 //Approve Hotel and update rating
 Router.put("/approvehotelAndUpdateRating/:id", approveHotelAndUpdateRating);
+//Get delisted hotel by onwer id
+Router.get("/getdelistedhotelbyonwerid/:id", getDeListedByOwnerId);
+// Add hotel to the listing
+Router.put("/addHotelToList", addHotelToList);
+//Get all delisted hotel
+Router.get("/getalldelistedhotel", getAllDeListedHotels);
 // Delete Hotel
 Router.delete("/deletehotel/:id", deleteHotel);
 //Filter data

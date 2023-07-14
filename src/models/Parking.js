@@ -44,7 +44,7 @@ const parkingschema = new mongoose.Schema({
   Facilities: [
     {
       type: String,
-    }
+    },
   ],
   city: {
     type: String,
@@ -69,10 +69,13 @@ const parkingschema = new mongoose.Schema({
   createdAt: {
     type: Date,
   },
+  deList: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // createing a new collection
 const Parking = mongoose.model("Parking", parkingschema);
-
 
 export default Parking;
