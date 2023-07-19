@@ -4,6 +4,7 @@ export const getRoomsList = (roomData, dates) => {
 
    let room_no = roomData.room_no;
    let roomObj = {
+      id: roomData._id,
       price: roomData.price,
       type: roomData.type,
       rooms_list: []

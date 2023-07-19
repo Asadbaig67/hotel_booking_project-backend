@@ -8,6 +8,7 @@ import Parking from "./router/parking_api.js";
 import Room from "./router/room_api.js";
 import HotelandParking from "./router/hotelandparking_api.js";
 import booking from "./router/booking_api.js";
+import AdminBookings from "./router/AdminBookings.js";
 import mail from "./router/mail_api.js";
 import resetPassword from "./router/resetPassword_api.js";
 import verifyEmail from "./router/emailVerification.js";
@@ -94,7 +95,7 @@ app.use(express.json());
 // To avoid cors error
 app.use(
   cors({
-    origin: "http://46.32.232.208:5000",
+    origin: "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
@@ -122,6 +123,7 @@ app.use("/OperatingProperty", OperatingCities);
 app.use("/notification", Notification);
 app.use("/newsletter", Newsletteremail);
 app.use("/contact", Contact);
+app.use("/adminbookings", AdminBookings);
 
 // To listen to port
 app.listen(port, () => {
