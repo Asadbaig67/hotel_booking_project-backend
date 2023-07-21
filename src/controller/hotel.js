@@ -1,5 +1,6 @@
 import Hotel from "../models/Hotel.js";
 import User from "../models/user.js";
+import Room from "../models/Room.js";
 import UnverifiedUsers from "../models/UnverifiedUsers.js";
 import { checkRoomAvailability } from "../Functions/Hotel/checkroomAvailabilty.js";
 import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty.js";
@@ -9,6 +10,7 @@ import { fileURLToPath } from "url";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import { SendEmail } from "../Functions/Emails/SendEmail.js";
 import { getData } from "../Functions/ChartData/GetData.js";
+import { getRoomsList } from "../Functions/Hotel/getRoomsList.js"
 
 import path from "path";
 import fs from "fs";
@@ -117,18 +119,27 @@ export const addHotel = async (req, res) => {
         );
       });
 
-      const Owner = await User.findById(ownerId);
+      if (email) {
+        await SendEmail({
+          email: email,
+          subject: "Hotel Added",
+          message:
+            "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
+        });
+      } else {
+        const Owner = await User.findById(ownerId);
 
-      // Send Email
-      await SendEmail({
-        name: Owner.firstName + " " + Owner.lastName,
-        email: Owner.email,
-        subject: "Hotel Added",
-        message:
-          "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
-      });
+        // Send Email
+        await SendEmail({
+          name: Owner.firstName + " " + Owner.lastName,
+          email: Owner.email,
+          subject: "Hotel Added",
+          message:
+            "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
+        });
+      }
 
-      return res.status(200).json({ message: "Hotel Added Successfully" });
+      return res.status(200).json({ message: "Hotel Added Successfully", hotel: result });
     } else {
       return res
         .status(500)
@@ -341,6 +352,40 @@ export const getHotelByCity = async (req, res) => {
 
   return res.status(200).json(hotelData);
 };
+
+export const getHotelRoomsList = async (req, res) => {
+
+  let hotelId = req.query.id;
+  let dates = [new Date(req.query.checkIn), new Date(req.query.checkOut)];
+
+  let hotel;
+  try {
+    hotel = await Hotel.findById(hotelId);
+    if (!hotel) {
+      return res.status(404).json({ message: "Hotel Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+  const roomIds = hotel.rooms;
+
+  let rooms = [];
+  try {
+    rooms = await Promise.all(roomIds.map(async (roomId) => {
+
+      const roomData = await Room.findById(roomId);
+      const availbleRoomsObj = getRoomsList(roomData, dates);
+      return availbleRoomsObj;
+
+    }));
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+
+  res.status(200).json({ rooms });
+}
 
 // Update Parking Function
 export const updateHotel = async (req, res) => {

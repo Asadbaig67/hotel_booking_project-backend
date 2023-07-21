@@ -1,5 +1,6 @@
 import Parking from "../models/Parking.js";
 import User from "../models/user.js";
+import UnverifiedUsers from "../models/UnverifiedUsers.js";
 import { fileURLToPath } from "url";
 import path from "path";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
@@ -104,33 +105,44 @@ export const addParking = async (req, res) => {
     });
     await newUser.save();
     if (result) {
-      createNotificationProperty(
-        "Parking",
-        "Parking added",
-        `Your new parking ${result.name} is added`,
-        Date.now(),
-        ownerId
-      );
-      (await User.find({ account_type: "admin" })).forEach((user) => {
-        createNotificationProperty(
-          "Parking",
-          "parking added",
-          `new parking ${result.name} is added and waiting for approval`,
-          Date.now(),
-          user._id
-        );
-      });
+      // createNotificationProperty(
+      //   "Parking",
+      //   "Parking added",
+      //   `Your new parking ${result.name} is added`,
+      //   Date.now(),
+      //   ownerId
+      // );
+      // (await User.find({ account_type: "admin" })).forEach((user) => {
+      //   createNotificationProperty(
+      //     "Parking",
+      //     "parking added",
+      //     `new parking ${result.name} is added and waiting for approval`,
+      //     Date.now(),
+      //     user._id
+      //   );
+      // });
 
-      const Owner = await User.findById(ownerId);
+      if (email) {
+        await SendEmail({
+          email: email,
+          subject: "Parking Added",
+          message:
+            "Your Parking Added has been added successfully. Thank you for choosing Desalis Hotels. We will review your Parking and get back to you as soon as possible. ",
+        });
 
-      // Send Email
-      await SendEmail({
-        name: Owner.firstName + " " + Owner.lastName,
-        email: Owner.email,
-        subject: "Parking Added",
-        message:
-          "Your Parking Added has been added successfully. Thank you for choosing Desalis Hotels. We will review your Parking and get back to you as soon as possible. ",
-      });
+      } else {
+
+        const Owner = await User.findById(ownerId);
+
+        // Send Email
+        await SendEmail({
+          name: Owner.firstName + " " + Owner.lastName,
+          email: Owner.email,
+          subject: "Parking Added",
+          message:
+            "Your Parking Added has been added successfully. Thank you for choosing Desalis Hotels. We will review your Parking and get back to you as soon as possible. ",
+        });
+      }
 
       res.status(200).json({ message: "Parking Added Successfully" });
     } else {

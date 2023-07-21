@@ -24,7 +24,8 @@ import {
   getChartDataForHotel,
   getDeListedHotelAndParkingByOwnerId,
   getDeListedHotelAndParking,
-  addhotelandparkingToList
+  addhotelandparkingToList,
+  getHotelAndParkingRoomsList
 } from "../controller/hotelandparking.js";
 
 const Router = express.Router();
@@ -33,6 +34,8 @@ const Router = express.Router();
 Router.post("/addhotelandparking", addhotelandparking);
 // get Hotel by Id
 Router.get("/gethotelandparkingById/:id", getHotelById);
+// get Hotel Rooms List
+Router.get("/getHotelAndParkingRooms", getHotelAndParkingRoomsList);
 // Get All Hotel And Parking
 Router.get("/getallhotelandparkings", getAllhotelandparkings);
 // Get Pending Hotel And Parking

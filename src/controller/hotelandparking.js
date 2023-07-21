@@ -2,12 +2,14 @@ import path from "path";
 import { fileURLToPath } from "url";
 import HotelandParking from "../models/Hotel_Parking.js";
 import User from "../models/user.js";
+import Room from "../models/Room.js";
 import UnverifiedUsers from "../models/UnverifiedUsers.js";
 import { getRoomByHotel } from "../Functions/Hotel/getRoomByHotel.js";
 import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty.js";
 import { checkRoomAndParkingAvailability } from "../Functions/HotelParking/checkRoomAndParkingAvailabilty.js";
 import { getRoomByPrices } from "../Functions/Hotel/getRoomsPrices.js";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
+import { getRoomsList } from "../Functions/Hotel/getRoomsList.js"
 import fs from "fs";
 
 import { getData } from "../Functions/ChartData/GetData.js";
@@ -152,38 +154,47 @@ export const addhotelandparking = async (req, res) => {
 
     // If Hotel and Parking saved successfully
     if (result) {
-      createNotificationProperty(
-        "hotel and parking",
-        "Hotel and Parking Added",
-        `Your hotel and parking ${result.hotel_name} is added successfully`,
-        Date.now(),
-        result.ownerId
-      );
-      (await User.find({ account_type: "admin" })).forEach((user) => {
-        createNotificationProperty(
-          "hotel and parking",
-          "Hotel and Parking Added",
-          `New Your hotel and parking ${result.hotel_name} is added successfully by ${result.ownerId}`,
-          Date.now(),
-          user._id
-        );
-      });
+      // createNotificationProperty(
+      //   "hotel and parking",
+      //   "Hotel and Parking Added",
+      //   `Your hotel and parking ${result.hotel_name} is added successfully`,
+      //   Date.now(),
+      //   result.ownerId
+      // );
+      // (await User.find({ account_type: "admin" })).forEach((user) => {
+      //   createNotificationProperty(
+      //     "hotel and parking",
+      //     "Hotel and Parking Added",
+      //     `New Your hotel and parking ${result.hotel_name} is added successfully by ${result.ownerId}`,
+      //     Date.now(),
+      //     user._id
+      //   );
+      // });
 
-      const Owner = await User.findById(ownerId);
+      if (email) {
+        await SendEmail({
+          email: email,
+          subject: "Hotel And Parking Added",
+          message:
+            "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
+        });
 
-      // Send Email
-      await SendEmail({
-        name: Owner.firstName + " " + Owner.lastName,
-        email: Owner.email,
-        subject: "Hotel And Parking Added",
-        message:
-          "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
-      });
+      } else {
+        const Owner = await User.findById(ownerId);
 
-      res.status(200).json({
-        message: "Hotel and Parking Added Successfully",
-        hotel: result,
-      });
+        // Send Email
+        await SendEmail({
+          name: Owner.firstName + " " + Owner.lastName,
+          email: Owner.email,
+          subject: "Hotel And Parking Added",
+          message:
+            "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
+        });
+      }
+
+
+
+      res.status(200).json({ message: "Hotel and Parking Added Successfully", hotel: result });
     } else {
       res.status(500).json({ message: "Hotel and Parking Cannot be Added" });
     }
@@ -225,6 +236,41 @@ export const getHotelById = async (req, res) => {
     res.json(error);
   }
 };
+
+// Get Available Rooms By Hotel And Parking Id
+export const getHotelAndParkingRoomsList = async (req, res) => {
+
+  let hotelAndParkingId = req.query.id;
+  let dates = [new Date(req.query.checkIn), new Date(req.query.checkOut)];
+
+  let hotelandparking;
+  try {
+    hotelandparking = await HotelandParking.findById(hotelAndParkingId);
+    if (!hotelandparking) {
+      return res.status(404).json({ message: "Hotel Not Found" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+  const roomIds = hotelandparking.rooms;
+
+  let rooms = [];
+  try {
+    rooms = await Promise.all(roomIds.map(async (roomId) => {
+
+      const roomData = await Room.findById(roomId);
+      const availbleRoomsObj = getRoomsList(roomData, dates);
+      return availbleRoomsObj;
+
+    }));
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+
+  res.status(200).json({ rooms });
+}
 
 // Get Pending Hotels And Parking
 export const getPendinghotelandparkings = async (req, res) => {
