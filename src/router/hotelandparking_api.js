@@ -25,7 +25,8 @@ import {
   getDeListedHotelAndParkingByOwnerId,
   getDeListedHotelAndParking,
   addhotelandparkingToList,
-  getHotelAndParkingRoomsList
+  getHotelAndParkingRoomsList,
+  getHotelAndParkingNamesByOwnerId
 } from "../controller/hotelandparking.js";
 
 const Router = express.Router();
@@ -94,6 +95,11 @@ Router.delete("/deletehotelandparking/:id", deleteHotelAndParking);
 Router.delete("/deletehotelimage/:id", deleteHotelImages);
 // Delete Parking Images
 Router.delete("/deleteparkingimage/:id", deleteParkingImages);
+// Get Hotel And Parking Names By Owner Id
+Router.get(
+  "/getHotelAndParkingNamesByOwnerId/:id",
+  getHotelAndParkingNamesByOwnerId
+);
 
 // Exporting Router
 export default Router;

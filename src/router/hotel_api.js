@@ -23,7 +23,8 @@ import {
   getDeListedByOwnerId,
   getAllDeListedHotels,
   addHotelToList,
-  getHotelByHotelId
+  getHotelByHotelId,
+  getHotelNamesByOwnerId
 } from "../controller/hotel.js";
 
 // Initialize multer with the storage configuration
@@ -78,5 +79,7 @@ Router.delete("/deletehotel/:id", deleteHotel);
 Router.get("/filterRating", getHotelByRatingFilter);
 
 Router.delete("/deletehotelImage/:id", deleteHotelImages);
+
+Router.get("/getHotelNamesByOwnerId/:id", getHotelNamesByOwnerId);
 
 export default Router;

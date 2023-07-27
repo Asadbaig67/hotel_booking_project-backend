@@ -19,7 +19,8 @@ import {
   getChartDataForParking,
   getDelistedParkingByOwnerId,
   getAllDelistedParking,
-  addParkingToList
+  addParkingToList,
+  getParkingNamesByOwnerId
 } from "../controller/parking.js";
 
 const Router = express.Router();
@@ -64,5 +65,7 @@ Router.put("/approveParkingAndUpdateRating/:id", approveParkingAndUpdateRating);
 Router.delete("/deleteparking/:id", deleteParking);
 // Delete Parking Images
 Router.delete("/deleteparkingimage/:id", deleteParkingImages);
+// Get Parking Names By Owner Id
+Router.get("/getParkingNamesByOwnerId/:id", getParkingNamesByOwnerId);
 
 export default Router;

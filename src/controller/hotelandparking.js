@@ -1096,3 +1096,17 @@ export const deleteParkingImages = async (req, res) => {
     return res.status(404).json({ error: "File not found." });
   }
 };
+
+// get hotel adn parking names by owner id
+export const getHotelAndParkingNamesByOwnerId = async (req, res) => {
+  const ownerId = req.params.id;
+  try {
+    const hotels = await HotelandParking.find({ ownerId: ownerId }).select("name");
+    if (!hotels) {
+      return res.status(400).json({ msg: "No Hotels Found" });
+    }
+    return res.status(200).json({ hotels });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
