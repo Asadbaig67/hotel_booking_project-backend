@@ -22,14 +22,12 @@ export const AddHotelBooking = async (req, res) => {
     },
     persons: {
       adults,
-      childrens,
+      children: childrens,
     },
-    dates: {
-      check_in: checkIn,
-      check_out: checkOut,
-    },
-    booked_rooms: rooms,
-    booking_type: "hotel",
+    checkIn: checkIn,
+    checkOut: checkOut,
+    room: rooms,
+    Booking_type: "hotel",
     total_price,
     created_at: new Date().toISOString(),
   });
@@ -97,12 +95,18 @@ export const AddParkingBooking = async (req, res) => {
       email,
       phone_number: phone,
     },
-    dates: {
-      check_in: checkIn,
-      check_out: checkOut,
+    parking: {
+      Total_slots: parking_info.booked_slots,
+      Parking_price: parking_info.price, // No value comming from front-end
     },
-    parking_info,
-    booking_type: "parking",
+    checkIn: checkIn,
+    checkOut: checkOut,
+    parking_info: {
+      parking_name: parking_info.parking_name,
+      vehicles_info: parking_info.vehicles_info,
+      booked_slots: parking_info.booked_slots,
+    },
+    Booking_type: "parking",
     total_price,
     created_at: new Date().toISOString(),
   });
@@ -158,7 +162,7 @@ export const AddHotelAndParkingBooking = async (req, res) => {
   const { hotelAndParkingId, name, email, phone, checkIn, checkOut, rooms, adults, childrens, parking_info, total_price } = req.body;
 
   const newHotelBooking = new AdminBookings({
-    hotelAndParkingId,
+    HotelAndParkingId: hotelAndParkingId,
     user_info: {
       name,
       email,
@@ -166,15 +170,21 @@ export const AddHotelAndParkingBooking = async (req, res) => {
     },
     persons: {
       adults,
-      childrens,
+      children: childrens,
     },
-    dates: {
-      check_in: checkIn,
-      check_out: checkOut,
+    checkIn: checkIn,
+    checkOut: checkOut,
+    room: rooms,
+    Booking_type: "hotelandparking",
+    parking: {
+      Total_slots: parking_info.booked_slots,
+      Parking_price: parking_info.price, // No value comming from front-end
     },
-    booked_rooms: rooms,
-    booking_type: "hotelandparking",
-    parking_info,
+    parking_info: {
+      parking_name: parking_info.parking_name,
+      vehicles_info: parking_info.vehicles_info,
+      booked_slots: parking_info.booked_slots,
+    },
     total_price,
     created_at: new Date().toISOString(),
   });

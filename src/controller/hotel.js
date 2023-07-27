@@ -94,12 +94,15 @@ export const addHotel = async (req, res) => {
 
     const result = await new_hotel.save();
 
-    const newUser = new UnverifiedUsers({
-      email: email,
-      property_type: "Hotel",
-      property_id: new_hotel._id,
-    });
-    await newUser.save();
+    if (email) {
+
+      const newUser = new UnverifiedUsers({
+        email: email,
+        property_type: "Hotel",
+        property_id: new_hotel._id,
+      });
+      await newUser.save();
+    }
 
     if (result) {
       createNotificationProperty(
@@ -319,6 +322,58 @@ export const getHotelByCity = async (req, res) => {
   if (!cityHotel) {
     res.status(404).json({ message: "No hotels found" });
   }
+
+  await getRoomByHotel(cityHotel, roomsArr);
+
+  //to combine hotel and its respective rooms
+  roomsArr.map(async (hotel, i) => {
+    if (hotel.length > 0)
+      hotelRecord = [...hotelRecord, { hotel: cityHotel[i], rooms: hotel }];
+  });
+
+  //to check if room is available or not
+  hotelData = checkRoomAvailability(hotelRecord, dates);
+
+  //to filter out the hotels which have no rooms available
+  hotelData = checkHotelAvailability(
+    hotelData,
+    singleRoom,
+    twinRoom,
+    familyRoom,
+    room_available
+  );
+  hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
+  hotelData = hotelData.filter(
+    (hotel) =>
+      hotel.hotel.approved === true &&
+      hotel.hotel.ownerAvailablity === true &&
+      hotel.deList === false
+  );
+
+  if (hotelData.length === 0)
+    return res.status(401).json({ message: "No Hotel Found" });
+
+  return res.status(200).json(hotelData);
+};
+
+// Get Hotel By City Function
+export const getHotelByHotelId = async (req, res) => {
+  let city = req.query.city;
+  let dates = [req.query.checkIn, req.query.checkOut];
+  let singleRoom = req.query.singleRoom;
+  let twinRoom = req.query.twinRoom;
+  let familyRoom = req.query.familyRoom;
+  let room_available = [false, false, false];
+  let roomsArr = [];
+  let hotelRecord = [];
+  let hotelData = [];
+
+  // Find Hotel By City
+  let cityHotel = await Hotel.findById(req.query.id);
+  if (!cityHotel) {
+    res.status(404).json({ message: "No hotels found" });
+  }
+  cityHotel = Array.from(cityHotel);
 
   await getRoomByHotel(cityHotel, roomsArr);
 
