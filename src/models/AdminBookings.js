@@ -87,7 +87,7 @@ const AdminBookingsSchema = new mongoose.Schema({
   total_price: {
     type: Number,
   },
-  created_at: {
+  createdAt: {
     type: Date,
     default: Date.now,
   },

@@ -11,6 +11,7 @@ import { SendEmail } from "../Functions/Emails/SendEmail.js";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import { convertIntoRequiredFormat } from "../Functions/Booking/ConvertIntoRequiredFormat.js";
 import { getData } from "../Functions/ChartData/GetData.js";
+import AdminBookings from "../models/AdminBookings.js";
 
 // Add Hotel Booking Function Updated
 export const addBooking = async (req, res) => {
@@ -333,8 +334,9 @@ export const addBookingParking = async (req, res) => {
 // Get All Bookings Function
 export const getBooking = async (req, res) => {
   try {
-    const bookings = await booking.find();
-    
+    const userbookings = await booking.find();
+    const adminBooking = await AdminBookings.find();
+    const bookings = [...userbookings, ...adminBooking];
     const data = bookings.filter((booking) => booking.canceled === false);
     const result = await convertIntoRequiredFormat(data);
     res.status(result.status).json(result.data);
@@ -346,9 +348,12 @@ export const getBooking = async (req, res) => {
 // Get Specific Booking By Id
 export const getBookingById = async (req, res) => {
   try {
-    const bookingById = await booking.findById(req.params.id);
+    let bookingById = await booking.findById(req.params.id);
     const bookingOut = {};
-    if (booking) {
+    if (!bookingById) {
+      bookingById = await AdminBookings.findById(req.params.id);
+    }
+    if (bookingById) {
       bookingOut._id = bookingById._id;
       bookingOut.total_price = bookingById.total_price;
       bookingOut.Booking_type = bookingById.Booking_type;
@@ -398,7 +403,9 @@ export const getBookingById = async (req, res) => {
 export const getBookingByType = async (req, res) => {
   const Booking_type = req.params.type;
   try {
-    const bookingByType = await booking.find({ Booking_type });
+    const userBookingByType = await booking.find({ Booking_type });
+    const adminBookingByType = await AdminBookings.find({ Booking_type });
+    const bookingByType = [...userBookingByType, ...adminBookingByType];
     const data = bookingByType.filter((booking) => booking.canceled === false);
     const result = await convertIntoRequiredFormat(data);
     res.status(result.status).json(result.data);
@@ -419,9 +426,13 @@ export const getBookingChartDataForHotel = async (req, res) => {
     const result = [];
     for (let i = 0; i < hotelIds.length; i++) {
       const hotelId = hotelIds[i];
-      const data = await booking.find({
+      const userBooking = await booking.find({
         $and: [{ canceled: false }, { Booking_type: "hotel" }, { hotelId }],
       });
+      const adminBooking = await AdminBookings.find({
+        $and: [{ canceled: false }, { Booking_type: "hotel" }, { hotelId }],
+      });
+      const data = [...userBooking, ...adminBooking];
       result.push({ name: hotelName[i], data: getData(data) });
     }
     res.status(200).json(result);
@@ -439,15 +450,22 @@ export const getCombinedBookingChartDataForHotelPartner = async (req, res) => {
 
     // get all bookings of these hotels
     const hotelIds = hotels.map((hotel) => hotel._id);
-    const result = await booking.find({
+
+    const userbookings = await booking.find({
       $and: [
         { canceled: false },
         { Booking_type: "hotel" },
         { hotelId: { $in: hotelIds } },
       ],
     });
-
-  
+    const adminbookings = await AdminBookings.find({
+      $and: [
+        { canceled: false },
+        { Booking_type: "hotel" },
+        { hotelId: { $in: hotelIds } },
+      ],
+    });
+    const result = [...userbookings, ...adminbookings];
     const data = getData(result);
 
     res.send(data);
@@ -465,7 +483,15 @@ export const getBookingChartDataForHotelPartner = async (req, res) => {
 
     // get all bookings of these hotels
     const hotelIds = Object.values(hotels).map((hotel) => hotel._id);
-    const result = await booking.find({
+
+    const userbookings = await booking.find({
+      $and: [
+        { canceled: false },
+        { Booking_type: "hotel" },
+        { hotelId: { $in: hotelIds } },
+      ],
+    });
+    const adminbookings = await AdminBookings.find({
       $and: [
         { canceled: false },
         { Booking_type: "hotel" },
@@ -473,7 +499,8 @@ export const getBookingChartDataForHotelPartner = async (req, res) => {
       ],
     });
 
-  
+    const result = [...userbookings, ...adminbookings];
+
     const DataArray = hotelIds.map((hotelId) => {
       const hotelBookings = result.filter(
         (booking) => booking.hotelId.toString() === hotelId.toString()
@@ -500,16 +527,21 @@ export const getCombinedBookingChartDataForHotelParkingPartner = async (
 
     // get all bookings of these hotels
     const hotelIds = hotels.map((hotel) => hotel._id);
-    const result = await booking.find({
+    const userbookings = await booking.find({
       $and: [
         { canceled: false },
         { Booking_type: "hotelandparking" },
         { HotelAndParkingId: { $in: hotelIds } },
       ],
     });
-
-  
-
+    const adminbookings = await AdminBookings.find({
+      $and: [
+        { canceled: false },
+        { Booking_type: "hotelandparking" },
+        { HotelAndParkingId: { $in: hotelIds } },
+      ],
+    });
+    const result = [...userbookings, ...adminbookings];
     const data = getData(result);
 
     res.send(data);
@@ -527,13 +559,21 @@ export const getBookingChartDataForHotelParkingPartner = async (req, res) => {
 
     // get all bookings of these hotels
     const hotelIds = Object.values(hotels).map((hotel) => hotel._id);
-    const result = await booking.find({
+    const userbooking = await booking.find({
       $and: [
         { canceled: false },
         { Booking_type: "hotelandparking" },
         { HotelAndParkingId: { $in: hotelIds } },
       ],
     });
+    const adminbooking = await AdminBookings.find({
+      $and: [
+        { canceled: false },
+        { Booking_type: "hotelandparking" },
+        { HotelAndParkingId: { $in: hotelIds } },
+      ],
+    });
+    const result = [...userbooking, ...adminbooking];
     const DataArray = hotelIds.map((hotelId) => {
       const hotelBookings = result.filter(
         (booking) => booking.HotelAndParkingId.toString() === hotelId.toString()
@@ -560,13 +600,22 @@ export const getCombinedBookingChartDataForParkingPartner = async (
 
     // get all bookings of these hotels
     const parkingIds = parkings.map((parking) => parking._id);
-    const result = await booking.find({
+
+    const userbooking = await booking.find({
       $and: [
         { canceled: false },
         { Booking_type: "parking" },
         { parkingId: { $in: parkingIds } },
       ],
     });
+    const adminbooking = await AdminBookings.find({
+      $and: [
+        { canceled: false },
+        { Booking_type: "parking" },
+        { parkingId: { $in: parkingIds } },
+      ],
+    });
+    const result = [...userbooking, ...adminbooking];
 
     const data = getData(result);
 
@@ -585,15 +634,22 @@ export const getBookingChartDataForParkingPartner = async (req, res) => {
 
     // get all bookings of these hotels
     const parkingIds = Object.values(parkings).map((parking) => parking._id);
-    const result = await booking.find({
+
+    const userbooking = await booking.find({
       $and: [
         { canceled: false },
         { Booking_type: "hotelandparking" },
         { parkingId: { $in: parkingIds } },
       ],
     });
-
-  
+    const adminbooking = await AdminBookings.find({
+      $and: [
+        { canceled: false },
+        { Booking_type: "hotelandparking" },
+        { parkingId: { $in: parkingIds } },
+      ],
+    });
+    const result = [...userbooking, ...adminbooking];
 
     const DataArray = parkingIds.map((parkingId) => {
       const parkingBookings = result.filter(
@@ -613,10 +669,13 @@ export const getBookingChartDataForParkingPartner = async (req, res) => {
 export const getUserBookingChartDataForHotel = async (req, res) => {
   const userId = mongoose.Types.ObjectId(req.params.id);
   try {
-    const result = await booking.find({
+    const userbooking = await booking.find({
       $and: [{ canceled: false }, { Booking_type: "hotel" }, { userId }],
     });
-  
+    const adminbooking = await AdminBookings.find({
+      $and: [{ canceled: false }, { Booking_type: "hotel" }, { userId }],
+    });
+    const result = [...userbooking, ...adminbooking];
     const data = getData(result);
     res.send(data);
   } catch (error) {
@@ -628,10 +687,13 @@ export const getUserBookingChartDataForHotel = async (req, res) => {
 export const getUserBookingChartDataForParking = async (req, res) => {
   const userId = mongoose.Types.ObjectId(req.params.id);
   try {
-    const result = await booking.find({
+    const userbooking = await booking.find({
       $and: [{ canceled: false }, { Booking_type: "parking" }, { userId }],
     });
-  
+    const adminbooking = await AdminBookings.find({
+      $and: [{ canceled: false }, { Booking_type: "parking" }, { userId }],
+    });
+    const result = [...userbooking, ...adminbooking];
     const data = getData(result);
     res.send(data);
   } catch (error) {
@@ -643,14 +705,21 @@ export const getUserBookingChartDataForParking = async (req, res) => {
 export const getUserBookingChartDataForHotelAndParking = async (req, res) => {
   const userId = mongoose.Types.ObjectId(req.params.id);
   try {
-    const result = await booking.find({
+    const userbooking = await booking.find({
       $and: [
         { canceled: false },
         { Booking_type: "hotelandparking" },
         { userId },
       ],
     });
-  
+    const adminbooking = await AdminBookings.find({
+      $and: [
+        { canceled: false },
+        { Booking_type: "hotelandparking" },
+        { userId },
+      ],
+    });
+    const result = [...userbooking, ...adminbooking];
     const data = getData(result);
     res.send(data);
   } catch (error) {
@@ -662,10 +731,14 @@ export const getUserBookingChartDataForHotelAndParking = async (req, res) => {
 export const getUserAllBookingChartData = async (req, res) => {
   const userId = mongoose.Types.ObjectId(req.params.id);
   try {
-    const result = await booking.find({
+    const userbooking = await booking.find({
       $and: [{ canceled: false }, { userId }],
     });
-  
+    const adminbooking = await AdminBookings.find({
+      $and: [{ canceled: false }, { userId }],
+    });
+    const result = [...userbooking, ...adminbooking];
+
     const data = getData(result);
     res.send(data);
   } catch (error) {
@@ -684,13 +757,21 @@ export const getBookingChartDataForHotelandParking = async (req, res) => {
     const result = [];
     for (let i = 0; i < hotelIds.length; i++) {
       const hotelId = hotelIds[i];
-      const data = await booking.find({
+      const userbooking = await booking.find({
         $and: [
           { canceled: false },
           { Booking_type: "hotelandparking" },
           { HotelAndParkingId: hotelId },
         ],
       });
+      const adminbooking = await AdminBookings.find({
+        $and: [
+          { canceled: false },
+          { Booking_type: "hotelandparking" },
+          { HotelAndParkingId: hotelId },
+        ],
+      });
+      const data = [...userbooking, ...adminbooking];
       result.push({ name: hotelName[i], data: getData(data) });
     }
     res.status(200).json(result);
@@ -710,9 +791,13 @@ export const getBookingChartDataForParking = async (req, res) => {
     const result = [];
     for (let i = 0; i < parkingIds.length; i++) {
       const parkingId = parkingIds[i];
-      const data = await booking.find({
+      const userbooking = await booking.find({
         $and: [{ canceled: false }, { Booking_type: "parking" }, { parkingId }],
       });
+      const adminbooking = await AdminBookings.find({
+        $and: [{ canceled: false }, { Booking_type: "parking" }, { parkingId }],
+      });
+      const data = [...userbooking, ...adminbooking];
       result.push({ name: parkingName[i], data: getData(data) });
       console.log(result);
     }
@@ -726,9 +811,13 @@ export const getBookingChartDataForParking = async (req, res) => {
 // Get All Booking Chart Data For Hotel Function
 export const getAllBookingChartDataForHotel = async (req, res) => {
   try {
-    const result = await booking.find({
+    const userbooking = await booking.find({
       $and: [{ canceled: false }, { Booking_type: "hotel" }],
     });
+    const adminbooking = await AdminBookings.find({
+      $and: [{ canceled: false }, { Booking_type: "hotel" }],
+    });
+    const result = [...userbooking, ...adminbooking];
     const data = getData(result);
     res.send(data);
   } catch (error) {
@@ -739,9 +828,13 @@ export const getAllBookingChartDataForHotel = async (req, res) => {
 // Get All Booking Chart Data For Hotel Function
 export const getAllBookingChartDataForParking = async (req, res) => {
   try {
-    const result = await booking.find({
+    const userbooking = await booking.find({
       $and: [{ canceled: false }, { Booking_type: "parking" }],
     });
+    const adminbooking = await AdminBookings.find({
+      $and: [{ canceled: false }, { Booking_type: "parking" }],
+    });
+    const result = [...userbooking, ...adminbooking];
     const data = getData(result);
     res.send(data);
   } catch (error) {
@@ -752,9 +845,13 @@ export const getAllBookingChartDataForParking = async (req, res) => {
 // Get All Booking Chart Data For Hotel Function
 export const getAllBookingChartDataForHotelAndParking = async (req, res) => {
   try {
-    const result = await booking.find({
+    const userbooking = await booking.find({
       $and: [{ canceled: false }, { Booking_type: "hotelandparking" }],
     });
+    const adminbooking = await AdminBookings.find({
+      $and: [{ canceled: false }, { Booking_type: "hotelandparking" }],
+    });
+    const result = [...userbooking, ...adminbooking];
     const data = getData(result);
     res.send(data);
   } catch (error) {
@@ -775,7 +872,12 @@ export const getBookingHotelByOwnerId = async (req, res) => {
     for (const id of hotelId) {
       const objectId = mongoose.Types.ObjectId(id);
       const document = await booking.find({ hotelId: objectId });
+
       if (document.length !== 0) bookings.push(document);
+      else if (document.length === 0) {
+        const document = await AdminBookings.find({ hotelId: objectId });
+        if (document.length !== 0) bookings.push(document);
+      }
     }
     bookings = bookings.filter((booking) => booking !== null);
     const result = bookings.flat();
@@ -802,6 +904,10 @@ export const getBookingParkingByOwnerId = async (req, res) => {
       const objectId = mongoose.Types.ObjectId(id);
       const document = await booking.find({ parkingId: objectId });
       if (document.length !== 0) bookings.push(document);
+      else if (document.length === 0) {
+        const document = await AdminBookings.find({ parkingId: objectId });
+        if (document.length !== 0) bookings.push(document);
+      }
     }
     bookings = bookings.filter((booking) => booking !== null);
     const result = bookings.flat();
@@ -845,6 +951,12 @@ export const getBookingHotelandParkingByOwnerId = async (req, res) => {
       const objectId = mongoose.Types.ObjectId(id);
       const document = await booking.find({ HotelAndParkingId: objectId });
       if (document.length !== 0) bookings.push(document);
+      else if (document.length === 0) {
+        const document = await AdminBookings.find({
+          HotelAndParkingId: objectId,
+        });
+        if (document.length !== 0) bookings.push(document);
+      }
     }
     bookings = bookings.filter((booking) => booking !== null);
     const result = bookings.flat();
@@ -938,8 +1050,9 @@ export const getPreviousBookingHotelandParkingByUserId = async (req, res) => {
 // Get All Previous Bookings Function
 export const getAllPreviousBooking = async (req, res) => {
   try {
-    let bookings = await booking.find();
-
+    let userbooking = await booking.find();
+    let adminbooking = await AdminBookings.find();
+    let bookings = [...userbooking, ...adminbooking];
     bookings = bookings.filter((booking) => booking.canceled === false);
 
     let currentDate = new Date();
@@ -952,8 +1065,8 @@ export const getAllPreviousBooking = async (req, res) => {
         (bookingCheckIn <= currentDate && bookingCheckOut >= currentDate)
       );
     });
-
-    res.status(200).json(filteredResult);
+    const result = await convertIntoRequiredFormat(filteredResult);
+    res.status(result.status).json(result.data);
   } catch (error) {
     res.status(404).json("Booking not found");
   }
@@ -1014,7 +1127,11 @@ export const getPreviousBookingByHotelOwnerId = async (req, res) => {
   const hotelOwnerId = mongoose.Types.ObjectId(req.params.id);
   try {
     const hotelIds = await Hotel.find({ ownerId: hotelOwnerId }).select("_id");
-    const bookings = await booking.find({ hotelId: { $in: hotelIds } });
+    const userbooking = await booking.find({ hotelId: { $in: hotelIds } });
+    const adminbooking = await AdminBookings.find({
+      hotelId: { $in: hotelIds },
+    });
+    const bookings = [...userbooking, ...adminbooking];
     let currentDate = new Date();
     const filteredResult = bookings.filter((booking) => {
       const bookingCheckIn = new Date(booking.checkIn);
@@ -1039,7 +1156,11 @@ export const getPreviousBookingByParkingOwnerId = async (req, res) => {
     const parkingIds = await Parking.find({ ownerId: parkingOwnerId }).select(
       "_id"
     );
-    const bookings = await booking.find({ parkingId: { $in: parkingIds } });
+    const userbooking = await booking.find({ parkingId: { $in: parkingIds } });
+    const adminbooking = await AdminBookings.find({
+      parkingId: { $in: parkingIds },
+    });
+    const bookings = [...userbooking, ...adminbooking];
     let currentDate = new Date();
     const filteredResult = bookings.filter((booking) => {
       const bookingCheckIn = new Date(booking.checkIn);
@@ -1064,9 +1185,13 @@ export const getPreviousBookingByHotelAndParkingOwnerId = async (req, res) => {
     const hotelAndParkingIds = await HotelandParking.find({
       ownerId: hotelAndParkingOwnerId,
     }).select("_id");
-    const bookings = await booking.find({
+    const userbooking = await booking.find({
       HotelAndParkingId: { $in: hotelAndParkingIds },
     });
+    const adminbooking = await AdminBookings.find({
+      HotelAndParkingId: { $in: hotelAndParkingIds },
+    });
+    const bookings = [...userbooking, ...adminbooking];
     let currentDate = new Date();
     const filteredResult = bookings.filter((booking) => {
       const bookingCheckIn = new Date(booking.checkIn);
@@ -1156,7 +1281,9 @@ export const getUpcomingBookingHotelandParkingByUserId = async (req, res) => {
 // Get All Upcomming Bookings
 export const getAllUpcomingBooking = async (req, res) => {
   try {
-    let bookings = await booking.find();
+    let userbooking = await booking.find();
+    let adminbooking = await AdminBookings.find();
+    let bookings = [...userbooking, ...adminbooking];
     bookings = bookings.filter((booking) => booking.canceled === false);
     let currentDate = new Date();
 
@@ -1292,7 +1419,7 @@ export const UserBookings = async (req, res) => {
 
       // Make New Booking document and save
       const newBooking = new booking(data);
-      
+
       // If Booking successful save it
       const newBookingResult = await newBooking.save();
 
@@ -1355,7 +1482,13 @@ export const updateBooking = async (req, res) => {
 // Cancel Booking
 export const deleteBooking = async (req, res) => {
   try {
-    const bookingById = await booking.findByIdAndDelete(req.params.id);
+    let bookingById = await booking.findByIdAndDelete(req.params.id);
+    if (!bookingById) {
+      bookingById = await AdminBookings.findByIdAndDelete(req.params.id);
+    }
+    if (!bookingById) {
+      return res.status(400).json({ msg: "Booking not found" });
+    }
     // createNotificationProperty(
     //   "booking",
     //   "Booking deleted",
@@ -1384,12 +1517,15 @@ export const cancelHotelReservation = async (req, res) => {
   try {
     const bookingId = req.params.id;
 
-    const bookingById = await booking.findById(bookingId);
+    let bookingById = await booking.findById(bookingId);
+    if (!bookingById) {
+      bookingById = await AdminBookings.findById(bookingId);
+    }
     if (!bookingById) {
       return res.status(400).json({ msg: "Booking Not Found" });
     }
 
-    const { hotelId, userId, room, checkIn, checkOut } = bookingById;
+    const { hotelId, room, checkIn, checkOut } = bookingById;
 
     const PendingRooms = [];
     const promises = room.map(async (room) => {
@@ -1407,54 +1543,58 @@ export const cancelHotelReservation = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
-    // createNotification(
-    //   "booking",
-    //   "Booking success",
-    //   `Booking abc`,
-    //   Date.now(),
-    //   hotelId,
-    //   userId
-    // );
-
-    const theUser = await User.findById(userId);
 
     const theHotel = await Hotel.findById(hotelId);
 
-    await SendEmail({
-      name: theUser.firstName + " " + theUser.lastName,
-      email: theUser.email,
-      subject: "Hotel Reservation Canceled",
-      message: `Your reservation at ${theHotel.name} has been canceled.
+    if (bookingById.userId) {
+      const theUser = await User.findById(bookingById.userId);
+      await SendEmail({
+        name: theUser.firstName + " " + theUser.lastName,
+        email: theUser.email,
+        subject: "Hotel Reservation Canceled",
+        message: `Your reservation at ${theHotel.name} has been canceled.
       Details:
       Check In: ${bookingById.checkIn}
       Check Out: ${bookingById.checkOut}
       Total Price: ${bookingById.total_price}`,
-    });
+      });
+    } else {
+      await SendEmail({
+        name: bookingById.user_info.name,
+        email: bookingById.user_info.email,
+        subject: "Hotel Reservation Canceled",
+        message: `Your reservation at ${theHotel.name} has been canceled.
+      Details:
+      Check In: ${bookingById.checkIn}
+      Check Out: ${bookingById.checkOut}
+      Total Price: ${bookingById.total_price}`,
+      });
+    }
 
-    createNotificationProperty(
-      "booking",
-      "Booking Canceled",
-      `Your booking has been canceled successfully`,
-      Date.now(),
-      bookingById.userId
-    );
-    const hotel = await Hotel.findById(bookingById.hotelId);
-    createNotificationProperty(
-      "booking",
-      "Booking Canceled",
-      `A booking is canceled at hotel ${hotel.name}.`,
-      Date.now(),
-      hotel.ownerId
-    );
-    await User.find({ account_type: "admin" }).forEach((admin) => {
-      createNotificationProperty(
-        "booking",
-        "Booking Canceled",
-        `A booking is canceled.`,
-        Date.now(),
-        admin._id
-      );
-    });
+    // createNotificationProperty(
+    //   "booking",
+    //   "Booking Canceled",
+    //   `Your booking has been canceled successfully`,
+    //   Date.now(),
+    //   bookingById.userId
+    // );
+    // const hotel = await Hotel.findById(bookingById.hotelId);
+    // createNotificationProperty(
+    //   "booking",
+    //   "Booking Canceled",
+    //   `A booking is canceled at hotel ${hotel.name}.`,
+    //   Date.now(),
+    //   hotel.ownerId
+    // );
+    // await User.find({ account_type: "admin" }).forEach((admin) => {
+    //   createNotificationProperty(
+    //     "booking",
+    //     "Booking Canceled",
+    //     `A booking is canceled.`,
+    //     Date.now(),
+    //     admin._id
+    //   );
+    // });
     return res.status(200).json({ msg: "Reservation canceled successfully" });
   } catch (error) {
     console.log("Error: ", error);
@@ -1465,7 +1605,13 @@ export const cancelHotelReservation = async (req, res) => {
 export const cancelParkingReservation = async (req, res) => {
   try {
     // Check If User Cancelling reservation is the same user who made the reservation
-    const bookingById = await booking.findById(req.params.id);
+    let bookingById = await booking.findById(req.params.id);
+    if (!bookingById) {
+      bookingById = await AdminBookings.findById(req.params.id);
+    }
+    if (!bookingById) {
+      return res.status(400).json({ msg: "Booking Not Found" });
+    }
     const parkingId = bookingById.parkingId;
     const booked_slots = bookingById.parking.Total_slots;
 
@@ -1485,45 +1631,57 @@ export const cancelParkingReservation = async (req, res) => {
       return res.status(500).json({ error: "Booking Not canceled" });
     }
 
-    const theUser = await User.findById(bookingById.userId);
-
     const theParking = await Parking.findById(bookingById.parkingId);
 
-    await SendEmail({
-      name: theUser.firstName + " " + theUser.lastName,
-      email: theUser.email,
-      subject: "Hotel Reservation Canceled",
-      message: `Your reservation at ${theParking.name} has been canceled.
+    if (bookingById.userId) {
+      const theUser = await User.findById(bookingById.userId);
+      await SendEmail({
+        name: theUser.firstName + " " + theUser.lastName,
+        email: theUser.email,
+        subject: "Hotel Reservation Canceled",
+        message: `Your reservation at ${theParking.name} has been canceled.
       Details:
       Check In: ${bookingById.checkIn}
       Check Out: ${bookingById.checkOut}
       Total Price: ${bookingById.total_price}`,
-    });
+      });
+    } else {
+      await SendEmail({
+        name: bookingById.user_info.name,
+        email: bookingById.user_info.email,
+        subject: "Hotel Reservation Canceled",
+        message: `Your reservation at ${theParking.name} has been canceled.
+      Details:
+      Check In: ${bookingById.checkIn}
+      Check Out: ${bookingById.checkOut}
+      Total Price: ${bookingById.total_price}`,
+      });
+    }
 
-    createNotificationProperty(
-      "booking",
-      "Booking Canceled",
-      `Your booking has been canceled successfully`,
-      Date.now(),
-      bookingById.userId
-    );
-    const hotel = await Parking.findById(bookingById.hotelId);
-    createNotificationProperty(
-      "booking",
-      "Booking Canceled",
-      `A booking is canceled at hotel ${hotel.name}.`,
-      Date.now(),
-      hotel.ownerId
-    );
-    await User.find({ account_type: "admin" }).forEach((admin) => {
-      createNotificationProperty(
-        "booking",
-        "Booking Canceled",
-        `A booking is canceled.`,
-        Date.now(),
-        admin._id
-      );
-    });
+    // createNotificationProperty(
+    //   "booking",
+    //   "Booking Canceled",
+    //   `Your booking has been canceled successfully`,
+    //   Date.now(),
+    //   bookingById.userId
+    // );
+    // const hotel = await Parking.findById(bookingById.hotelId);
+    // createNotificationProperty(
+    //   "booking",
+    //   "Booking Canceled",
+    //   `A booking is canceled at hotel ${hotel.name}.`,
+    //   Date.now(),
+    //   hotel.ownerId
+    // );
+    // await User.find({ account_type: "admin" }).forEach((admin) => {
+    //   createNotificationProperty(
+    //     "booking",
+    //     "Booking Canceled",
+    //     `A booking is canceled.`,
+    //     Date.now(),
+    //     admin._id
+    //   );
+    // });
     return res
       .status(200)
       .json({ message: "Parking Reservation Cancelled Successfully" });
@@ -1538,7 +1696,10 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
     const bookingId = req.params.id;
 
     // Get Booking By Id
-    const bookingById = await booking.findById(bookingId);
+    let bookingById = await booking.findById(bookingId);
+    if (!bookingById) {
+      bookingById = await AdminBookings.findById(bookingId);
+    }
     if (!bookingById) {
       return res.status(400).json({ msg: "Booking Not Found" });
     }
@@ -1558,7 +1719,7 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
         .json({ message: "Can Not Update Parking", updatedHotelParking });
     }
 
-    const { HotelAndParkingId, userId, room, checkIn, checkOut } = bookingById;
+    const { HotelAndParkingId, room, checkIn, checkOut } = bookingById;
 
     const promises = room.map(async (room) => {
       const result = await updateRoomDates(room, checkIn, checkOut);
@@ -1577,28 +1738,33 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
-    // createNotification(
-    //   "booking",
-    //   "Booking success",
-    //   `Booking abc`,
-    //   Date.now(),
-    //   hotelId,
-    //   userId
-    // );
 
-    const theUser = await User.findById(userId);
     const hotelandparking = await HotelandParking.findById(HotelAndParkingId);
 
-    await SendEmail({
-      name: theUser.firstName + " " + theUser.lastName,
-      email: theUser.email,
-      subject: "Hotel Reservation Canceled",
-      message: `Your reservation at ${hotelandparking.name} has been canceled.
+    if (bookingById.userId) {
+      const theUser = await User.findById(bookingById.userId);
+      await SendEmail({
+        name: theUser.firstName + " " + theUser.lastName,
+        email: theUser.email,
+        subject: "Hotel Reservation Canceled",
+        message: `Your reservation at ${hotelandparking.name} has been canceled.
       Details:
       Check In: ${bookingById.checkIn}
       Check Out: ${bookingById.checkOut}
       Total Price: ${bookingById.total_price}`,
-    });
+      });
+    } else {
+      await SendEmail({
+        name: bookingById.user_info.name,
+        email: bookingById.user_info.email,
+        subject: "Hotel Reservation Canceled",
+        message: `Your reservation at ${hotelandparking.name} has been canceled.
+      Details:
+      Check In: ${bookingById.checkIn}
+      Check Out: ${bookingById.checkOut}
+      Total Price: ${bookingById.total_price}`,
+      });
+    }
 
     createNotificationProperty(
       "booking",
@@ -1633,7 +1799,14 @@ export const cancelHotelAndParkingReservation = async (req, res) => {
 //Get All Cancelled Bookings
 export const getAllCancelledBookings = async (req, res) => {
   try {
-    const allCancelledBookings = await booking.find({ canceled: true });
+    const allCancelledBookingsUser = await booking.find({ canceled: true });
+    const allCancelledBookingsAdmin = await AdminBookings.find({
+      canceled: true,
+    });
+    const allCancelledBookings = [
+      ...allCancelledBookingsUser,
+      ...allCancelledBookingsAdmin,
+    ];
     if (!allCancelledBookings) {
       return res.status(400).json({ msg: "No Cancelled Bookings Found" });
     }
@@ -1670,10 +1843,18 @@ export const getCancelledBookingsByUserId = async (req, res) => {
 export const getCancelledBookingsByHotelId = async (req, res) => {
   try {
     const hotelId = req.params.id;
-    const cancelledBookingsByHotelId = await booking.find({
+    const UserCancelledBookingsByHotelId = await booking.find({
       hotelId,
       canceled: true,
     });
+    const AdminCancelledBookingsByHotelId = await AdminBookings.find({
+      hotelId,
+      canceled: true,
+    });
+    const cancelledBookingsByHotelId = [
+      ...UserCancelledBookingsByHotelId,
+      ...AdminCancelledBookingsByHotelId,
+    ];
     if (!cancelledBookingsByHotelId) {
       return res
         .status(400)
@@ -1691,10 +1872,18 @@ export const getCancelledBookingsByHotelId = async (req, res) => {
 export const getCancelledBookingsByParkingId = async (req, res) => {
   try {
     const parkingId = req.params.id;
-    const cancelledBookingsByParkingId = await booking.find({
+    const UserCancelledBookingsByParkingId = await booking.find({
       parkingId,
       canceled: true,
     });
+    const AdminCancelledBookingsByParkingId = await AdminBookings.find({
+      parkingId,
+      canceled: true,
+    });
+    const cancelledBookingsByParkingId = [
+      ...UserCancelledBookingsByParkingId,
+      ...AdminCancelledBookingsByParkingId,
+    ];
     if (!cancelledBookingsByParkingId) {
       return res
         .status(400)
@@ -1714,10 +1903,18 @@ export const getCancelledBookingsByParkingId = async (req, res) => {
 export const getCancelledBookingsByHotelAndParkingId = async (req, res) => {
   try {
     const HotelAndParkingId = req.params.id;
-    const cancelledBookingsByHotelAndParkingId = await booking.find({
+    const UserCancelledBookingsByHotelAndParkingId = await booking.find({
       HotelAndParkingId,
       canceled: true,
     });
+    const AdminCancelledBookingsByHotelAndParkingId = await AdminBookings.find({
+      HotelAndParkingId,
+      canceled: true,
+    });
+    const cancelledBookingsByHotelAndParkingId = [
+      ...UserCancelledBookingsByHotelAndParkingId,
+      ...AdminCancelledBookingsByHotelAndParkingId,
+    ];
     if (!cancelledBookingsByHotelAndParkingId) {
       return res.status(400).json({
         msg: "No Cancelled Bookings Found For This Hotel And Parking",
@@ -1739,10 +1936,18 @@ export const getCancelledBookingsByHotelOwnerId = async (req, res) => {
     const hotelOwnerId = req.params.id;
     const hotels = await Hotel.find({ ownerId: hotelOwnerId });
     const hotelIds = hotels.map((hotel) => hotel._id);
-    const cancelledBookingsByHotelOwnerId = await booking.find({
+    const UserCancelledBookingsByHotelOwnerId = await booking.find({
       hotelId: { $in: hotelIds },
       canceled: true,
     });
+    const AdminCancelledBookingsByHotelOwnerId = await AdminBookings.find({
+      hotelId: { $in: hotelIds },
+      canceled: true,
+    });
+    const cancelledBookingsByHotelOwnerId = [
+      ...UserCancelledBookingsByHotelOwnerId,
+      ...AdminCancelledBookingsByHotelOwnerId,
+    ];
     if (!cancelledBookingsByHotelOwnerId) {
       return res.status(400).json({
         msg: "No Cancelled Bookings Found For This Hotel Owner",
@@ -1764,10 +1969,18 @@ export const getCancelledBookingsByParkingOwnerId = async (req, res) => {
     const parkingOwnerId = req.params.id;
     const parkings = await Parking.find({ ownerId: parkingOwnerId });
     const parkingIds = parkings.map((parking) => parking._id);
-    const cancelledBookingsByParkingOwnerId = await booking.find({
+    const UserCancelledBookingsByParkingOwnerId = await booking.find({
       parkingId: { $in: parkingIds },
       canceled: true,
     });
+    const AdminCancelledBookingsByParkingOwnerId = await AdminBookings.find({
+      parkingId: { $in: parkingIds },
+      canceled: true,
+    });
+    const cancelledBookingsByParkingOwnerId = [
+      ...UserCancelledBookingsByParkingOwnerId,
+      ...AdminCancelledBookingsByParkingOwnerId,
+    ];
     if (!cancelledBookingsByParkingOwnerId) {
       return res.status(400).json({
         msg: "No Cancelled Bookings Found For This Parking Owner",
@@ -1796,10 +2009,19 @@ export const getCancelledBookingsByHotelAndParkingOwnerId = async (
     const hotelIds = hotelAndParkings.map(
       (hotelAndParking) => hotelAndParking._id
     );
-    const cancelledBookingsByHotelAndParkingOwnerId = await booking.find({
+    const UserCancelledBookingsByHotelAndParkingOwnerId = await booking.find({
       HotelAndParkingId: { $in: hotelIds },
       canceled: true,
     });
+    const AdminCancelledBookingsByHotelAndParkingOwnerId =
+      await AdminBookings.find({
+        HotelAndParkingId: { $in: hotelIds },
+        canceled: true,
+      });
+    const cancelledBookingsByHotelAndParkingOwnerId = [
+      ...UserCancelledBookingsByHotelAndParkingOwnerId,
+      ...AdminCancelledBookingsByHotelAndParkingOwnerId,
+    ];
     if (!cancelledBookingsByHotelAndParkingOwnerId) {
       return res.status(400).json({
         msg: "No Cancelled Bookings Found For This Hotel And Parking Owner",
@@ -1819,7 +2041,9 @@ export const getCancelledBookingsByHotelAndParkingOwnerId = async (
 export const getBookingByHotelId = async (req, res) => {
   try {
     const hotelId = req.params.id;
-    const bookings = await booking.find({ hotelId: hotelId });
+    const userBooking = await booking.find({ hotelId: hotelId });
+    const adminBooking = await AdminBookings.find({ hotelId: hotelId });
+    const bookings = [...userBooking, ...adminBooking];
     if (!bookings) return res.status(400).json({ msg: "No Bookings Found" });
     const data = bookings.filter((booking) => booking.canceled === false);
     const bookingOut = await convertIntoRequiredFormat(data);
@@ -1833,7 +2057,9 @@ export const getBookingByHotelId = async (req, res) => {
 export const getBookingByParkingId = async (req, res) => {
   try {
     const parkingId = req.params.id;
-    const bookings = await booking.find({ parkingId: parkingId });
+    const Userbooking = await booking.find({ parkingId: parkingId });
+    const Adminbooking = await AdminBookings.find({ parkingId: parkingId });
+    const bookings = [...Userbooking, ...Adminbooking];
     if (!bookings) return res.status(400).json({ msg: "No Bookings Found" });
     const data = bookings.filter((booking) => booking.canceled === false);
     const bookingOut = await convertIntoRequiredFormat(data);
@@ -1847,9 +2073,13 @@ export const getBookingByParkingId = async (req, res) => {
 export const getBookingByHotelAndParkingId = async (req, res) => {
   try {
     const hotelAndParkingId = req.params.id;
-    const bookings = await booking.find({
+    const userBooking = await booking.find({
       HotelAndParkingId: hotelAndParkingId,
     });
+    const adminBooking = await AdminBookings.find({
+      HotelAndParkingId: hotelAndParkingId,
+    });
+    const bookings = [...userBooking, ...adminBooking];
     if (!bookings) return res.status(400).json({ msg: "No Bookings Found" });
     const data = bookings.filter((booking) => booking.canceled === false);
     const bookingOut = await convertIntoRequiredFormat(data);
@@ -1864,7 +2094,11 @@ export const getUpcommingBookingsByHotelOwnerId = async (req, res) => {
   const hotelOwnerId = mongoose.Types.ObjectId(req.params.id);
   try {
     const hotelIds = await Hotel.find({ ownerId: hotelOwnerId }).select("_id");
-    const bookings = await booking.find({ hotelId: { $in: hotelIds } });
+    const Userbooking = await booking.find({ hotelId: { $in: hotelIds } });
+    const Adminbooking = await AdminBookings.find({
+      hotelId: { $in: hotelIds },
+    });
+    const bookings = [...Userbooking, ...Adminbooking];
     let currentDate = new Date();
     const filteredResult = bookings.filter((booking) => {
       const bookingCheckIn = new Date(booking.checkIn);
@@ -1885,7 +2119,13 @@ export const getUpcommingBookingsByHotelParkingOwnerId = async (req, res) => {
     const hotelIds = await HotelandParking.find({
       ownerId: hotelParkingOwnerId,
     }).select("_id");
-    const bookings = await booking.find({ hotelId: { $in: hotelIds } });
+    const userBooking = await booking.find({
+      HotelAndParkingId: { $in: hotelIds },
+    });
+    const adminBooking = await AdminBookings.find({
+      HotelAndParkingId: { $in: hotelIds },
+    });
+    const bookings = [...userBooking, ...adminBooking];
     let currentDate = new Date();
     const filteredResult = bookings.filter((booking) => {
       const bookingCheckIn = new Date(booking.checkIn);
@@ -1906,7 +2146,11 @@ export const getUpcommingBookingsByParkingOwnerId = async (req, res) => {
     const parkingIds = await Parking.find({ ownerId: ParkingOwnerId }).select(
       "_id"
     );
-    const bookings = await booking.find({ hotelId: { $in: parkingIds } });
+    const userBooking = await booking.find({ parkingId: { $in: parkingIds } });
+    const adminBooking = await AdminBookings.find({
+      parkingId: { $in: parkingIds },
+    });
+    const bookings = [...userBooking, ...adminBooking];
     let currentDate = new Date();
     const filteredResult = bookings.filter((booking) => {
       const bookingCheckIn = new Date(booking.checkIn);
@@ -1924,7 +2168,9 @@ export const getUpcommingBookingsByParkingOwnerId = async (req, res) => {
 export const getUpcommingBookingsByHotelId = async (req, res) => {
   const hotelId = mongoose.Types.ObjectId(req.params.id);
   try {
-    const bookings = await booking.find({ Booking_type: "hotel" });
+    const userBooking = await booking.find({ Booking_type: "hotel" });
+    const adminBooking = await AdminBookings.find({ Booking_type: "hotel" });
+    const bookings = [...userBooking, ...adminBooking];
     const filteredBookings = bookings.filter((booking) => {
       return booking.bookingData._id === hotelId;
     });
@@ -1946,7 +2192,11 @@ export const getUpcommingBookingsByHotelId = async (req, res) => {
 export const getUpcommingBookingsByHotelParkingId = async (req, res) => {
   const hotelParkingId = mongoose.Types.ObjectId(req.params.id);
   try {
-    const bookings = await booking.find({ Booking_type: "hotelandparking" });
+    const userBooking = await booking.find({ Booking_type: "hotelandparking" });
+    const adminBooking = await AdminBookings.find({
+      Booking_type: "hotelandparking",
+    });
+    const bookings = [...userBooking, ...adminBooking];
     const filteredBookings = bookings.filter((booking) => {
       return booking.bookingData._id === hotelParkingId;
     });
@@ -1968,7 +2218,9 @@ export const getUpcommingBookingsByHotelParkingId = async (req, res) => {
 export const getUpcommingBookingsByParkingId = async (req, res) => {
   const ParkingId = mongoose.Types.ObjectId(req.params.id);
   try {
-    const bookings = await booking.find({ Booking_type: "parking" });
+    const userBooking = await booking.find({ Booking_type: "parking" });
+    const adminBooking = await AdminBookings.find({ Booking_type: "parking" });
+    const bookings = [...userBooking, ...adminBooking];
     const filteredBookings = bookings.filter((booking) => {
       return booking.bookingData._id === ParkingId;
     });
@@ -1990,12 +2242,13 @@ export const getUpcommingBookingsByParkingId = async (req, res) => {
 export const freeBookedHotelRoomsByBookingId = async (req, res) => {
   try {
     const bookingId = req.params.id;
-    const bookingById = await booking.findById(bookingId);
+    let bookingById = await booking.findById(bookingId);
+    if (!bookingById) bookingById = await AdminBookings.findById(bookingId);
     if (!bookingById) {
       return res.status(400).json({ msg: "Booking Not Found" });
     }
 
-    const { hotelId, userId, room, checkIn, checkOut } = bookingById;
+    const { hotelId, room, checkIn, checkOut } = bookingById;
 
     const promises = room.map(async (room) => {
       const result = await updateRoomDates(room, checkIn, checkOut);
@@ -2014,46 +2267,57 @@ export const freeBookedHotelRoomsByBookingId = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
-
-    const theUser = await User.findById(userId);
-
     const theHotel = await Hotel.findById(hotelId);
 
-    await SendEmail({
-      name: theUser.firstName + " " + theUser.lastName,
-      email: theUser.email,
-      subject: "Hotel Checked Out",
-      message: `Your are checked out from ${theHotel.name} by the hotel management.
+    if (bookingById.userId) {
+      const theUser = await User.findById(bookingById.userId);
+      await SendEmail({
+        name: theUser.firstName + " " + theUser.lastName,
+        email: theUser.email,
+        subject: "Hotel Checked Out",
+        message: `Your are checked out from ${theHotel.name} by the hotel management.
       Details:
       Check In: ${bookingById.checkIn}
       Check Out: ${bookingById.checkOut}
       Total Price: ${bookingById.total_price}`,
-    });
+      });
+    } else {
+      await SendEmail({
+        name: bookingById.user_info.name,
+        email: bookingById.user_info.email,
+        subject: "Hotel Checked Out",
+        message: `Your are checked out from ${theHotel.name} by the hotel management.
+      Details:
+      Check In: ${bookingById.checkIn}
+      Check Out: ${bookingById.checkOut}
+      Total Price: ${bookingById.total_price}`,
+      });
+    }
 
-    createNotificationProperty(
-      "booking",
-      "Booking checkOut",
-      `Check out by hotel ${bookingById.hotelId}.`,
-      Date.now(),
-      bookingById.userId
-    );
-    const hotel = await Hotel.findById(bookingById.hotelId);
-    createNotificationProperty(
-      "booking",
-      "Booking checkOut",
-      `Chehck out by hotel ${bookingById.hotelId}.`,
-      Date.now(),
-      hotel.ownerId
-    );
-    await User.find({ account_type: "admin" }).forEach((admin) => {
-      createNotificationProperty(
-        "booking",
-        "Booking checkOut",
-        `Chehck out by hotel ${bookingById.hotelId}.`,
-        Date.now(),
-        admin._id
-      );
-    });
+    // createNotificationProperty(
+    //   "booking",
+    //   "Booking checkOut",
+    //   `Check out by hotel ${bookingById.hotelId}.`,
+    //   Date.now(),
+    //   bookingById.userId
+    // );
+    // const hotel = await Hotel.findById(bookingById.hotelId);
+    // createNotificationProperty(
+    //   "booking",
+    //   "Booking checkOut",
+    //   `Chehck out by hotel ${bookingById.hotelId}.`,
+    //   Date.now(),
+    //   hotel.ownerId
+    // );
+    // await User.find({ account_type: "admin" }).forEach((admin) => {
+    //   createNotificationProperty(
+    //     "booking",
+    //     "Booking checkOut",
+    //     `Chehck out by hotel ${bookingById.hotelId}.`,
+    //     Date.now(),
+    //     admin._id
+    //   );
+    // });
     return res.status(200).json({ msg: "Reservation canceled successfully" });
   } catch (error) {
     console.log("Error: ", error);
@@ -2063,8 +2327,8 @@ export const freeBookedHotelRoomsByBookingId = async (req, res) => {
 // Free Booked Parking Slots By Booking Id
 export const freeBookedParkingSlotsByBookingId = async (req, res) => {
   try {
-    const bookingById = await booking.findById(req.params.id);
-
+    let bookingById = await booking.findById(req.params.id);
+    if (!bookingById) bookingById = await AdminBookings.findById(req.params.id);
     if (!bookingById) {
       return res.status(400).json({ message: "Booking Not Found" });
     }
@@ -2086,46 +2350,58 @@ export const freeBookedParkingSlotsByBookingId = async (req, res) => {
     if (!updatedBooking) {
       return res.status(500).json({ error: "Booking Not canceled" });
     }
+    const theHotel = await Parking.findById(bookingById.parkingId);
 
-    const theUser = await User.findById(bookingById.userId);
-
-    const theHotel = await Hotel.findById(bookingById.parkingId);
-
-    await SendEmail({
-      name: theUser.firstName + " " + theUser.lastName,
-      email: theUser.email,
-      subject: "Hotel Checked Out",
-      message: `Your are checked out from ${theHotel.name} by the hotel management.
+    if (bookingById.userId) {
+      const theUser = await User.findById(bookingById.userId);
+      await SendEmail({
+        name: theUser.firstName + " " + theUser.lastName,
+        email: theUser.email,
+        subject: "Hotel Checked Out",
+        message: `Your are checked out from ${theHotel.name} by the hotel management.
       Details:
       Check In: ${bookingById.checkIn}
       Check Out: ${bookingById.checkOut}
       Total Price: ${bookingById.total_price}`,
-    });
+      });
+    } else {
+      await SendEmail({
+        name: bookingById.user_info.name,
+        email: bookingById.user_info.email,
+        subject: "Hotel Checked Out",
+        message: `Your are checked out from ${theHotel.name} by the hotel management.
+      Details:
+      Check In: ${bookingById.checkIn}
+      Check Out: ${bookingById.checkOut}
+      Total Price: ${bookingById.total_price}`,
+      });
+    }
 
-    createNotificationProperty(
-      "booking",
-      "Booking checkOut",
-      `Check out by hotel ${bookingById.parkingId}.`,
-      Date.now(),
-      bookingById.userId
-    );
-    const hotel = await Parking.findById(bookingById.hotelId);
-    createNotificationProperty(
-      "booking",
-      "Booking checkOut",
-      `Chehck out by hotel ${bookingById.parkingId}.`,
-      Date.now(),
-      hotel.ownerId
-    );
-    await User.find({ account_type: "admin" }).forEach((admin) => {
-      createNotificationProperty(
-        "booking",
-        "Booking checkOut",
-        `Chehck out by hotel ${bookingById.parkingId}.`,
-        Date.now(),
-        admin._id
-      );
-    });
+    // createNotificationProperty(
+    //   "booking",
+    //   "Booking checkOut",
+    //   `Check out by hotel ${bookingById.parkingId}.`,
+    //   Date.now(),
+    //   bookingById.userId
+    // );
+    // const hotel = await Parking.findById(bookingById.hotelId);
+    // createNotificationProperty(
+    //   "booking",
+    //   "Booking checkOut",
+    //   `Chehck out by hotel ${bookingById.parkingId}.`,
+    //   Date.now(),
+    //   hotel.ownerId
+    // );
+    // await User.find({ account_type: "admin" }).forEach((admin) => {
+    //   createNotificationProperty(
+    //     "booking",
+    //     "Booking checkOut",
+    //     `Chehck out by hotel ${bookingById.parkingId}.`,
+    //     Date.now(),
+    //     admin._id
+    //   );
+    // });
+
     return res
       .status(200)
       .json({ message: "Parking Reservation Cancelled Successfully" });
@@ -2138,7 +2414,8 @@ export const freeBookedParkingSlotsByBookingId = async (req, res) => {
 export const freeBookedHotelAndParkingByBookingId = async (req, res) => {
   try {
     const bookingId = req.params.id;
-    const bookingById = await booking.findById(bookingId);
+    let bookingById = await booking.findById(bookingId);
+    if (!bookingById) bookingById = await AdminBookings.findById(bookingId);
     if (!bookingById) {
       return res.status(400).json({ msg: "Booking Not Found" });
     }
@@ -2158,7 +2435,7 @@ export const freeBookedHotelAndParkingByBookingId = async (req, res) => {
         .json({ message: "Can Not Update Parking", updatedHotelParking });
     }
 
-    const { HotelAndParkingId, userId, room, checkIn, checkOut } = bookingById;
+    const { HotelAndParkingId, room, checkIn, checkOut } = bookingById;
 
     const promises = room.map(async (room) => {
       const result = await updateRoomDates(room, checkIn, checkOut);
@@ -2178,20 +2455,32 @@ export const freeBookedHotelAndParkingByBookingId = async (req, res) => {
       return res.status(400).json({ msg: "Failed to cancel reservation" });
     }
 
-    const theUser = await User.findById(userId);
+    const theHotel = await HotelandParking.findById(HotelAndParkingId);
 
-    const theHotel = await Hotel.findById(HotelAndParkingId);
-
-    await SendEmail({
-      name: theUser.firstName + " " + theUser.lastName,
-      email: theUser.email,
-      subject: "Hotel Checked Out",
-      message: `Your are checked out from ${theHotel.name} by the hotel management.
+    if (bookingById.userId) {
+      const theUser = await User.findById(userId);
+      await SendEmail({
+        name: theUser.firstName + " " + theUser.lastName,
+        email: theUser.email,
+        subject: "Hotel Checked Out",
+        message: `Your are checked out from ${theHotel.name} by the hotel management.
       Details:
       Check In: ${bookingById.checkIn}
       Check Out: ${bookingById.checkOut}
       Total Price: ${bookingById.total_price}`,
-    });
+      });
+    } else {
+      await SendEmail({
+        name: bookingById.user_info.name,
+        email: bookingById.user_info.email,
+        subject: "Hotel Checked Out",
+        message: `Your are checked out from ${theHotel.name} by the hotel management.
+      Details:
+      Check In: ${bookingById.checkIn}
+      Check Out: ${bookingById.checkOut}
+      Total Price: ${bookingById.total_price}`,
+      });
+    }
 
     createNotificationProperty(
       "booking",

@@ -15,7 +15,7 @@ export const convertIntoRequiredFormat = async (data) => {
       bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
       bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
       bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-      if (booking.userid)
+      if (booking.userId)
         bookingOut[i].userId = await User.findById(booking.userId);
       bookingOut[i].canceled = booking.canceled;
       if (booking.bookedBy) bookingOut[i].bookedBy = booking.bookedBy;
