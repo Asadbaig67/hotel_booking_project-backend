@@ -23,7 +23,8 @@ import {
   getDeListedByOwnerId,
   getAllDeListedHotels,
   addHotelToList,
-  getHotelByHotelId
+  getHotelByHotelId,
+  getAllHotelNames
 } from "../controller/hotel.js";
 
 // Initialize multer with the storage configuration
@@ -34,6 +35,8 @@ Router.post("/addhotel", addHotel);
 
 // Get All Hotels
 Router.get("/getallhotels", getAllHotels);
+// Get All HotelNames
+Router.get("/getallhotelnames", getAllHotelNames);
 // Get Pending Hotels
 Router.get("/getPendinghotels", getPendingHotels);
 // Get Hotel By id
