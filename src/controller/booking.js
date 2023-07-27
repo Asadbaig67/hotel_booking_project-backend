@@ -334,6 +334,7 @@ export const addBookingParking = async (req, res) => {
 export const getBooking = async (req, res) => {
   try {
     const bookings = await booking.find();
+    
     const data = bookings.filter((booking) => booking.canceled === false);
     const result = await convertIntoRequiredFormat(data);
     res.status(result.status).json(result.data);
