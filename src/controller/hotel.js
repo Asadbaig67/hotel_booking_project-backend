@@ -10,7 +10,7 @@ import { fileURLToPath } from "url";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import { SendEmail } from "../Functions/Emails/SendEmail.js";
 import { getData } from "../Functions/ChartData/GetData.js";
-import { getRoomsList } from "../Functions/Hotel/getRoomsList.js"
+import { getRoomsList } from "../Functions/Hotel/getRoomsList.js";
 
 import path from "path";
 import fs from "fs";
@@ -142,7 +142,9 @@ export const addHotel = async (req, res) => {
         });
       }
 
-      return res.status(200).json({ message: "Hotel Added Successfully", hotel: result });
+      return res
+        .status(200)
+        .json({ message: "Hotel Added Successfully", hotel: result });
     } else {
       return res
         .status(500)
@@ -345,10 +347,10 @@ export const getHotelByCity = async (req, res) => {
     if (hotel.length > 0)
       hotelRecord = [...hotelRecord, { hotel: cityHotel[i], rooms: hotel }];
   });
-
+  
   //to check if room is available or not
   hotelData = checkRoomAvailability(hotelRecord, dates);
-
+  // console.log(hotelData)
   //to filter out the hotels which have no rooms available
   hotelData = checkHotelAvailability(
     hotelData,
@@ -358,11 +360,12 @@ export const getHotelByCity = async (req, res) => {
     room_available
   );
   hotelData = hotelData.filter((hotel) => hotel.rooms.length > 0);
+  // console.log(hotelData)
   hotelData = hotelData.filter(
     (hotel) =>
       hotel.hotel.approved === true &&
       hotel.hotel.ownerAvailablity === true &&
-      hotel.deList === false
+      hotel.hotel.deList === false
   );
 
   if (hotelData.length === 0)
@@ -424,7 +427,6 @@ export const getHotelByHotelId = async (req, res) => {
 };
 
 export const getHotelRoomsList = async (req, res) => {
-
   let hotelId = req.query.id;
   let dates = [new Date(req.query.checkIn), new Date(req.query.checkOut)];
 
@@ -442,20 +444,20 @@ export const getHotelRoomsList = async (req, res) => {
 
   let rooms = [];
   try {
-    rooms = await Promise.all(roomIds.map(async (roomId) => {
-
-      const roomData = await Room.findById(roomId);
-      const availbleRoomsObj = getRoomsList(roomData, dates);
-      return availbleRoomsObj;
-
-    }));
+    rooms = await Promise.all(
+      roomIds.map(async (roomId) => {
+        const roomData = await Room.findById(roomId);
+        const availbleRoomsObj = getRoomsList(roomData, dates);
+        return availbleRoomsObj;
+      })
+    );
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Something went wrong" });
   }
 
   res.status(200).json({ rooms });
-}
+};
 
 // Update Parking Function
 export const updateHotel = async (req, res) => {
