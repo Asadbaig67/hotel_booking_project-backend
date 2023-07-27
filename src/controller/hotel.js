@@ -169,6 +169,21 @@ export const getAllHotels = async (req, res) => {
   res.send(response);
 };
 
+// Get All Hotels List Function
+export const getAllHotelNames = async (req, res) => {
+  let result = await Hotel.find();
+  let response = result.filter(
+    (hotel) =>
+      hotel.approved === true &&
+      hotel.ownerAvailablity === true &&
+      hotel.deList === false
+  );
+  if (!response) {
+    return res.status(404).json({ message: "No hotels found" });
+  }
+  res.send(response);
+};
+
 // Get Hotel By City Name
 export const getHotelByCityName = async (req, res) => {
   let city = req.params.city;
