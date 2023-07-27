@@ -87,10 +87,18 @@ const AdminBookingsSchema = new mongoose.Schema({
   total_price: {
     type: Number,
   },
-  created_at: {
+  createdAt: {
     type: Date,
     default: Date.now,
   },
+  canceled: {
+    type: Boolean,
+    default: false,
+  },
+  bookedBy:{
+    type: String,
+    default: "User",
+  }
 });
 
 const AdminBookings = mongoose.model("AdminBooking", AdminBookingsSchema);

@@ -10,7 +10,7 @@ import { updateunavailabledates } from "../Functions/Booking/UpdateUnavailableDa
 
 export const AddHotelBooking = async (req, res) => {
 
-  const { hotelId, name, email, phone, checkIn, checkOut, rooms, adults, childrens, total_price } = req.body;
+  const { hotelId, name, email, phone, checkIn, checkOut, rooms, adults, childrens, total_price,bookedBy } = req.body;
 
   console.log(hotelId);
   const newHotelBooking = new AdminBookings({
@@ -30,6 +30,7 @@ export const AddHotelBooking = async (req, res) => {
     Booking_type: "hotel",
     total_price,
     created_at: new Date().toISOString(),
+    bookedBy
   });
 
   try {
@@ -86,7 +87,7 @@ export const AddHotelBooking = async (req, res) => {
 
 export const AddParkingBooking = async (req, res) => {
 
-  const { parkingId, name, email, phone, checkIn, checkOut, parking_info, total_price } = req.body;
+  const { parkingId, name, email, phone, checkIn, checkOut, parking_info, total_price,bookedBy } = req.body;
 
   const newParkingBooking = new AdminBookings({
     parkingId,
@@ -109,6 +110,7 @@ export const AddParkingBooking = async (req, res) => {
     Booking_type: "parking",
     total_price,
     created_at: new Date().toISOString(),
+    bookedBy
   });
 
   try {
@@ -159,7 +161,7 @@ export const AddParkingBooking = async (req, res) => {
 
 export const AddHotelAndParkingBooking = async (req, res) => {
 
-  const { hotelAndParkingId, name, email, phone, checkIn, checkOut, rooms, adults, childrens, parking_info, total_price } = req.body;
+  const { hotelAndParkingId, name, email, phone, checkIn, checkOut, rooms, adults, childrens, parking_info, total_price,bookedBy } = req.body;
 
   const newHotelBooking = new AdminBookings({
     HotelAndParkingId: hotelAndParkingId,
@@ -187,6 +189,7 @@ export const AddHotelAndParkingBooking = async (req, res) => {
     },
     total_price,
     created_at: new Date().toISOString(),
+    bookedBy
   });
 
   try {
@@ -270,7 +273,6 @@ export const UpdateParkingBookingById = async (req, res) => {
 }
 
 export const UpdateHotelAndParkingBookingById = async (req, res) => {
-
 }
 
 // DELETE API FUNCTIONS
@@ -281,6 +283,5 @@ export const DeleteParkingBookingById = async (req, res) => {
 }
 
 export const DeleteHotelAndParkingBookingById = async (req, res) => {
-
 }
 

@@ -75,6 +75,10 @@ const BookingSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  bookedBy:{
+    type: String,
+    default: "User",
+  }
 });
 
 const booking = mongoose.model("Booking", BookingSchema);

@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import Parking from "../../models/Parking.js";
 import Hotel from "../../models/Hotel.js";
 import User from "../../models/user.js";
@@ -16,12 +15,16 @@ export const convertIntoRequiredFormat = async (data) => {
       bookingOut[i].createdAt = new Date(booking.createdAt).toLocaleString();
       bookingOut[i].checkIn = new Date(booking.checkIn).toLocaleString();
       bookingOut[i].checkOut = new Date(booking.checkOut).toLocaleString();
-      bookingOut[i].userId = await User.findById(booking.userId);
+      if (booking.userId)
+        bookingOut[i].userId = await User.findById(booking.userId);
       bookingOut[i].canceled = booking.canceled;
+      if (booking.bookedBy) bookingOut[i].bookedBy = booking.bookedBy;
+
       if (bookingOut[i].userId)
         bookingOut[i].userName =
           bookingOut[i].userId.firstName + " " + bookingOut[i].userId.lastName;
-      else bookingOut[i].userName = "N/A";
+      else if (booking.user_info)
+        bookingOut[i].userName = booking.user_info.name;
       if (booking.HotelAndParkingId) {
         bookingOut[i].HotelAndParkingId = await HotelandParking.findById(
           booking.HotelAndParkingId
