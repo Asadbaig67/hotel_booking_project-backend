@@ -129,9 +129,7 @@ export const addParking = async (req, res) => {
           message:
             "Your Parking Added has been added successfully. Thank you for choosing Desalis Hotels. We will review your Parking and get back to you as soon as possible. ",
         });
-
       } else {
-
         const Owner = await User.findById(ownerId);
 
         // Send Email
@@ -369,11 +367,15 @@ export const addParkingToList = async (req, res) => {
       result.deList = false;
       result.approved = true;
       await result.save();
-      return res.status(200).json({ message: "Parking Added To List Successfully" });
+      return res
+        .status(200)
+        .json({ message: "Parking Added To List Successfully" });
     } else if (account_type === "partner") {
       result.deList = false;
       await result.save();
-      return res.status(200).json({ message: "Parking Added To List Successfully" });
+      return res
+        .status(200)
+        .json({ message: "Parking Added To List Successfully" });
     }
   } catch (error) {
     res.json(error);
@@ -740,5 +742,19 @@ export const deleteParkingImages = async (req, res) => {
     });
   } else {
     return res.status(404).json({ error: "File not found." });
+  }
+};
+
+// get parking names by owner id
+export const getParkingNamesByOwnerId = async (req, res) => {
+  const ownerId = req.params.id;
+  try {
+    const parkings = await Parking.find({ ownerId: ownerId }).select("name");
+    if (!parkings) {
+      return res.status(400).json({ msg: "No Hotels Found" });
+    }
+    return res.status(200).json({ parkings });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

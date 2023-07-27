@@ -95,7 +95,6 @@ export const addHotel = async (req, res) => {
     const result = await new_hotel.save();
 
     if (email) {
-
       const newUser = new UnverifiedUsers({
         email: email,
         property_type: "Hotel",
@@ -347,7 +346,7 @@ export const getHotelByCity = async (req, res) => {
     if (hotel.length > 0)
       hotelRecord = [...hotelRecord, { hotel: cityHotel[i], rooms: hotel }];
   });
-  
+
   //to check if room is available or not
   hotelData = checkRoomAvailability(hotelRecord, dates);
   // console.log(hotelData)
@@ -892,5 +891,19 @@ export const deleteHotelImages = async (req, res) => {
     });
   } else {
     return res.status(404).json({ error: "File not found." });
+  }
+};
+
+// get hotel names by owner id
+export const getHotelNamesByOwnerId = async (req, res) => {
+  const ownerId = req.params.id;
+  try {
+    const hotels = await Hotel.find({ ownerId: ownerId }).select("name");
+    if (!hotels) {
+      return res.status(400).json({ msg: "No Hotels Found" });
+    }
+    return res.status(200).json({ hotels });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
