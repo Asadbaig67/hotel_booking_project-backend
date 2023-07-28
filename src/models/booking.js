@@ -75,10 +75,14 @@ const BookingSchema = new Schema({
     type: Date,
     default: Date.now,
   },
-  bookedBy:{
+  bookedBy: {
     type: String,
     default: "User",
-  }
+  },
+  completed: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const booking = mongoose.model("Booking", BookingSchema);
