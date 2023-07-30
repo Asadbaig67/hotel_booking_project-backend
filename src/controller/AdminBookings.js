@@ -10,7 +10,7 @@ import { updateunavailabledates } from "../Functions/Booking/UpdateUnavailableDa
 
 export const AddHotelBooking = async (req, res) => {
 
-  const { hotelId, name, email, phone, checkIn, checkOut, rooms, adults, childrens, total_price,bookedBy } = req.body;
+  const { hotelId, name, email, phone, checkIn, checkOut, rooms, adults, childrens, total_price, bookedBy } = req.body;
 
   console.log(hotelId);
   const newHotelBooking = new AdminBookings({
@@ -29,7 +29,7 @@ export const AddHotelBooking = async (req, res) => {
     room: rooms,
     Booking_type: "hotel",
     total_price,
-    created_at: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
     bookedBy
   });
 
@@ -87,7 +87,11 @@ export const AddHotelBooking = async (req, res) => {
 
 export const AddParkingBooking = async (req, res) => {
 
-  const { parkingId, name, email, phone, checkIn, checkOut, parking_info, total_price,bookedBy } = req.body;
+
+
+  const { parkingId, name, email, phone, checkIn, checkOut, parking_info, total_price, bookedBy } = req.body;
+  const checkInDate = new Date(checkIn);
+  const checkOutDate = new Date(checkOut);
 
   const newParkingBooking = new AdminBookings({
     parkingId,
@@ -100,8 +104,8 @@ export const AddParkingBooking = async (req, res) => {
       Total_slots: parking_info.booked_slots,
       Parking_price: parking_info.price, // No value comming from front-end
     },
-    checkIn: checkIn,
-    checkOut: checkOut,
+    checkIn: checkInDate,
+    checkOut: checkOutDate,
     parking_info: {
       parking_name: parking_info.parking_name,
       vehicles_info: parking_info.vehicles_info,
@@ -113,18 +117,21 @@ export const AddParkingBooking = async (req, res) => {
     bookedBy
   });
 
+
   try {
     const success = await newParkingBooking.save();
+    console.log("success is =", success);
     if (!success) {
       console.log("Issue Is Here 0");
       return res.status(500).json({ error: "Error while saving hotel booking" });
     }
-
+    console.log("parking id=", parkingId)
     const Existing_parking = await Parking.findByIdAndUpdate(
       parkingId,
       { $inc: { booked_slots: parking_info.booked_slots } },
       { new: true }
     );
+    console.log("Updated Parking", Existing_parking);
     if (!Existing_parking) {
       return res.status(409).json({ message: "Error Occured Booking Denied!" });
     }
@@ -161,7 +168,7 @@ export const AddParkingBooking = async (req, res) => {
 
 export const AddHotelAndParkingBooking = async (req, res) => {
 
-  const { hotelAndParkingId, name, email, phone, checkIn, checkOut, rooms, adults, childrens, parking_info, total_price,bookedBy } = req.body;
+  const { hotelAndParkingId, name, email, phone, checkIn, checkOut, rooms, adults, childrens, parking_info, total_price, bookedBy } = req.body;
 
   const newHotelBooking = new AdminBookings({
     HotelAndParkingId: hotelAndParkingId,
@@ -188,7 +195,7 @@ export const AddHotelAndParkingBooking = async (req, res) => {
       booked_slots: parking_info.booked_slots,
     },
     total_price,
-    created_at: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
     bookedBy
   });
 
@@ -237,12 +244,46 @@ export const AddHotelAndParkingBooking = async (req, res) => {
     }
   } catch (error) {
     await newHotelBooking.deleteOne();
+    console.log("Error is here", error.message);
     return res.status(409).json({ error: "Error In Saving", message: error.message });
   }
 
 
 
 
+};
+
+export const NewAddParkingBooking = async (req, res) => {
+  const { parkingId, name, email, phone, checkIn, checkOut, parking_info, total_price, bookedBy } = req.body;
+  console.log(req.body);
+  const checkInDate = new Date(checkIn);
+  const checkOutDate = new Date(checkOut);
+  const currentDate = new Date().toISOString();
+  let Obj = {
+    parkingId,
+    user_info: {
+      name,
+      email,
+      phone_number: phone,
+    },
+    parking: {
+      Total_slots: parking_info.booked_slots,
+      Parking_price: parking_info.price, // No value comming from front-end
+    },
+    checkIn: checkInDate,
+    checkOut: checkOutDate,
+    parking_info: {
+      parking_name: parking_info.parking_name,
+      vehicles_info: parking_info.vehicles_info,
+      booked_slots: parking_info.booked_slots,
+    },
+    Booking_type: "parking",
+    total_price,
+    bookedBy,
+    createdAt: currentDate,
+  }
+  console.log(Obj);
+  return res.status(200).json({ msg: "Booking ==> Successful", result: req.body });
 };
 
 

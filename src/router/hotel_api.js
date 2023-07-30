@@ -24,7 +24,7 @@ import {
   getAllDeListedHotels,
   addHotelToList,
   getHotelByHotelId,
-  getAllHotelNames
+  getAllHotelNames,
   getHotelNamesByOwnerId
 } from "../controller/hotel.js";
 

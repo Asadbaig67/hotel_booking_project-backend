@@ -1,5 +1,5 @@
 import express from "express";
-import { AddHotelBooking, AddHotelAndParkingBooking,AddParkingBooking } from '../controller/AdminBookings.js';
+import { AddHotelBooking, AddHotelAndParkingBooking, AddParkingBooking, NewAddParkingBooking } from '../controller/AdminBookings.js';
 const Router = express.Router();
 
 // Post Apis

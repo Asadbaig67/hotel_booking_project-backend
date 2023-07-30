@@ -20,7 +20,8 @@ import {
   getDelistedParkingByOwnerId,
   getAllDelistedParking,
   addParkingToList,
-  getParkingNamesByOwnerId
+  getParkingNamesByOwnerId,
+  getAvailableSlotsByParkingId
 } from "../controller/parking.js";
 
 const Router = express.Router();
@@ -51,6 +52,8 @@ Router.post("/addParkingToList", addParkingToList);
 Router.get("/getAllDelistedParking", getAllDelistedParking);
 // Get Chart Data For Admin Hotel
 Router.get("/chart/parkingData", getChartDataForParking);
+// Get Available Slots By Parking Id
+Router.get("/getAvailableSlotsByParkingId/:id", getAvailableSlotsByParkingId);
 // Update Parking Route
 Router.patch("/updateparking/:id", updateParking);
 // Update Parking New
