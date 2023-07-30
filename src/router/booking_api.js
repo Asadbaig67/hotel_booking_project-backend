@@ -66,6 +66,14 @@ import {
   getAllBookingChartDataForHotel,
   getAllBookingChartDataForParking,
   getAllBookingChartDataForHotelAndParking,
+  getOnGoingBookingHotelByUserId,
+  getOnGoingBookingParkingByUserId,
+  getOnGoingBookingHotelAndParkingByUserId,
+  getAllOnGoingBooking,
+  getAllOnGoingBookingByUserId,
+  getAllOnGoingBookingByHotelOwnerId,
+  getAllOnGoingBookingByParkingOwnerId,
+  getAllOnGoingBookingByHotelAndParkingOwnerId,
 } from "../controller/booking.js";
 
 // Add Hotel Booking
@@ -141,7 +149,10 @@ router.get("/chart/Allhotelbookings", getAllBookingChartDataForHotel);
 router.get("/chart/Allparkingbookings", getAllBookingChartDataForParking);
 
 //Get all hotel bookings data for chart
-router.get("/chart/Allhotelandparkingbookings", getAllBookingChartDataForHotelAndParking);
+router.get(
+  "/chart/Allhotelandparkingbookings",
+  getAllBookingChartDataForHotelAndParking
+);
 
 // Get parking Booking Data For Chart
 router.get("/chart/parkingbookings/:id", getBookingChartDataForParking);
@@ -316,6 +327,48 @@ router.get(
   "/getCancelledBookingsByHotelAndParkingOwnerId/:id",
   getCancelledBookingsByHotelAndParkingOwnerId
 );
+
+// Get all on going booking by hotel owner id
+router.get(
+  "/getAllOnGoingBookingByHotelOwnerId/:id",
+  getAllOnGoingBookingByHotelOwnerId
+);
+
+// Get all on going booking by parking owner id
+router.get(
+  "/getAllOnGoingBookingByParkingOwnerId/:id",
+  getAllOnGoingBookingByParkingOwnerId
+);
+
+// Get all on going booking by hotel and parking owner id
+router.get(
+  "/getAllOnGoingBookingByHotelAndParkingOwnerId/:id",
+  getAllOnGoingBookingByHotelAndParkingOwnerId
+);
+
+// Get on going hotel bookings by user id
+router.get(
+  "/getOnGoingBookingHotelByUserId/:id",
+  getOnGoingBookingHotelByUserId
+);
+
+// Get on going parking bookings by user id
+router.get(
+  "/getOnGoingBookingParkingByUserId/:id",
+  getOnGoingBookingParkingByUserId
+);
+
+// Get on going hotel and parking bookings by user id
+router.get(
+  "/getOnGoingBookingHotelandParkingByUserId/:id",
+  getOnGoingBookingHotelAndParkingByUserId
+);
+
+// Get all on going bookings by user id
+router.get("/getAllOnGoingBookingByUserId/:id", getAllOnGoingBookingByUserId);
+
+// Get all on going bookings
+router.get("/getAllOnGoingBookings", getAllOnGoingBooking);
 
 // Add New User Booking
 router.post("/userBooking", UserBookings);
