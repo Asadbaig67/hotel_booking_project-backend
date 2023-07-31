@@ -25,7 +25,7 @@ const AdminBookingsSchema = new mongoose.Schema({
       type: String,
     },
     phone_number: {
-      type: String,
+      type: Number,
     },
   },
   persons: {

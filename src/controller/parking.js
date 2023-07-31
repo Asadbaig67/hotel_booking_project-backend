@@ -98,12 +98,15 @@ export const addParking = async (req, res) => {
     });
 
     const result = await new_parking.save();
-    const newUser = new UnverifiedUsers({
-      email: email,
-      property_type: "Parking",
-      property_id: new_parking._id,
-    });
-    await newUser.save();
+    if (email) {
+
+      const newUser = new UnverifiedUsers({
+        email: email,
+        property_type: "Parking",
+        property_id: new_parking._id,
+      });
+      await newUser.save();
+    }
     if (result) {
       // createNotificationProperty(
       //   "Parking",
@@ -201,7 +204,7 @@ export const getParkingByCity = async (req, res) => {
     if (!response)
       return res.status(404).json({ message: "Parking Not Found" });
     res.send(response);
-  } catch (error) {}
+  } catch (error) { }
 };
 
 // Get Parking By Id Function
@@ -749,11 +752,26 @@ export const deleteParkingImages = async (req, res) => {
 export const getParkingNamesByOwnerId = async (req, res) => {
   const ownerId = req.params.id;
   try {
-    const parkings = await Parking.find({ ownerId: ownerId }).select("name");
+    const parkings = await Parking.find({ ownerId: ownerId });
     if (!parkings) {
       return res.status(400).json({ msg: "No Hotels Found" });
     }
     return res.status(200).json({ parkings });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get Availabke Slots By ParkingId
+export const getAvailableSlotsByParkingId = async (req, res) => {
+  const parkingId = req.params.id;
+  try {
+    const parking = await Parking.findById(parkingId);
+    if (!parking) {
+      return res.status(400).json({ msg: "No Parking Found" });
+    }
+    const availableSlots = parking.total_slots - parking.booked_slots;
+    return res.status(200).json({ availableSlots });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

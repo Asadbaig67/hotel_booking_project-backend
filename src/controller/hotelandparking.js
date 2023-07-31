@@ -1101,7 +1101,7 @@ export const deleteParkingImages = async (req, res) => {
 export const getHotelAndParkingNamesByOwnerId = async (req, res) => {
   const ownerId = req.params.id;
   try {
-    const hotels = await HotelandParking.find({ ownerId: ownerId }).select("name");
+    const hotels = await HotelandParking.find({ ownerId: ownerId });
     if (!hotels) {
       return res.status(400).json({ msg: "No Hotels Found" });
     }

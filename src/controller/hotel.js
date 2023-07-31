@@ -14,6 +14,7 @@ import { getRoomsList } from "../Functions/Hotel/getRoomsList.js";
 
 import path from "path";
 import fs from "fs";
+import mongoose from "mongoose";
 
 // Add Hotel Function
 export const addHotel = async (req, res) => {
@@ -454,7 +455,9 @@ export const getHotelRoomsList = async (req, res) => {
     console.log(error);
     return res.status(500).json({ message: "Something went wrong" });
   }
-
+  if (!rooms) {
+    return res.status(404).json({ message: "No Rooms Found" });
+  }
   res.status(200).json({ rooms });
 };
 
@@ -896,7 +899,7 @@ export const deleteHotelImages = async (req, res) => {
 
 // get hotel names by owner id
 export const getHotelNamesByOwnerId = async (req, res) => {
-  const ownerId = req.params.id;
+  let ownerId = req.params.id;
   try {
     const hotels = await Hotel.find({ ownerId: ownerId }).select("name");
     if (!hotels) {
@@ -904,6 +907,7 @@ export const getHotelNamesByOwnerId = async (req, res) => {
     }
     return res.status(200).json({ hotels });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: error.message });
   }
 };
