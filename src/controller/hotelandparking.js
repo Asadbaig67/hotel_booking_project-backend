@@ -9,7 +9,7 @@ import { checkHotelAvailability } from "../Functions/Hotel/checkHotelAvailabilty
 import { checkRoomAndParkingAvailability } from "../Functions/HotelParking/checkRoomAndParkingAvailabilty.js";
 import { getRoomByPrices } from "../Functions/Hotel/getRoomsPrices.js";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
-import { getRoomsList } from "../Functions/Hotel/getRoomsList.js"
+import { getRoomsList } from "../Functions/Hotel/getRoomsList.js";
 import fs from "fs";
 
 import { getData } from "../Functions/ChartData/GetData.js";
@@ -145,31 +145,33 @@ export const addhotelandparking = async (req, res) => {
     // Save Hotel and Parking
     const result = await new_hotelandparking.save();
 
-    const newUser = new UnverifiedUsers({
-      email: email,
-      property_type: "HotelAndParking",
-      property_id: new_hotelandparking._id,
-    });
-    await newUser.save();
+    if (email) {
+      const newUser = new UnverifiedUsers({
+        email: email,
+        property_type: "HotelAndParking",
+        property_id: new_hotelandparking._id,
+      });
+      await newUser.save();
+    }
 
     // If Hotel and Parking saved successfully
     if (result) {
-      // createNotificationProperty(
-      //   "hotel and parking",
-      //   "Hotel and Parking Added",
-      //   `Your hotel and parking ${result.hotel_name} is added successfully`,
-      //   Date.now(),
-      //   result.ownerId
-      // );
-      // (await User.find({ account_type: "admin" })).forEach((user) => {
-      //   createNotificationProperty(
-      //     "hotel and parking",
-      //     "Hotel and Parking Added",
-      //     `New Your hotel and parking ${result.hotel_name} is added successfully by ${result.ownerId}`,
-      //     Date.now(),
-      //     user._id
-      //   );
-      // });
+      createNotificationProperty(
+        "hotel and parking",
+        "Hotel and Parking Added",
+        `Your hotel and parking ${result.hotel_name} is added successfully`,
+        Date.now(),
+        result.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel and parking",
+          "Hotel and Parking Added",
+          `New Your hotel and parking ${result.hotel_name} is added successfully by ${result.ownerId}`,
+          Date.now(),
+          user._id
+        );
+      });
 
       if (email) {
         await SendEmail({
@@ -178,7 +180,6 @@ export const addhotelandparking = async (req, res) => {
           message:
             "Your hotel has been added successfully. Thank you for choosing Desalis Hotels. We will review your hotel and get back to you as soon as possible. ",
         });
-
       } else {
         const Owner = await User.findById(ownerId);
 
@@ -192,9 +193,12 @@ export const addhotelandparking = async (req, res) => {
         });
       }
 
-
-
-      res.status(200).json({ message: "Hotel and Parking Added Successfully", hotel: result });
+      res
+        .status(200)
+        .json({
+          message: "Hotel and Parking Added Successfully",
+          hotel: result,
+        });
     } else {
       res.status(500).json({ message: "Hotel and Parking Cannot be Added" });
     }
@@ -239,7 +243,6 @@ export const getHotelById = async (req, res) => {
 
 // Get Available Rooms By Hotel And Parking Id
 export const getHotelAndParkingRoomsList = async (req, res) => {
-
   let hotelAndParkingId = req.query.id;
   let dates = [new Date(req.query.checkIn), new Date(req.query.checkOut)];
 
@@ -257,20 +260,20 @@ export const getHotelAndParkingRoomsList = async (req, res) => {
 
   let rooms = [];
   try {
-    rooms = await Promise.all(roomIds.map(async (roomId) => {
-
-      const roomData = await Room.findById(roomId);
-      const availbleRoomsObj = getRoomsList(roomData, dates);
-      return availbleRoomsObj;
-
-    }));
+    rooms = await Promise.all(
+      roomIds.map(async (roomId) => {
+        const roomData = await Room.findById(roomId);
+        const availbleRoomsObj = getRoomsList(roomData, dates);
+        return availbleRoomsObj;
+      })
+    );
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Something went wrong" });
   }
 
   res.status(200).json({ rooms });
-}
+};
 
 // Get Pending Hotels And Parking
 export const getPendinghotelandparkings = async (req, res) => {
@@ -532,6 +535,22 @@ export const addhotelandparkingToList = async (req, res) => {
         { new: true }
       );
       if (result) {
+        createNotificationProperty(
+          "hotel and parking",
+          "Hotel And Parking added for listing",
+          `Your hotel and parking ${result.hotel_name} is added for listing.`,
+          Date.now(),
+          result.ownerId
+        );
+        (await User.find({ account_type: "admin" })).forEach((user) => {
+          createNotificationProperty(
+            "hotel and parking",
+            "Hotel And Parking approved",
+            `A hotel and parking ${result.hotel_name} is added for listing.`,
+            Date.now(),
+            user._id
+          );
+        });
         res.status(200).json({ message: "Property added to listing" });
       }
     } else if (account_type === "partner") {
@@ -541,6 +560,7 @@ export const addhotelandparkingToList = async (req, res) => {
         { new: true }
       );
       if (result) {
+
         res.status(200).json({ message: "Your property added to listing" });
       }
     }
@@ -748,22 +768,22 @@ export const updateHotelAndParkingNew = async (req, res) => {
     );
 
     if (updated_hotelParking) {
-      // createNotificationProperty(
-      //   "hotel and parking",
-      //   "Hotel and Parking updated",
-      //   `Your hotel and parking ${updated_hotelParking.hotel_name} is updated`,
-      //   Date.now(),
-      //   updated_hotelParking.ownerId
-      // );
-      // (await User.find({ account_type: "admin" })).forEach((user) => {
-      //   createNotificationProperty(
-      //     "hotel and parking",
-      //     "Hotel and Parking updated",
-      //     `A hotel and parking ${updated_hotelParking.hotel_name} is updated by ${updated_hotelParking.ownerId}`,
-      //     Date.now(),
-      //     user._id
-      //   );
-      // });
+      createNotificationProperty(
+        "hotel and parking",
+        "Hotel and Parking updated",
+        `Your hotel and parking ${updated_hotelParking.hotel_name} is updated`,
+        Date.now(),
+        updated_hotelParking.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel and parking",
+          "Hotel and Parking updated",
+          `A hotel and parking ${updated_hotelParking.hotel_name} is updated by ${updated_hotelParking.ownerId}`,
+          Date.now(),
+          user._id
+        );
+      });
       return res.status(200).json({
         message: "Hotel And Parking Updated Successfully",
       });
@@ -866,7 +886,7 @@ export const approveHotelAndParking = async (req, res) => {
       createNotificationProperty(
         "hotel and parking",
         "Hotel and Parking approved",
-        `Your hotel and parking ${result.hotel_name} is approved`,
+        `Your hotel and parking ${result.hotel_name} is approved with rating ${result.hotel_rating}`,
         Date.now(),
         result.ownerId
       );
@@ -874,7 +894,7 @@ export const approveHotelAndParking = async (req, res) => {
         createNotificationProperty(
           "hotel and parking",
           "Hotel and Parking approved",
-          `A hotel and parking ${result.hotel_name} is approved`,
+          `A hotel and parking ${result.hotel_name} is approved with rating ${result.hotel_rating}`,
           Date.now(),
           user._id
         );
@@ -929,7 +949,7 @@ export const approveHotelAndParkingAndRating = async (req, res) => {
       createNotificationProperty(
         "hotel and parking",
         "Hotel And Parking approved",
-        `Your hotel and parking ${result.hotel_name} is approve with rating ${result.hotel_rating}`,
+        `Your hotel and parking ${result.hotel_name} is approved with updated rating ${result.hotel_rating}`,
         Date.now(),
         result.ownerId
       );
@@ -937,7 +957,7 @@ export const approveHotelAndParkingAndRating = async (req, res) => {
         createNotificationProperty(
           "hotel and parking",
           "Hotel And Parking approved",
-          `A hotel and parking ${result.hotel_name} is approve with rating ${result.hotel_rating}`,
+          `A hotel and parking ${result.hotel_name} is approved with updated rating ${result.hotel_rating}`,
           Date.now(),
           user._id
         );
@@ -958,22 +978,22 @@ export const deleteHotelAndParking = async (req, res) => {
     if (result) {
       result.deList = true;
       await result.save();
-      // createNotificationProperty(
-      //   "hotel and parking",
-      //   "Hotel and Parking deleted",
-      //   `Your hotel and parking ${result.hotel_name} is deleted`,
-      //   Date.now(),
-      //   result.ownerId
-      // );
-      // (await User.find({ account_type: "admin" })).forEach((user) => {
-      //   createNotificationProperty(
-      //     "hotel and parking",
-      //     "delete success",
-      //     `A hotel and parking ${result.hotel_name} is deleted.`,
-      //     Date.now(),
-      //     user._id
-      //   );
-      // });
+      createNotificationProperty(
+        "hotel and parking",
+        "Hotel and Parking delisted",
+        `Your hotel and parking ${result.hotel_name} is delisted`,
+        Date.now(),
+        result.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel and parking",
+          "Hotel and Parking delisted",
+          `A hotel and parking ${result.hotel_name} is delisted.`,
+          Date.now(),
+          user._id
+        );
+      });
       return res
         .status(200)
         .json({ message: "Hotel And Parking Deleted Successfully" });

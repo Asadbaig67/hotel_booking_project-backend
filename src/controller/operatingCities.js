@@ -24,6 +24,20 @@ export const addOperatingHotelCity = async (req, res) => {
       [type]: true,
     });
     await newOperatingCity.save();
+
+    (
+      await User.find({
+        $or: [{ account_type: "admin" }, { account_type: "partner" }],
+      })
+    ).forEach((user) => {
+      createNotificationProperty(
+        "Operating cities",
+        "New operating city added",
+        `City ${city} has been added for operating ${type}`,
+        Date.now(),
+        user._id
+      );
+    });
     return res.status(200).json({ message: "City added successfully" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -164,7 +178,9 @@ export const deleteOperatingCity = async (req, res) => {
     const { city, type } = req.body;
 
     if (!city || !type) {
-      return res.status(400).json({ message: "Please provide both city and type" });
+      return res
+        .status(400)
+        .json({ message: "Please provide both city and type" });
     }
 
     const operatingCity = await OperatingCities.findOne({
@@ -177,7 +193,22 @@ export const deleteOperatingCity = async (req, res) => {
         await operatingCity.save();
         return res.status(200).json({ message: "City deleted successfully" });
       }
-      return res.status(400).json({ message: "City does not exist or already deleted" });
+      (
+        await User.find({
+          $or: [{ account_type: "admin" }, { account_type: "partner" }],
+        })
+      ).forEach((user) => {
+        createNotificationProperty(
+          "Operating cities",
+          "Operating city removed",
+          `City ${city} has been removed for operating ${type}`,
+          Date.now(),
+          user._id
+        );
+      });
+      return res
+        .status(400)
+        .json({ message: "City does not exist or already deleted" });
     }
 
     return res.status(400).json({ message: "City does not exist" });
@@ -185,4 +216,3 @@ export const deleteOperatingCity = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
-

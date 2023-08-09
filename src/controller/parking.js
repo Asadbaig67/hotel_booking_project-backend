@@ -108,22 +108,22 @@ export const addParking = async (req, res) => {
       await newUser.save();
     }
     if (result) {
-      // createNotificationProperty(
-      //   "Parking",
-      //   "Parking added",
-      //   `Your new parking ${result.name} is added`,
-      //   Date.now(),
-      //   ownerId
-      // );
-      // (await User.find({ account_type: "admin" })).forEach((user) => {
-      //   createNotificationProperty(
-      //     "Parking",
-      //     "parking added",
-      //     `new parking ${result.name} is added and waiting for approval`,
-      //     Date.now(),
-      //     user._id
-      //   );
-      // });
+      createNotificationProperty(
+        "Parking",
+        "Parking added",
+        `Your new parking ${result.name} is added`,
+        Date.now(),
+        result.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "Parking",
+          "parking added",
+          `new parking ${result.name} is added and waiting for approval`,
+          Date.now(),
+          user._id
+        );
+      });
 
       if (email) {
         await SendEmail({
@@ -370,6 +370,22 @@ export const addParkingToList = async (req, res) => {
       result.deList = false;
       result.approved = true;
       await result.save();
+      createNotificationProperty(
+        "Parking",
+        "Parking updated",
+        `Your parking ${result.name} is added to list again`,
+        Date.now(),
+        result.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "Parking",
+          "parking updated",
+          `A parking ${result.name} is added to list again`,
+          Date.now(),
+          user._id
+        );
+      });
       return res
         .status(200)
         .json({ message: "Parking Added To List Successfully" });
@@ -606,7 +622,7 @@ export const approveParking = async (req, res) => {
         "Parking approved",
         `Your parking ${result.name} is approved`,
         Date.now(),
-        data.ownerId
+        result.ownerId
       );
       (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
@@ -660,15 +676,15 @@ export const approveParkingAndUpdateRating = async (req, res) => {
       createNotificationProperty(
         "Parking",
         "Parking approved",
-        `Your parking ${result.name} is approved and rating is ${result.rating}`,
+        `Your parking ${result.name} is approved with updated rating ${result.rating}`,
         Date.now(),
-        data.ownerId
+        result.ownerId
       );
       (await User.find({ account_type: "admin" })).forEach((user) => {
         createNotificationProperty(
           "Parking",
           "Parking approved",
-          `Parking ${result.name} is approved and rating is ${result.rating}`,
+          `Parking ${result.name} is approved with updated rating ${result.rating}`,
           Date.now(),
           user._id
         );
@@ -689,22 +705,22 @@ export const deleteParking = async (req, res) => {
     if (result) {
       result.deList = true;
       await result.save();
-      // createNotificationProperty(
-      //   "Parking",
-      //   "Parking deleted",
-      //   `Your parking ${result.name} deleted`,
-      //   Date.now(),
-      //   result.ownerId
-      // );
-      // (await User.find({ account_type: "admin" })).forEach((user) => {
-      //   createNotificationProperty(
-      //     "Parking",
-      //     "parking added",
-      //     `A Your parking ${result.name} deleted`,
-      //     Date.now(),
-      //     user._id
-      //   );
-      // });
+      createNotificationProperty(
+        "Parking",
+        "Parking delisted",
+        `Your parking ${result.name} delisted`,
+        Date.now(),
+        result.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "Parking",
+          "parking delisted",
+          `A Your parking ${result.name} delisted`,
+          Date.now(),
+          user._id
+        );
+      });
       res.status(200).json({ message: "Parking Deleted Successfully" });
     } else {
       res.status(404).json({ message: "Parking Not Found" });

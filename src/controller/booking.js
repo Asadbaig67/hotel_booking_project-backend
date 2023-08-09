@@ -1,5 +1,6 @@
 import mongoose, { Promise } from "mongoose";
 import booking from "../models/booking.js";
+import AdminBookings from "../models/AdminBookings.js";
 import Parking from "../models/Parking.js";
 import Hotel from "../models/Hotel.js";
 import User from "../models/user.js";
@@ -11,7 +12,6 @@ import { SendEmail } from "../Functions/Emails/SendEmail.js";
 import { createNotificationProperty } from "../Functions/Notification/createNotification.js";
 import { convertIntoRequiredFormat } from "../Functions/Booking/ConvertIntoRequiredFormat.js";
 import { getData } from "../Functions/ChartData/GetData.js";
-import AdminBookings from "../models/AdminBookings.js";
 
 // Add Hotel Booking Function Updated
 export const addBooking = async (req, res) => {
@@ -1057,7 +1057,6 @@ export const getAllPreviousBooking = async (req, res) => {
     let adminbooking = await AdminBookings.find();
     let bookings = [...userbooking, ...adminbooking];
     bookings = bookings.filter((booking) => booking.canceled === false);
-
     let currentDate = new Date();
 
     const filteredResult = bookings.filter((booking) => {
@@ -1069,8 +1068,10 @@ export const getAllPreviousBooking = async (req, res) => {
       );
     });
     const result = await convertIntoRequiredFormat(filteredResult);
+    console.log(result.data)
     res.status(result.status).json(result.data);
   } catch (error) {
+    console.log(error);
     res.status(404).json("Booking not found");
   }
 };
