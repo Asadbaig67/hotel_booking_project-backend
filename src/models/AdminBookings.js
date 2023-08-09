@@ -98,7 +98,11 @@ const AdminBookingsSchema = new mongoose.Schema({
   bookedBy:{
     type: String,
     default: "User",
-  }
+  },
+  completed: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const AdminBookings = mongoose.model("AdminBooking", AdminBookingsSchema);

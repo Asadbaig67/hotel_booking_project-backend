@@ -14,7 +14,6 @@ import { getRoomsList } from "../Functions/Hotel/getRoomsList.js";
 
 import path from "path";
 import fs from "fs";
-import mongoose from "mongoose";
 
 // Add Hotel Function
 export const addHotel = async (req, res) => {
@@ -116,7 +115,7 @@ export const addHotel = async (req, res) => {
         createNotificationProperty(
           "hotel",
           "New Hotel",
-          `Hotel ${name} added by ${user.name}`,
+          `Hotel ${name} added by ${user.firstName} ${user.lastName}`,
           Date.now(),
           user._id
         );
@@ -585,7 +584,7 @@ export const UpdateHotel = async (req, res) => {
         createNotificationProperty(
           "hotel",
           "Hotel Updated",
-          `Hotel ${name} is updated by ${ownerId}`,
+          `Hotel ${name} is updated by ${updated_hotel.ownerId}`,
           Date.now(),
           user._id
         );
@@ -789,10 +788,43 @@ export const addHotelToList = async (req, res) => {
       result.deList = false;
       result.approved = true;
       await result.save();
+      createNotificationProperty(
+        "hotel",
+        "Hotel Listed",
+        `Your hotel ${result.name} is listed`,
+        Date.now(),
+        result.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel",
+          "Hotel Listed",
+          `Hotel ${result.name} is listed.`,
+          Date.now(),
+          user._id
+        );
+      });
+
       return res.status(200).json({ message: "Hotel Listed Successfully" });
     } else if (account_type === "partner") {
       result.deList = false;
       await result.save();
+      createNotificationProperty(
+        "hotel",
+        "Hotel Listed",
+        `Your hotel ${result.name} is listed`,
+        Date.now(),
+        result.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel",
+          "Hotel Listed",
+          `Hotel ${result.name} is listed.`,
+          Date.now(),
+          user._id
+        );
+      });
       return res.status(200).json({ message: "Hotel Listed Successfully" });
     }
   } catch (error) {
@@ -806,22 +838,22 @@ export const deleteHotel = async (req, res) => {
     if (result) {
       result.deList = true;
       await result.save();
-      // createNotificationProperty(
-      //   "Hotel",
-      //   "Hotel Deleted",
-      //   `Your hotel ${result.name} is deleted`,
-      //   Date.now(),
-      //   result.ownerId
-      // );
-      // (await User.find({ account_type: "admin" })).forEach((user) => {
-      //   createNotificationProperty(
-      //     "hotel",
-      //     "Hotel Deleted",
-      //     `Hotel ${result.name} is deleted`,
-      //     Date.now(),
-      //     user._id
-      //   );
-      // });
+      createNotificationProperty(
+        "Hotel",
+        "Hotel Delisted",
+        `Your hotel ${result.name} is delisted`,
+        Date.now(),
+        result.ownerId
+      );
+      (await User.find({ account_type: "admin" })).forEach((user) => {
+        createNotificationProperty(
+          "hotel",
+          "Hotel Delisted",
+          `Hotel ${result.name} is delisted`,
+          Date.now(),
+          user._id
+        );
+      });
       res.status(200).json({ message: "Hotel Deleted Successfully" });
     } else {
       res.status(404).json({ message: "Hotel Not Found" });
