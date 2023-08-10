@@ -55,6 +55,7 @@ export const checkHotelAvailability = (
         hotel.rooms = [];
       }
     }
+    room_available.fill(false);
   });
   return hotelData;
 };
