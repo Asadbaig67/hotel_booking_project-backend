@@ -277,7 +277,7 @@ export const newsletterEmail = async (email) => {
             theme: 'salted',
             product: {
                 name: 'Desalis Hotels',
-                link: 'http://localhost:3000',
+                link: 'http://46.32.232.208:3000',
             }
         });
         const newemail = {

@@ -26,7 +26,7 @@ export const SendVerificationEmail = async (req, res) => {
   const user = await newUser.save();
   // Send the otp to the email
 
-  let url = `http://localhost:5000/mail/emailverification`;
+  let url = `http://46.32.232.208:5000/mail/emailverification`;
   let options = {
     method: "POST",
     headers: {
@@ -130,5 +130,5 @@ export const Emailverify = async (req, res) => {
     result._id
   );
   // Return Success Message
-  return res.redirect("http://localhost:3000/signin");
+  return res.redirect("http://46.32.232.208:3000/signin");
 };

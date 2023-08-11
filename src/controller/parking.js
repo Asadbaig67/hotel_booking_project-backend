@@ -74,7 +74,7 @@ export const addParking = async (req, res) => {
       await file.mv(filePath);
     }
 
-    const baseUrl = "http://localhost:5000";
+    const baseUrl = "http://46.32.232.208:5000";
     const photos = fileNames.map(
       (fileName) => `${baseUrl}/uploads/ParkingImages/${fileName}`
     );
@@ -461,7 +461,7 @@ export const UpdateParkingNew = async (req, res) => {
         await file.mv(filePath);
       }
 
-      const baseUrl = "http://localhost:5000";
+      const baseUrl = "http://46.32.232.208:5000";
       photos = fileNames.map(
         (fileName) => `${baseUrl}/uploads/ParkingImages/${fileName}`
       );

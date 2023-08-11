@@ -95,7 +95,7 @@ app.use(express.json());
 // To avoid cors error
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "http://46.32.232.208:3000",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
