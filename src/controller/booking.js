@@ -1064,7 +1064,7 @@ export const getAllPreviousBooking = async (req, res) => {
       const bookingCheckOut = new Date(booking.checkOut);
       return (
         (bookingCheckIn < currentDate && bookingCheckOut < currentDate) ||
-        completed === true
+        booking.completed === true
       );
     });
     const result = await convertIntoRequiredFormat(filteredResult);
